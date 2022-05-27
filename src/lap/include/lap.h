@@ -5,17 +5,22 @@
 /// \details    Скорость работы алгоритмов в порядке возрастания: Hungarian (самый медленный), Mack, JVC (самый быстрый)
 /// \date       14.07.20 - создан
 /// \author     Соболев А.А.
+/// \addtogroup spml
+/// \{
 ///
 
-#ifndef LAP_H
-#define LAP_H
+#ifndef SPML_LAP_H
+#define SPML_LAP_H
 
+// System includes:
 #include <limits>
 #include <armadillo>
 
+namespace SPML /// Специальная библиотека программных модулей (СБ ПМ)
+{
 namespace LAP /// Решение задачи о назначениях
 {
-//----------------------------------------------------------------------------------------------------------------------
+
 ///
 /// \brief Критерий поиска - минимум/максимум для задачи о назначениях
 ///
@@ -26,6 +31,16 @@ enum TSearchParam
 };
 
 ///
+/// \brief Способ нахождения пути в алгоритма JVC для ленточных матриц
+///
+enum TFindPath
+{
+    FP_1,
+    FP_2,
+    FP_3
+};
+
+///
 /// \brief Класс решения задачи о назначениях
 ///
 class CAssignmentProblemSolver
@@ -33,7 +48,8 @@ class CAssignmentProblemSolver
 public:
     //------------------------------------------------------------------------------------------------------------------
     ///
-    /// \brief Метод Джонкера-Волгенанта-Кастаньона (Jonker-Volgenant-Castanon) решения задачи о назначениях
+    /// \brief Метод Джонкера-Волгенанта-Кастаньона (Jonker-Volgenant-Castanon) решения задачи о назначениях для
+    /// плотных матриц
     /// \details Источники:
     /// 1)  "A Shortest Augmenting Path Algorithm for Dense and Sparse Linear
     ///     Assignment Problems," Computing 38, 325-340, 1987 by
@@ -52,34 +68,62 @@ public:
     /// \param[in]  sp         - критерий поиска (минимум/максимум)
     /// \param[in]  maxcost    - модуль максимального элемента матрицы assigncost
     /// \param[in]  resolution - точность для сравнения двух вещественных чисел
-    /// \param[out] rowsol - результат задачи о назначениях, размерность [dim]
+    /// \param[out] rowsol     - результат задачи о назначениях, размерность [dim] (индекс макс/мин элемента в i-ой строке)
+    /// rowsol[i] = j --> в i-ой строке выбран j-ый элемент
+    /// \param[out] lapcost    - сумма назначенных элементов матрицы ценности assigncost
     ///
-    static void JVC( const arma::mat &assigncost, int dim, TSearchParam sp, double maxcost, double resolution,
-        arma::ivec &rowsol );
+    static void JVCdense( const arma::mat &assigncost, int dim, TSearchParam sp, double maxcost, double resolution,
+        arma::ivec &rowsol, double &lapcost );
+
+    //------------------------------------------------------------------------------------------------------------------
+    ///
+    /// \brief Метод Джонкера-Волгенанта-Кастаньона (Jonker-Volgenant-Castanon) решения задачи о назначениях для
+    /// разреженных матриц
+    /// \param[in]  cc         -
+    /// \param[in]  ii         -
+    /// \param[in]  kk         -
+    /// \param[in]  dim        - порядок квадратной матрицы ценности и размерность результата res соответственно
+    /// \param[in]  sp         - критерий поиска (минимум/максимум)
+    /// \param[in]  maxcost    - модуль максимального элемента матрицы assigncost
+    /// \param[in]  resolution - точность для сравнения двух вещественных чисел
+    /// \param[out] rowsol     - результат задачи о назначениях, размерность [dim] (индекс макс/мин элемента в i-ой строке)
+    /// rowsol[i] = j --> в i-ой строке выбран j-ый элемент
+    /// \param[out] lapcost    - сумма назначенных элементов матрицы ценности assigncost
+    ///
+    static void JVCsparse( const std::vector<double> &cc, const std::vector<int> &ii, const std::vector<int> &kk,
+        int dim, TSearchParam sp, TFindPath fp, double maxcost, double resolution, arma::ivec &rowsol, double &lapcost );
 
     //------------------------------------------------------------------------------------------------------------------
     ///
     /// \brief Метод Мака решения задачи о назначениях
-    /// \details Взят из: Банди Б. Основы линейного программирования: Пер. с англ. - М.:Радио м связь, 1989, стр 113-123
+    /// \details Источник: Банди Б. Основы линейного программирования: Пер. с англ. - М.:Радио м связь, 1989, стр 113-123
     /// \param[in]  assigncost - квадратная матрица ценности, размер [dim,dim]
     /// \param[in]  dim - порядок квадратной матрицы ценности и размерность результата res соответственно
     /// \param[in]  sp - критерий поиска (минимум/максимум)
-    /// \param[out] rowsol - результат задачи о назначениях, размерность [dim]
+    /// \param[out] rowsol - результат задачи о назначениях, размерность [dim] (индекс макс/мин элемента в i-ой строке)
+    /// rowsol[i] = j --> в i-ой строке выбран j-ый элемент
     ///
-    static void Mack( const arma::mat &assigncost, int dim, TSearchParam sp, arma::ivec &rowsol );
+    static void Mack( const arma::mat &assigncost, int dim, TSearchParam sp, arma::ivec &rowsol, double &lapcost );
 
     //------------------------------------------------------------------------------------------------------------------
     ///
     /// \brief Венгерский метод решения задачи о назначениях (Метод Мункреса)
-    /// \details Взят из: https://github.com/RcppCore/rcpp-gallery/blob/gh-pages/src/2013-09-24-minimal-assignment.cpp
+    /// \details Источник: https://github.com/RcppCore/rcpp-gallery/blob/gh-pages/src/2013-09-24-minimal-assignment.cpp
     /// \param[in]  assigncost - квадратная матрица ценности, размер [dim,dim]
     /// \param[in]  dim - порядок квадратной матрицы ценности и размерность результата res соответственно
     /// \param[in]  sp - критерий поиска (минимум/максимум)
-    /// \param[out] rowsol - результат задачи о назначениях, размерность [dim]
+    /// \param[out] rowsol - результат задачи о назначениях, размерность [dim] (индекс макс/мин элемента в i-ой строке)
+    /// rowsol[i] = j --> в i-ой строке выбран j-ый элемент
     ///
-    static void Hungarian( const arma::mat &assigncost, int dim, TSearchParam sp, arma::ivec &rowsol );
+    static void Hungarian( const arma::mat &assigncost, int dim, TSearchParam sp, arma::ivec &rowsol, double &lapcost );
 
 private:
+    //------------------------------------------------------------------------------------------------------------------
+    // Методы для JVCsparse
+
+
+    //------------------------------------------------------------------------------------------------------------------
+    // Методы для Hungarian
     static void hungarian_step_1( unsigned int &step, arma::mat &cost,const unsigned int &N );
     static void hungarian_step_2( unsigned int &step, const arma::mat &cost, arma::umat &indM, arma::ivec &rcov,
         arma::ivec &ccov, const unsigned int &N);
@@ -103,5 +147,7 @@ private:
         const unsigned int &N );
 };
 
-}
-#endif // LAP_H
+} // end namespace LAP
+} // end namespace SPML
+#endif // SPML_LAP_H
+/// \}

@@ -4,10 +4,14 @@
 /// \brief      Решение задачи о назначениях венгерским методом (Hungarian, Munkres) (cтандартная линейная дискретная оптимизационная задача)
 /// \date       18.05.22 - создан
 /// \author     Соболев А.А.
+/// \addtogroup spml
+/// \{
 ///
 
 #include <lap.h>
 
+namespace SPML /// Специальная библиотека программных модулей (СБ ПМ)
+{
 namespace LAP /// Решение задачи о назначениях
 {
 //----------------------------------------------------------------------------------------------------------------------
@@ -377,7 +381,8 @@ void CAssignmentProblemSolver::hungarian_step_6( unsigned int &step, arma::mat &
  * the algorithm. It defines also the important variables
  * to be passed to the different steps.
  */
-void CAssignmentProblemSolver::Hungarian( const arma::mat &assigncost, int dim, TSearchParam sp, arma::ivec &rowsol )
+void CAssignmentProblemSolver::Hungarian( const arma::mat &assigncost, int dim, TSearchParam sp, arma::ivec &rowsol,
+    double &lapcost )
 {
     const unsigned int N = assigncost.n_rows;
     unsigned int step = 1;
@@ -425,13 +430,19 @@ void CAssignmentProblemSolver::Hungarian( const arma::mat &assigncost, int dim, 
         }
     }
 
+    // Вывод результата
+    lapcost = 0.0;
     for( int i = 0; i < dim; i++ ) {
         for( int j = 0; j < dim; j++ ) {
             if( indM(i, j) > 0 ) {
                 rowsol[i] = j;
+                lapcost += assigncost(i,j);
             }
         }
     }
+    return;
 }
 
-}
+} // end namespace LAP
+} // end namespace SPML
+/// \}

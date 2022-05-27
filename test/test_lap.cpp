@@ -71,6 +71,7 @@ BOOST_AUTO_TEST_CASE( size5to50 )
         arma::ivec actualJV = arma::ivec( n, arma::fill::zeros );
         arma::ivec actualMack = arma::ivec( n, arma::fill::zeros );
         arma::ivec actualHungarian = arma::ivec( n, arma::fill::zeros );
+        double lapcostJV = 0.0, lapcostMack = 0.0, lapcostHungarian = 0.0;
 
         std::map<std::string, SPML::Timing::CTimeKeeper> timer = {
             { "JVC", SPML::Timing::CTimeKeeper() },
@@ -93,23 +94,27 @@ BOOST_AUTO_TEST_CASE( size5to50 )
             double resolution = 1e-6;
 
             timer.at( "JVC" ).StartTimer();
-            LAP::CAssignmentProblemSolver::JVC( p_JV, n, LAP::TSearchParam::Max, maxcost, resolution, actualJV );
+            SPML::LAP::CAssignmentProblemSolver::JVCdense( p_JV, n, SPML::LAP::TSearchParam::Max, maxcost, resolution, actualJV, lapcostJV );
             timer.at( "JVC" ).EndTimer();
 
             timer.at( "Mack" ).StartTimer();
-            LAP::CAssignmentProblemSolver::Mack( p_Mack, n, LAP::TSearchParam::Max, actualMack );
+            SPML::LAP::CAssignmentProblemSolver::Mack( p_Mack, n, SPML::LAP::TSearchParam::Max, actualMack, lapcostMack );
             timer.at( "Mack" ).EndTimer();
+
+            BOOST_CHECK_EQUAL( std::abs( lapcostJV - lapcostMack ) < 1e-5, true );
 
             if( n <= boundN ) {
                 timer.at( "Hungarian" ).StartTimer();
-                LAP::CAssignmentProblemSolver::Hungarian( p_Hungarian, n, LAP::TSearchParam::Max, actualHungarian );
+                SPML::LAP::CAssignmentProblemSolver::Hungarian( p_Hungarian, n, SPML::LAP::TSearchParam::Max, actualHungarian, lapcostHungarian );
                 timer.at( "Hungarian" ).EndTimer();
+
+                BOOST_CHECK_EQUAL( std::abs( lapcostJV - lapcostHungarian ) < 1e-5, true );
             }
 
             for( int i = 0; i < n; i++ ) {
-                BOOST_CHECK_EQUAL( ( abs( actualJV(i) - actualMack(i) ) < 1e-5 ), true );
+                BOOST_CHECK_EQUAL( ( std::abs( actualJV(i) - actualMack(i) ) < 1e-5 ), true );
                 if( n <= boundN ) {
-                    BOOST_CHECK_EQUAL( ( abs( actualJV(i) - actualHungarian(i) ) < 1e-5 ), true );
+                    BOOST_CHECK_EQUAL( ( std::abs( actualJV(i) - actualHungarian(i) ) < 1e-5 ), true );
                 }
             }
         }
@@ -199,6 +204,7 @@ BOOST_AUTO_TEST_CASE( size50to1000 )
         arma::ivec actualJV = arma::ivec( n, arma::fill::zeros );
         arma::ivec actualMack = arma::ivec( n, arma::fill::zeros );
         arma::ivec actualHungarian = arma::ivec( n, arma::fill::zeros );
+        double lapcostJV = 0.0, lapcostMack = 0.0, lapcostHungarian = 0.0;
 
         std::map<std::string, SPML::Timing::CTimeKeeper> timer = {
             { "JVC", SPML::Timing::CTimeKeeper() },
@@ -221,17 +227,21 @@ BOOST_AUTO_TEST_CASE( size50to1000 )
             double resolution = 1e-6;
 
             timer.at( "JVC" ).StartTimer();
-            LAP::CAssignmentProblemSolver::JVC( p_JV, n, LAP::TSearchParam::Max, maxcost, resolution, actualJV );
+            SPML::LAP::CAssignmentProblemSolver::JVCdense( p_JV, n, SPML::LAP::TSearchParam::Max, maxcost, resolution, actualJV, lapcostJV );
             timer.at( "JVC" ).EndTimer();
 
             timer.at( "Mack" ).StartTimer();
-            LAP::CAssignmentProblemSolver::Mack( p_Mack, n, LAP::TSearchParam::Max, actualMack );
+            SPML::LAP::CAssignmentProblemSolver::Mack( p_Mack, n, SPML::LAP::TSearchParam::Max, actualMack, lapcostMack );
             timer.at( "Mack" ).EndTimer();
+
+            BOOST_CHECK_EQUAL( std::abs( lapcostJV - lapcostMack ) < 1e-5, true );
 
             if( n <= boundN ) {
                 timer.at( "Hungarian" ).StartTimer();
-                LAP::CAssignmentProblemSolver::Hungarian( p_Hungarian, n, LAP::TSearchParam::Max, actualHungarian );
+                SPML::LAP::CAssignmentProblemSolver::Hungarian( p_Hungarian, n, SPML::LAP::TSearchParam::Max, actualHungarian, lapcostHungarian );
                 timer.at( "Hungarian" ).EndTimer();
+
+                BOOST_CHECK_EQUAL( std::abs( lapcostJV - lapcostHungarian ) < 1e-5, true );
             }
 
             for( int i = 0; i < n; i++ ) {
@@ -311,7 +321,8 @@ BOOST_AUTO_TEST_CASE( test_mat_1_jvc_min )
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
     double maxcost = mat_1.max();
     double resolution = 1e-6;
-    LAP::CAssignmentProblemSolver::JVC( mat_1, size, LAP::TSearchParam::Min, maxcost, resolution, actual );
+    double lapcost;
+    SPML::LAP::CAssignmentProblemSolver::JVCdense( mat_1, size, SPML::LAP::TSearchParam::Min, maxcost, resolution, actual, lapcost );
     double eps = 1e-6;
     BOOST_CHECK_EQUAL( arma::approx_equal( actual, expected_1_min, "absdiff", eps ), true );
 }
@@ -320,7 +331,8 @@ BOOST_AUTO_TEST_CASE( test_mat_1_mack_min )
 {
     int size = mat_1.n_cols;
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
-    LAP::CAssignmentProblemSolver::Mack( mat_1, size, LAP::TSearchParam::Min, actual );
+    double lapcost;
+    SPML::LAP::CAssignmentProblemSolver::Mack( mat_1, size, SPML::LAP::TSearchParam::Min, actual, lapcost );
     double eps = 1e-6;
     BOOST_CHECK_EQUAL( arma::approx_equal( actual, expected_1_min, "absdiff", eps ), true );
 }
@@ -329,7 +341,8 @@ BOOST_AUTO_TEST_CASE( test_mat_1_hungarian_min )
 {
     int size = mat_1.n_cols;
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
-    LAP::CAssignmentProblemSolver::Hungarian( mat_1, size, LAP::TSearchParam::Min, actual );
+    double lapcost;
+    SPML::LAP::CAssignmentProblemSolver::Hungarian( mat_1, size, SPML::LAP::TSearchParam::Min, actual, lapcost );
     double eps = 1e-6;
     BOOST_CHECK_EQUAL( arma::approx_equal( actual, expected_1_min, "absdiff", eps ), true );
 }
@@ -346,7 +359,8 @@ BOOST_AUTO_TEST_CASE( test_mat_1_jvc_max )
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
     double maxcost = mat_1.max();
     double resolution = 1e-6;
-    LAP::CAssignmentProblemSolver::JVC( mat_1, size, LAP::TSearchParam::Max, maxcost, resolution, actual );
+    double lapcost;
+    SPML::LAP::CAssignmentProblemSolver::JVCdense( mat_1, size, SPML::LAP::TSearchParam::Max, maxcost, resolution, actual, lapcost );
     double eps = 1e-6;
     BOOST_CHECK_EQUAL( arma::approx_equal( actual, expected_1_max, "absdiff", eps ), true );
 }
@@ -355,7 +369,8 @@ BOOST_AUTO_TEST_CASE( test_mat_1_mack_max )
 {
     int size = mat_1.n_cols;
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
-    LAP::CAssignmentProblemSolver::Mack( mat_1, size, LAP::TSearchParam::Max, actual );
+    double lapcost;
+    SPML::LAP::CAssignmentProblemSolver::Mack( mat_1, size, SPML::LAP::TSearchParam::Max, actual, lapcost );
     double eps = 1e-6;
     BOOST_CHECK_EQUAL( arma::approx_equal( actual, expected_1_max, "absdiff", eps ), true );
 }
@@ -364,7 +379,8 @@ BOOST_AUTO_TEST_CASE( test_mat_1_hungarian_max )
 {
     int size = mat_1.n_cols;
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
-    LAP::CAssignmentProblemSolver::Hungarian( mat_1, size, LAP::TSearchParam::Max, actual );
+    double lapcost;
+    SPML::LAP::CAssignmentProblemSolver::Hungarian( mat_1, size, SPML::LAP::TSearchParam::Max, actual, lapcost );
     double eps = 1e-6;
     BOOST_CHECK_EQUAL( arma::approx_equal( actual, expected_1_max, "absdiff", eps ), true );
 }
@@ -381,7 +397,8 @@ BOOST_AUTO_TEST_CASE( test_mat_2_jvc_min )
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
     double maxcost = mat_2.max();
     double resolution = 1e-6;
-    LAP::CAssignmentProblemSolver::JVC( mat_2, size, LAP::TSearchParam::Min, maxcost, resolution, actual );
+    double lapcost;
+    SPML::LAP::CAssignmentProblemSolver::JVCdense( mat_2, size, SPML::LAP::TSearchParam::Min, maxcost, resolution, actual, lapcost );
     double eps = 1e-6;
     BOOST_CHECK_EQUAL( arma::approx_equal( actual, expected_2_min, "absdiff", eps ), true );
 }
@@ -390,7 +407,8 @@ BOOST_AUTO_TEST_CASE( test_mat_2_mack_min )
 {
     int size = mat_2.n_cols;
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
-    LAP::CAssignmentProblemSolver::Mack( mat_2, size, LAP::TSearchParam::Min, actual );
+    double lapcost;
+    SPML::LAP::CAssignmentProblemSolver::Mack( mat_2, size, SPML::LAP::TSearchParam::Min, actual, lapcost );
     double eps = 1e-6;
     BOOST_CHECK_EQUAL( arma::approx_equal( actual, expected_2_min, "absdiff", eps ), true );
 }
@@ -399,7 +417,8 @@ BOOST_AUTO_TEST_CASE( test_mat_2_hungarian_min )
 {
     int size = mat_2.n_cols;
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
-    LAP::CAssignmentProblemSolver::Hungarian( mat_2, size, LAP::TSearchParam::Min, actual );
+    double lapcost;
+    SPML::LAP::CAssignmentProblemSolver::Hungarian( mat_2, size, SPML::LAP::TSearchParam::Min, actual, lapcost );
     double eps = 1e-6;
     BOOST_CHECK_EQUAL( arma::approx_equal( actual, expected_2_min, "absdiff", eps ), true );
 }
@@ -416,7 +435,8 @@ BOOST_AUTO_TEST_CASE( test_mat_2_jvc_max )
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
     double maxcost = mat_2.max();
     double resolution = 1e-6;
-    LAP::CAssignmentProblemSolver::JVC( mat_2, size, LAP::TSearchParam::Max, maxcost, resolution, actual );
+    double lapcost;
+    SPML::LAP::CAssignmentProblemSolver::JVCdense( mat_2, size, SPML::LAP::TSearchParam::Max, maxcost, resolution, actual, lapcost );
     double eps = 1e-6;
     BOOST_CHECK_EQUAL( arma::approx_equal( actual, expected_2_max, "absdiff", eps ), true );
 }
@@ -425,7 +445,8 @@ BOOST_AUTO_TEST_CASE( test_mat_2_mack_max )
 {
     int size = mat_2.n_cols;
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
-    LAP::CAssignmentProblemSolver::Mack( mat_2, size, LAP::TSearchParam::Max, actual );
+    double lapcost;
+    SPML::LAP::CAssignmentProblemSolver::Mack( mat_2, size, SPML::LAP::TSearchParam::Max, actual, lapcost );
     double eps = 1e-6;
     BOOST_CHECK_EQUAL( arma::approx_equal( actual, expected_2_max, "absdiff", eps ), true );
 }
@@ -434,7 +455,8 @@ BOOST_AUTO_TEST_CASE( test_mat_2_hungarian_max )
 {
     int size = mat_2.n_cols;
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
-    LAP::CAssignmentProblemSolver::Hungarian( mat_2, size, LAP::TSearchParam::Max, actual );
+    double lapcost;
+    SPML::LAP::CAssignmentProblemSolver::Hungarian( mat_2, size, SPML::LAP::TSearchParam::Max, actual, lapcost );
     double eps = 1e-6;
     BOOST_CHECK_EQUAL( arma::approx_equal( actual, expected_2_max, "absdiff", eps ), true );
 }
@@ -450,6 +472,7 @@ BOOST_AUTO_TEST_CASE( accordance )
     arma::mat p_Mack( n, n, arma::fill::randn );
     arma::ivec actualJV = arma::ivec( n, arma::fill::zeros );
     arma::ivec actualM = arma::ivec( n, arma::fill::zeros );
+    double lapcostJV = 0.0, lapcostMack = 0.0;//, lapcostHungarian = 0.0;
     int cycle_count = 10000;
     for( int cycle = 0; cycle < cycle_count; cycle++ ) {
         std::cout << "accordance cycle = " << cycle << "/" << cycle_count << std::endl;
@@ -460,9 +483,11 @@ BOOST_AUTO_TEST_CASE( accordance )
 
         double maxcost = p_JV.max();
         double resolution = 1e-6;
-        LAP::CAssignmentProblemSolver::JVC( p_JV, n, LAP::TSearchParam::Max, maxcost, resolution, actualJV );
+        SPML::LAP::CAssignmentProblemSolver::JVCdense( p_JV, n, SPML::LAP::TSearchParam::Max, maxcost, resolution, actualJV, lapcostJV );
 
-        LAP::CAssignmentProblemSolver::Mack( p_Mack, n, LAP::TSearchParam::Max, actualM );
+        SPML::LAP::CAssignmentProblemSolver::Mack( p_Mack, n, SPML::LAP::TSearchParam::Max, actualM, lapcostMack );
+
+        BOOST_CHECK_EQUAL( lapcostJV, lapcostMack );
 
         for( int i = 0; i < n; i++ ) {
             BOOST_CHECK_EQUAL( ( abs( actualJV(i) - actualM(i) ) < 1e-5 ), true );
@@ -487,6 +512,7 @@ BOOST_AUTO_TEST_CASE( cycling_jvc )
     arma::mat assigncost( N, N, arma::fill::zeros ); // Полная матрица ценности (включая пустые назначения до размера k+l)
     arma::mat filledcost( K, L, arma::fill::zeros ); // Матрица ценности (без пустых назначений до размера k+l )
     arma::ivec result = arma::ivec( N, arma::fill::zeros );
+    double lapcost;
     int cycle_count = 10000;
     for( int cycle = 0; cycle < cycle_count; cycle++ ) {
         std::cout << "test_LAP_JV_cycling cycle = " << ( cycle + 1 ) << "/" << cycle_count << std::endl;
@@ -503,6 +529,7 @@ BOOST_AUTO_TEST_CASE( cycling_jvc )
             }
         }
         assigncost.submat( 0, 0, ( K - 1 ), ( L - 1 ) ) = filledcost;
-        LAP::CAssignmentProblemSolver::JVC( assigncost, N, LAP::TSearchParam::Max, std::abs( psi_empty ), resolution, result );
+        SPML::LAP::CAssignmentProblemSolver::JVCdense( assigncost, N, SPML::LAP::TSearchParam::Max, std::abs( psi_empty ), resolution,
+            result, lapcost );
     }
 }

@@ -7,11 +7,15 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(HEADERS
+    include/compare.h
+    include/sparse.h
     include/lap.h
 )
 
 set(SOURCES
-    src/lap_jvc.cpp
+    src/sparse.cpp
+    src/lap_jvc_dense.cpp
+    src/lap_jvc_sparse.cpp
     src/lap_mack.cpp
     src/lap_hungarian.cpp
 )

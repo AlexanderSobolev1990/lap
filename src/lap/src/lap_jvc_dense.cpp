@@ -1,17 +1,22 @@
 //----------------------------------------------------------------------------------------------------------------------
 ///
-/// \file       lap_jvc.cpp
-/// \brief      Решение задачи о назначениях методом JVC (cтандартная линейная дискретная оптимизационная задача)
+/// \file       lap_jvc_dense.cpp
+/// \brief      Решение задачи о назначениях методом JVC для плотных матриц (cтандартная линейная дискретная оптимизационная задача)
 /// \date       18.05.22 - создан
 /// \author     Соболев А.А.
+/// \addtogroup spml
+/// \{
 ///
 
 #include <lap.h>
 
+namespace SPML /// Специальная библиотека программных модулей (СБ ПМ)
+{
 namespace LAP /// Решение задачи о назначениях
 {
 //----------------------------------------------------------------------------------------------------------------------
-void CAssignmentProblemSolver::JVC( const arma::mat &assigncost, int dim, TSearchParam sp, double maxcost, double resolution, arma::ivec &rowsol )
+void CAssignmentProblemSolver::JVCdense(const arma::mat &assigncost, int dim, TSearchParam sp, double maxcost,
+    double resolution, arma::ivec &rowsol, double &lapcost )
 {
     // Если ищем максимум - умножим матрицу на -1
     arma::mat cost( dim, dim, arma::fill::zeros );
@@ -236,20 +241,26 @@ void CAssignmentProblemSolver::JVC( const arma::mat &assigncost, int dim, TSearc
             colsol(endofpath) = i;
             j1 = endofpath;
             endofpath = rowsol(i);
-            rowsol(i) = j1;
+            rowsol(i) = j1; // Вывод результата
             if( i == freerow ) {
                 break;
             }
         }
     }
 
-//    // calculate optimal cost.
-//    //double lapcost = 0;
-//    for( i = 0; i < dim; i++ ) {
-//        j = rowsol(i);
-//        u[i] = cost(i,j) - v(j);
-//        //lapcost = lapcost + assigncost[( i * dim ) + j]; //lapcost = lapcost + assigncost[i][j];
-//    }
+    // calculate lapcost.
+    lapcost = 0.0;
+    for( i = 0; i < dim; i++ ) {
+        j = rowsol(i);
+        u[i] = cost(i,j) - v(j);
+        lapcost += assigncost(i,j);
+    }
+
+
+    return;
 }
 
-}
+} // end namespace LAP
+} // end namespace SPML
+/// \}
+

@@ -4,14 +4,19 @@
 /// \brief      Решение задачи о назначениях методом Мака (cтандартная линейная дискретная оптимизационная задача)
 /// \date       18.05.22 - создан
 /// \author     Соболев А.А.
+/// \addtogroup spml
+/// \{
 ///
 
 #include <lap.h>
 
+namespace SPML /// Специальная библиотека программных модулей (СБ ПМ)
+{
 namespace LAP /// Решение задачи о назначениях
 {
 //----------------------------------------------------------------------------------------------------------------------
-void CAssignmentProblemSolver::Mack( const arma::mat &assigncost, int dim, TSearchParam sp, arma::ivec &rowsol )
+void CAssignmentProblemSolver::Mack( const arma::mat &assigncost, int dim, TSearchParam sp, arma::ivec &rowsol,
+    double &lapcost )
 {
     double* cost = new double[dim*dim];
     for( int i = 0; i < dim; i++ ) {
@@ -200,8 +205,13 @@ void CAssignmentProblemSolver::Mack( const arma::mat &assigncost, int dim, TSear
         jv[icj] = j;
     }
 
+    // Вывод результата
+    j = 0;
+    lapcost = 0.0;
     for( int i = 0; i < dim; i++ ) {
-        rowsol[i] = jv[i+1]-1;
+        j = jv[i+1]-1;
+        rowsol[i] = j; // в i-ой строке j-ый элемент
+        lapcost += assigncost(i,j);
     }
 
     // освобождаем память
@@ -220,4 +230,7 @@ void CAssignmentProblemSolver::Mack( const arma::mat &assigncost, int dim, TSear
     return;
 }
 
-}
+} // end namespace LAP
+} // end namespace SPML
+/// \}
+
