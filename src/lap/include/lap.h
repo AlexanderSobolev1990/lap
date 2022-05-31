@@ -15,6 +15,7 @@
 // System includes:
 #include <limits>
 #include <armadillo>
+#include <cassert>
 
 namespace SPML /// Специальная библиотека программных модулей (СБ ПМ)
 {
@@ -37,7 +38,7 @@ enum TFindPath
 {
     FP_1,
     FP_2,
-    FP_3
+    FP_DYNAMIC
 };
 
 ///
@@ -90,7 +91,7 @@ public:
     /// rowsol[i] = j --> в i-ой строке выбран j-ый элемент
     /// \param[out] lapcost    - сумма назначенных элементов матрицы ценности assigncost
     ///
-    static void JVCsparse( const std::vector<double> &cc, const std::vector<int> &ii, const std::vector<int> &kk,
+    static void JVCsparse(std::vector<double> &cc, std::vector<unsigned> &ii, std::vector<unsigned> &kk,
         int dim, TSearchParam sp, TFindPath fp, double maxcost, double resolution, arma::ivec &rowsol, double &lapcost );
 
     //------------------------------------------------------------------------------------------------------------------
@@ -121,6 +122,77 @@ private:
     //------------------------------------------------------------------------------------------------------------------
     // Методы для JVCsparse
 
+    ///
+    /// \brief Column-reduction and reduction transfer for a sparse cost matrix
+    ///
+    int jvc_sparse_ccrrt_sparse_( const unsigned n, std::vector<double> &cc, std::vector<unsigned> &ii,
+        std::vector<unsigned> &kk, int *free_rows, int *x, int *y, double *v );
+    ///
+    /// \brief Augmenting row reduction for a sparse cost matrix
+    ///
+    int jvc_sparse_carr_sparse( const unsigned n, std::vector<double> &cc, std::vector<unsigned> &ii,
+        std::vector<unsigned> &kk, const unsigned n_free_rows, int *free_rows, int *x, int *y, double *v );
+
+    ///
+    /// \brief Find columns with minimum d[j] and put them on the SCAN list.
+    ///
+    unsigned jvc_sparse_find_sparse_1( const unsigned n, unsigned lo, double *d, int *cols, int *y );
+
+    ///
+    /// \brief jvc_sparse_find_sparse_2
+    ///
+    int jvc_sparse_find_sparse_2( double *d, int *scan, const unsigned n_todo, int *todo, bool *done );
+
+    ///
+    /// \brief Scan all columns in TODO starting from arbitrary column in SCAN and try to decrease d of the TODO
+    /// columns using the SCAN column.
+    ///
+    int jvc_sparse_scan_sparse_1( const unsigned n, std::vector<double> &cc, std::vector<unsigned> &ii,
+        std::vector<unsigned> &kk, unsigned *plo, unsigned *phi, double *d, int *cols, int *pred,
+        int *y, double *v );
+
+    ///
+    /// \brief Scan all columns in TODO starting from arbitrary column in SCAN and try to decrease d of the TODO
+    /// columns using the SCAN column.
+    ///
+    int jvc_sparse_scan_sparse_2( const unsigned n, std::vector<double> &cc, std::vector<unsigned> &ii,
+        std::vector<unsigned> &kk, unsigned *plo, unsigned *phi, double *d, int *pred,
+        bool *done, unsigned *pn_ready, int *ready, int *scan,
+        unsigned *pn_todo, int *todo, bool *added, int *y, double *v );
+
+    ///
+    /// \brief Single iteration of modified Dijkstra shortest path algorithm as explained in the JV paper.
+    /// This version loops over all column indices (some of which might be inf).
+    /// \return The closest free column index.
+    ///
+    int jvc_sparse_find_path_sparse_1( const unsigned n, std::vector<double> &cc, std::vector<unsigned> &ii,
+        std::vector<unsigned> &kk, const int start_i, int *y, double *v, int *pred );
+
+    ///
+    /// \brief Single iteration of modified Dijkstra shortest path algorithm as explained in the JV paper.
+    /// This version loops over non-inf column indices (which requires some additional bookkeeping).
+    /// \return The closest free column index.
+    ///
+    int jvc_sparse_find_path_sparse_2( const unsigned n, std::vector<double> &cc, std::vector<unsigned> &ii,
+        std::vector<unsigned> &kk, const int start_i, int *y, double *v, int *pred );
+
+    ///
+    /// \brief Find path using one of the two find_path variants selected based on sparsity.
+    ///
+    int jvc_sparse_find_path_sparse_dynamic( const unsigned n, std::vector<double> &cc, std::vector<unsigned> &ii,
+        std::vector<unsigned> &kk, const int start_i, int *y, double *v, int *pred );
+
+    typedef int (*fp_function_t)( const unsigned, std::vector<double> &, std::vector<unsigned> &, std::vector<unsigned> &,
+        const int, int *, double *, int *);
+
+    fp_function_t jvc_sparse_get_better_find_path( const unsigned n, std::vector<unsigned> &ii );
+
+    ///
+    /// \brief Augment for a sparse cost matrix.
+    ///
+    int jvc_sparse_ca_sparse( const unsigned n, std::vector<double> &cc, std::vector<unsigned> &ii,
+        std::vector<unsigned> &kk, const unsigned n_free_rows, int *free_rows, int *x, int *y,
+        double *v, int fp_version );
 
     //------------------------------------------------------------------------------------------------------------------
     // Методы для Hungarian

@@ -313,7 +313,8 @@ void MatrixCOOtoCSC( const CMatrixCOO<T> &COO, CMatrixCSC<T> &CSC, bool sorted =
 
 //----------------------------------------------------------------------------------------------------------------------
 ///
-/// \brief Ключ COO формата (Coordinate list)
+/// \brief Ключ элемента Aij матрицы A в COO формате (Coordinate list)
+/// \attention Оператор < перегружен для случая построчного хранения
 ///
 struct CKeyCOO
 {

@@ -170,19 +170,6 @@ BOOST_AUTO_TEST_CASE( MatrixCOOtoCSC_A1 )
 
 BOOST_AUTO_TEST_CASE( new2 )
 {
-//    std::vector<double> A1_COO_value_expected = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0 };
-//    std::vector<unsigned> A1_COO_row_expected = { 0, 0, 1, 1, 2, 2, 2, 3 };
-//    std::vector<unsigned> A1_COO_col_expected = { 0, 1, 1, 3, 2, 3, 4, 5 };
-
-//    std::map< SPML::Sparse::CKeyCOO, SPML::Sparse::CColumnCOO > myMap;
-//    int k_max = A1_COO_value_expected.size();
-//    for( int k = ( k_max - 1 ); k >= 0; k-- ) {
-//        int i = A1_COO_row_expected[k];
-//        int j = A1_COO_col_expected[k];
-//        double val = A1_COO_value_expected[k];
-//        myMap.insert( std::make_pair( SPML::Sparse::CKeyCOO( i, j ), SPML::Sparse::CColumnCOO( i, j, val ) ) );
-//    }
-
     std::map< SPML::Sparse::CKeyCOO, double > myMap;
     int k_max = A1_coo_val_expected.size();
     for( int k = ( k_max - 1 ); k >= 0; k-- ) {
@@ -192,8 +179,17 @@ BOOST_AUTO_TEST_CASE( new2 )
         myMap.insert( std::make_pair( SPML::Sparse::CKeyCOO( i, j ), val ) );
     }
 
-    SPML::Sparse::CMatrixCOO<double> coo;
+    std::map< SPML::Sparse::CKeyCOO, double > myMap2;
+    myMap2.insert( std::make_pair( SPML::Sparse::CKeyCOO( 2, 4 ), 7 ) );
+    myMap2.insert( std::make_pair( SPML::Sparse::CKeyCOO( 1, 3 ), 4 ) );
+    myMap2.insert( std::make_pair( SPML::Sparse::CKeyCOO( 0, 1 ), 2 ) );
+    myMap2.insert( std::make_pair( SPML::Sparse::CKeyCOO( 3, 5 ), 8 ) );
+    myMap2.insert( std::make_pair( SPML::Sparse::CKeyCOO( 2, 3 ), 6 ) );
+    myMap2.insert( std::make_pair( SPML::Sparse::CKeyCOO( 0, 0 ), 1 ) );
+    myMap2.insert( std::make_pair( SPML::Sparse::CKeyCOO( 2, 2 ), 5 ) );
+    myMap2.insert( std::make_pair( SPML::Sparse::CKeyCOO( 1, 1 ), 3 ) );
 
+    SPML::Sparse::CMatrixCOO<double> coo;
     for( auto &v : myMap ) {
         int i = ( v.first ).i();
         int j = ( v.first ).j();
@@ -203,12 +199,16 @@ BOOST_AUTO_TEST_CASE( new2 )
         coo.coo_col.push_back( j );
     }
 
+
+
     SPML::Sparse::CMatrixCSR<double> csr1, csr2;
 
     SPML::Sparse::MatrixCOOtoCSR( coo, csr1, true );
     SPML::Sparse::MatrixCOOtoCSR( coo, csr2, false );
 
-    int abc = 0;
+    BOOST_CHECK_EQUAL_COLLECTIONS( csr1.csr_val.begin(), csr1.csr_val.end(), csr2.csr_val.begin(), csr2.csr_val.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( csr1.csr_first.begin(), csr1.csr_first.end(), csr2.csr_first.begin(), csr2.csr_first.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( csr1.csr_kk.begin(), csr1.csr_kk.end(), csr2.csr_kk.begin(), csr2.csr_kk.end() );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
