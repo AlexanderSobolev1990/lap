@@ -15,12 +15,12 @@ namespace SPML /// Специальная библиотека программ�
 namespace LAP /// Решение задачи о назначениях
 {
 //----------------------------------------------------------------------------------------------------------------------
-void CAssignmentProblemSolver::JVCdense(const arma::mat &assigncost, int dim, TSearchParam sp, double maxcost,
+void JVCdense( const arma::mat &assigncost, int dim, TSearchParam sp, double maxcost,
     double resolution, arma::ivec &rowsol, double &lapcost )
 {
     // Если ищем максимум - умножим матрицу на -1
     arma::mat cost( dim, dim, arma::fill::zeros );
-    if( sp == TSearchParam::Max ) { // Поиск минимума/максимума
+    if( sp == TSearchParam::SP_Max ) { // Поиск минимума/максимума
         cost = -assigncost;
     } else {
         cost = assigncost;
@@ -36,8 +36,7 @@ void CAssignmentProblemSolver::JVCdense(const arma::mat &assigncost, int dim, TS
     arma::ivec collist = arma::ivec( dim, arma::fill::zeros );//new int[dim];    // list of columns to be scanned in various ways.
     arma::ivec matches = arma::ivec( dim, arma::fill::zeros );//new int[dim];    // counts how many times a row could be assigned.
     arma::vec d = arma::vec( dim, arma::fill::zeros );//new double[dim];       // 'cost-distance' in augmenting path calculation.
-    arma::ivec pred = arma::ivec( dim, arma::fill::zeros );//new int[dim];       // row-predecessor of column in augmenting/alternating path.
-    //int *rowsol = new int[dim];
+    arma::ivec pred = arma::ivec( dim, arma::fill::zeros );//new int[dim];       // row-predecessor of column in augmenting/alternating path.    
     arma::ivec colsol = arma::ivec( dim, arma::fill::zeros );//int *colsol = new int[dim];
     arma::vec x = arma::vec( dim, arma::fill::zeros );
     arma::vec xh = arma::vec( dim, arma::fill::zeros );
@@ -252,11 +251,12 @@ void CAssignmentProblemSolver::JVCdense(const arma::mat &assigncost, int dim, TS
     lapcost = 0.0;
     for( i = 0; i < dim; i++ ) {
         j = rowsol(i);
-        u[i] = cost(i,j) - v(j);
-        lapcost += assigncost(i,j);
+        u[i] = cost(i,j) - v(j);        
+        double element_i_j = assigncost(i,j);
+        if( !SPML::Compare::AreEqualAbs( element_i_j, maxcost, resolution ) ) {
+            lapcost += element_i_j;
+        }
     }
-
-
     return;
 }
 

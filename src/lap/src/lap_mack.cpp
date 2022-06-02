@@ -15,13 +15,13 @@ namespace SPML /// Специальная библиотека программ�
 namespace LAP /// Решение задачи о назначениях
 {
 //----------------------------------------------------------------------------------------------------------------------
-void CAssignmentProblemSolver::Mack( const arma::mat &assigncost, int dim, TSearchParam sp, arma::ivec &rowsol,
+void Mack( const arma::mat &assigncost, int dim, TSearchParam sp, double maxcost, double resolution, arma::ivec &rowsol,
     double &lapcost )
 {
     double* cost = new double[dim*dim];
     for( int i = 0; i < dim; i++ ) {
         for( int j = 0; j < dim; j++ ) {
-            if( sp == TSearchParam::Max ) {
+            if( sp == TSearchParam::SP_Max ) {
                 cost[dim*i+j] = -assigncost(i,j); // Поиск максимума
             } else {
                 cost[dim*i+j] = assigncost(i,j); // Поиск минимума
@@ -211,7 +211,10 @@ void CAssignmentProblemSolver::Mack( const arma::mat &assigncost, int dim, TSear
     for( int i = 0; i < dim; i++ ) {
         j = jv[i+1]-1;
         rowsol[i] = j; // в i-ой строке j-ый элемент
-        lapcost += assigncost(i,j);
+        double element_i_j = assigncost(i,j);
+        if( !SPML::Compare::AreEqualAbs( element_i_j, maxcost, resolution ) ) {
+            lapcost += element_i_j;
+        }
     }
 
     // освобождаем память

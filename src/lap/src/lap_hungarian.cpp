@@ -15,7 +15,7 @@ namespace SPML /// Специальная библиотека программ�
 namespace LAP /// Решение задачи о назначениях
 {
 //----------------------------------------------------------------------------------------------------------------------
-void CAssignmentProblemSolver::hungarian_step_1( unsigned int &step, arma::mat &cost, const unsigned int &N )
+void hungarian_step_1( unsigned int &step, arma::mat &cost, const unsigned int &N )
 {
     for( unsigned int r = 0; r < N; ++r ) {
         cost.row(r) -= arma::min( cost.row(r) );
@@ -36,7 +36,7 @@ void CAssignmentProblemSolver::hungarian_step_1( unsigned int &step, arma::mat &
  * In the second step, we then search for a zero in the
  * modified cost matrix of step one.
  */
-void CAssignmentProblemSolver::hungarian_step_2( unsigned int &step, const arma::mat &cost, arma::umat &indM, arma::ivec &rcov,
+void hungarian_step_2( unsigned int &step, const arma::mat &cost, arma::umat &indM, arma::ivec &rcov,
     arma::ivec &ccov, const unsigned int &N )
 {
     for( unsigned int r = 0; r < N; ++r ) {
@@ -74,7 +74,7 @@ void CAssignmentProblemSolver::hungarian_step_2( unsigned int &step, const arma:
  * assignment - so, go to `step 7` and finish. Otherwise go to
  * `step 4`.
  */
-void CAssignmentProblemSolver::hungarian_step_3( unsigned int &step, const arma::umat &indM, arma::ivec &ccov, const unsigned int &N )
+void hungarian_step_3( unsigned int &step, const arma::umat &indM, arma::ivec &ccov, const unsigned int &N )
 {
     unsigned int colcount = 0;
     for( unsigned int r = 0; r < N; ++r ) {
@@ -107,7 +107,7 @@ void CAssignmentProblemSolver::hungarian_step_3( unsigned int &step, const arma:
  * the code more readable and reusable. The helper function
  * searches for _noncovered zeros_.
  */
-void CAssignmentProblemSolver::hungarian_find_noncovered_zero( int &row, int &col, const arma::mat &cost, const arma::ivec &rcov,
+void hungarian_find_noncovered_zero( int &row, int &col, const arma::mat &cost, const arma::ivec &rcov,
     const arma::ivec &ccov, const unsigned int &N )
 {
     unsigned int r = 0;
@@ -150,7 +150,7 @@ void CAssignmentProblemSolver::hungarian_find_noncovered_zero( int &row, int &co
  * indicate a _starred zero_ in a row and to find it we create again
  * two helper functions.
  */
-bool CAssignmentProblemSolver::hungarian_star_in_row( int &row, const arma::umat &indM, const unsigned int &N )
+bool hungarian_star_in_row( int &row, const arma::umat &indM, const unsigned int &N )
 {
     bool tmp = false;
     for( unsigned int c = 0; c < N; ++c ) {
@@ -162,7 +162,7 @@ bool CAssignmentProblemSolver::hungarian_star_in_row( int &row, const arma::umat
     return tmp;
 }
 
-void CAssignmentProblemSolver::hungarian_find_star_in_row( const int &row, int &col, const arma::umat &indM, const unsigned int &N )
+void hungarian_find_star_in_row( const int &row, int &col, const arma::umat &indM, const unsigned int &N )
 {
     col = -1;
     for( unsigned int c = 0; c < N; ++c ) {
@@ -177,7 +177,7 @@ void CAssignmentProblemSolver::hungarian_find_star_in_row( const int &row, int &
  * matrix containing an element equal to 1.
  * Now, `step 4`.
  */
-void CAssignmentProblemSolver::hungarian_step_4( unsigned int &step, const arma::mat &cost, arma::umat &indM, arma::ivec &rcov, arma::ivec &ccov,
+void hungarian_step_4( unsigned int &step, const arma::mat &cost, arma::umat &indM, arma::ivec &rcov, arma::ivec &ccov,
     int &rpath_0, int &cpath_0, const unsigned int &N )
 {
     int row = -1;
@@ -229,7 +229,7 @@ void CAssignmentProblemSolver::hungarian_step_4( unsigned int &step, const arma:
  * `Step 5` needs several helper functions. First, we need
  * a function to find _starred zeros_ in columns.
  */
-void CAssignmentProblemSolver::hungarian_find_star_in_col( const int &col, int &row, const arma::umat &indM, const unsigned int &N )
+void hungarian_find_star_in_col( const int &col, int &row, const arma::umat &indM, const unsigned int &N )
 {
     row = -1;
     for( unsigned int r = 0; r < N; ++r ) {
@@ -244,7 +244,7 @@ void CAssignmentProblemSolver::hungarian_find_star_in_col( const int &col, int &
  * Note, that these tasks are easily performed by searching the
  * indicator matrix `indM`.
  */
-void CAssignmentProblemSolver::hungarian_find_prime_in_row( const int &row, int &col, const arma::umat &indM, const unsigned int &N )
+void hungarian_find_prime_in_row( const int &row, int &col, const arma::umat &indM, const unsigned int &N )
 {
     for( unsigned int c = 0; c < N; ++c ) {
         if( indM.at(row, c) == 2 ) {
@@ -258,7 +258,7 @@ void CAssignmentProblemSolver::hungarian_find_prime_in_row( const int &row, int 
  * clear the _covers_ from rows and one to erase the _primed zeros_
  * from the indicator matrix `indM`.
  */
-void CAssignmentProblemSolver::hungarian_augment_path( const int &path_count, arma::umat &indM, const arma::imat &path )
+void hungarian_augment_path( const int &path_count, arma::umat &indM, const arma::imat &path )
 {
 //    for (unsigned int p = 0; p < path_count; ++p) {
     for( int p = 0; p < path_count; ++p ) {
@@ -270,13 +270,13 @@ void CAssignmentProblemSolver::hungarian_augment_path( const int &path_count, ar
     }
 }
 
-void CAssignmentProblemSolver::hungarian_clear_covers( arma::ivec &rcov, arma::ivec &ccov )
+void hungarian_clear_covers( arma::ivec &rcov, arma::ivec &ccov )
 {
     rcov.fill(0);
     ccov.fill(0);
 }
 
-void CAssignmentProblemSolver::hungarian_erase_primes( arma::umat &indM, const unsigned int &N )
+void hungarian_erase_primes( arma::umat &indM, const unsigned int &N )
 {
     for( unsigned int r = 0; r < N; ++r ) {
         for( unsigned int c = 0; c < N; ++c ) {
@@ -293,7 +293,7 @@ void CAssignmentProblemSolver::hungarian_erase_primes( arma::umat &indM, const u
  * are stored row-wise.
  * Now, we can set the complete `step 5`:
  */
-void CAssignmentProblemSolver::hungarian_step_5( unsigned int &step, arma::umat &indM, arma::ivec &rcov, arma::ivec &ccov, arma::imat &path,
+void hungarian_step_5( unsigned int &step, arma::umat &indM, arma::ivec &rcov, arma::ivec &ccov, arma::imat &path,
     int &rpath_0, int &cpath_0, const unsigned int &N )
 {
     bool done = false;
@@ -339,7 +339,7 @@ void CAssignmentProblemSolver::hungarian_step_5( unsigned int &step, arma::umat 
  * Our last helper function searches for the smallest value in
  * the uncovered region of the cost matrix.
  */
-void CAssignmentProblemSolver::hungarian_find_smallest( double &minval, const arma::mat &cost, const arma::ivec &rcov, const arma::ivec &ccov,
+void hungarian_find_smallest( double &minval, const arma::mat &cost, const arma::ivec &rcov, const arma::ivec &ccov,
     const unsigned int &N )
 {
     for( unsigned int r = 0; r < N; ++r ) {
@@ -356,7 +356,7 @@ void CAssignmentProblemSolver::hungarian_find_smallest( double &minval, const ar
 /**
  * `Step 6` looks as follows:
  */
-void CAssignmentProblemSolver::hungarian_step_6( unsigned int &step, arma::mat &cost, const arma::ivec &rcov, const arma::ivec &ccov,
+void hungarian_step_6( unsigned int &step, arma::mat &cost, const arma::ivec &rcov, const arma::ivec &ccov,
     const unsigned int &N )
 {
     double minval = std::numeric_limits<double>::max();// DBL_MAX;
@@ -381,8 +381,8 @@ void CAssignmentProblemSolver::hungarian_step_6( unsigned int &step, arma::mat &
  * the algorithm. It defines also the important variables
  * to be passed to the different steps.
  */
-void CAssignmentProblemSolver::Hungarian( const arma::mat &assigncost, int dim, TSearchParam sp, arma::ivec &rowsol,
-    double &lapcost )
+void Hungarian( const arma::mat &assigncost, int dim, TSearchParam sp, double maxcost, double resolution,
+    arma::ivec &rowsol, double &lapcost )
 {
     const unsigned int N = assigncost.n_rows;
     unsigned int step = 1;
@@ -391,7 +391,7 @@ void CAssignmentProblemSolver::Hungarian( const arma::mat &assigncost, int dim, 
 
     // Если ищем максимум - умножим матрицу на -1
     arma::mat cost( dim, dim, arma::fill::zeros );
-    if( sp == TSearchParam::Max ) { // Поиск минимума/максимума
+    if( sp == TSearchParam::SP_Max ) { // Поиск минимума/максимума
         cost = -assigncost;
     } else {
         cost = assigncost;
@@ -407,22 +407,22 @@ void CAssignmentProblemSolver::Hungarian( const arma::mat &assigncost, int dim, 
     while( !done ) {
         switch( step ) {
             case 1:
-                CAssignmentProblemSolver::hungarian_step_1( step, cost, N );
+                hungarian_step_1( step, cost, N );
                 break;
             case 2:
-                CAssignmentProblemSolver::hungarian_step_2( step, cost, indM, rcov, ccov, N );
+                hungarian_step_2( step, cost, indM, rcov, ccov, N );
                 break;
             case 3:
-                CAssignmentProblemSolver::hungarian_step_3( step, indM, ccov, N );
+                hungarian_step_3( step, indM, ccov, N );
                 break;
             case 4:
-                CAssignmentProblemSolver::hungarian_step_4(step, cost, indM, rcov, ccov, rpath_0, cpath_0, N );
+                hungarian_step_4(step, cost, indM, rcov, ccov, rpath_0, cpath_0, N );
                 break;
             case 5:
-                CAssignmentProblemSolver::hungarian_step_5( step, indM, rcov, ccov, path, rpath_0, cpath_0, N );
+                hungarian_step_5( step, indM, rcov, ccov, path, rpath_0, cpath_0, N );
                 break;
             case 6:
-                CAssignmentProblemSolver::hungarian_step_6( step, cost, rcov, ccov, N );
+                hungarian_step_6( step, cost, rcov, ccov, N );
                 break;
             case 7:
                 done = true;
@@ -436,7 +436,10 @@ void CAssignmentProblemSolver::Hungarian( const arma::mat &assigncost, int dim, 
         for( int j = 0; j < dim; j++ ) {
             if( indM(i, j) > 0 ) {
                 rowsol[i] = j;
-                lapcost += assigncost(i,j);
+                double element_i_j = assigncost(i,j);
+                if( !SPML::Compare::AreEqualAbs( element_i_j, maxcost, resolution ) ) {
+                    lapcost += element_i_j;
+                }
             }
         }
     }

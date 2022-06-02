@@ -39,8 +39,10 @@ struct CMatrixCOO
         std::is_same<T, double>::value,
         "Wrong template class!" );
     std::vector<T> coo_val;         ///< Вектор ненулевых элементов матрицы A[n,m] (n - число строк, m - число столбцов), размер nnz
-    std::vector<unsigned> coo_row;  ///< Индексы строк ненулевых элементов
-    std::vector<unsigned> coo_col;  ///< Индексы столбцов ненулевых элементов
+//    std::vector<unsigned> coo_row;  ///< Индексы строк ненулевых элементов
+//    std::vector<unsigned> coo_col;  ///< Индексы столбцов ненулевых элементов
+    std::vector<int> coo_row;  ///< Индексы строк ненулевых элементов
+    std::vector<int> coo_col;  ///< Индексы столбцов ненулевых элементов
 };
 
 ///
@@ -57,8 +59,10 @@ struct CMatrixCSR
         std::is_same<T, double>::value,
         "Wrong template class!" );
     std::vector<T> csr_val;             ///< Вектор ненулевых элементов матрицы A[n,m] (n - число строк, m - число столбцов), размер nnz
-    std::vector<unsigned> csr_first;    ///< Вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов nnz
-    std::vector<unsigned> csr_kk;       ///< вектор начальных смещений в векторе CSR, размер n+1
+//    std::vector<unsigned> csr_first;    ///< Вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов nnz
+//    std::vector<unsigned> csr_kk;       ///< вектор начальных смещений в векторе CSR, размер n+1
+    std::vector<int> csr_first;    ///< Вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов nnz
+    std::vector<int> csr_kk;       ///< вектор начальных смещений в векторе CSR, размер n+1
 };
 
 ///
@@ -75,8 +79,10 @@ struct CMatrixCSC
         std::is_same<T, double>::value,
         "Wrong template class!" );
     std::vector<T> csc_val;             ///< Вектор ненулевых элементов матрицы A[n,m] (n - число строк, m - число столбцов), размер nnz
-    std::vector<unsigned> csc_first;    ///< Вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов nnz
-    std::vector<unsigned> csc_kk;       ///< вектор начальных смещений в векторе CSC, размер m+1
+//    std::vector<unsigned> csc_first;    ///< Вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов nnz
+//    std::vector<unsigned> csc_kk;       ///< вектор начальных смещений в векторе CSC, размер m+1
+    std::vector<int> csc_first;    ///< Вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов nnz
+    std::vector<int> csc_kk;       ///< вектор начальных смещений в векторе CSC, размер m+1
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -87,8 +93,10 @@ struct CMatrixCSC
 /// \param[out] coo_row - индексы строк ненулевых элементов, размер nnz
 /// \param[out] coo_col - индексы столбцов ненулевых элементов, размер nnz
 ///
-void MatrixDenseToCOO( const arma::mat &A, std::vector<double> &coo_val, std::vector<unsigned> &coo_row,
-    std::vector<unsigned> &coo_col );
+void MatrixDenseToCOO( const arma::mat &A, std::vector<double> &coo_val, std::vector<int> &coo_row,
+    std::vector<int> &coo_col );
+//void MatrixDenseToCOO( const arma::mat &A, std::vector<double> &coo_val, std::vector<unsigned> &coo_row,
+//    std::vector<unsigned> &coo_col );
 
 ///
 /// \brief Преобразование плотной матрицы в COO формат (Coordinated list)
@@ -114,8 +122,10 @@ void MatrixDenseToCOO( const arma::mat &A, CMatrixCOO<T> &COO )
 /// \param[in]  coo_col - индексы столбцов ненулевых элементов, размер nnz
 /// \param[out] A       - плотная матрица, размер [n,m] (n - число строк, m - число столбцов)
 ///
-void MatrixCOOtoDense( const std::vector<double> &coo_val, const std::vector<unsigned> &coo_row,
-    const std::vector<unsigned> &coo_col, arma::mat &A );
+void MatrixCOOtoDense( const std::vector<double> &coo_val, const std::vector<int> &coo_row,
+    const std::vector<int> &coo_col, arma::mat &A );
+//void MatrixCOOtoDense( const std::vector<double> &coo_val, const std::vector<unsigned> &coo_row,
+//    const std::vector<unsigned> &coo_col, arma::mat &A );
 
 ///
 /// \brief Преобразование матрицы из COO формата (Coordinated list) в плотную матрицу
@@ -143,8 +153,10 @@ void MatrixCOOtoDense( const CMatrixCOO<T> &COO, arma::mat &A )
 /// \param[out] csr_first - вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов nnz
 /// \param[out] csr_kk    - вектор начальных смещений в векторе CSR, размер n+1
 ///
-void MatrixDenseToCSR( const arma::mat &A, std::vector<double> &csr_val, std::vector<unsigned> &csr_first,
-    std::vector<unsigned> &csr_kk );
+void MatrixDenseToCSR( const arma::mat &A, std::vector<double> &csr_val, std::vector<int> &csr_first,
+    std::vector<int> &csr_kk );
+//void MatrixDenseToCSR( const arma::mat &A, std::vector<double> &csr_val, std::vector<unsigned> &csr_first,
+//    std::vector<unsigned> &csr_kk );
 
 ///
 /// \brief Преобразование плотной матрицы в CSR формат (Compressed Sparse Row Yale format)
@@ -170,8 +182,10 @@ void MatrixDenseToCSR( const arma::mat &A, CMatrixCSR<T> &CSR )
 /// \param[in]  csr_kk    - вектор начальных смещений в векторе CSR, размер n+1
 /// \param[out] A         - плотная матрица, размер [n,m] (n - число строк, m - число столбцов)
 ///
-void MatrixCSRtoDense( const std::vector<double> &csr_val, const std::vector<unsigned> &csr_first,
-    const std::vector<unsigned> &csr_kk, arma::mat &A );
+void MatrixCSRtoDense( const std::vector<double> &csr_val, const std::vector<int> &csr_first,
+    const std::vector<int> &csr_kk, arma::mat &A );
+//void MatrixCSRtoDense( const std::vector<double> &csr_val, const std::vector<unsigned> &csr_first,
+//    const std::vector<unsigned> &csr_kk, arma::mat &A );
 
 ///
 /// \brief Преобразование матрицы из CSR формата (Compressed Sparse Row Yale format) в плотную матрицу
@@ -199,8 +213,10 @@ void MatrixCSRtoDense( const CMatrixCSR<T> &CSR, arma::mat &A )
 /// \param[out] csc_first - вектор индексов строк ненулевых элементов, размер равен количеству ненулевых элементов nnz
 /// \param[out] csc_kk    - вектор начальных смещений в векторе CSR, размер m+1
 ///
-void MatrixDenseToCSC( const arma::mat &A, std::vector<double> &csc_val, std::vector<unsigned> &csc_first,
-    std::vector<unsigned> &csc_kk );
+void MatrixDenseToCSC( const arma::mat &A, std::vector<double> &csc_val, std::vector<int> &csc_first,
+    std::vector<int> &csc_kk );
+//void MatrixDenseToCSC( const arma::mat &A, std::vector<double> &csc_val, std::vector<unsigned> &csc_first,
+//    std::vector<unsigned> &csc_kk );
 
 ///
 /// \brief Преобразование плотной матрицы в CSC формат (Compressed Sparse Column Yale format)
@@ -226,8 +242,10 @@ void MatrixDenseToCSC( const arma::mat &A, CMatrixCSC<T> &CSC )
 /// \param[in]  csc_kk    - вектор начальных смещений в векторе CSR, размер m+1
 /// \param[out] A         - плотная матрица, размер [n,m] (n - число строк, m - число столбцов)
 ///
-void MatrixCSCtoDense( const std::vector<double> &csc_val, const std::vector<unsigned> &csc_first,
-    const std::vector<unsigned> &csc_kk, arma::mat &A );
+void MatrixCSCtoDense( const std::vector<double> &csc_val, const std::vector<int> &csc_first,
+    const std::vector<int> &csc_kk, arma::mat &A );
+//void MatrixCSCtoDense( const std::vector<double> &csc_val, const std::vector<unsigned> &csc_first,
+//    const std::vector<unsigned> &csc_kk, arma::mat &A );
 
 ///
 /// \brief Преобразование матрицы из CSC формата (Compressed Sparse Column Yale format) в плотную матрицу
@@ -257,9 +275,12 @@ void MatrixCSCtoDense( const CMatrixCSC<T> &CSC, arma::mat &A )
 /// \param[in]  csr_kk    - вектор начальных смещений в векторе CSR, размер n+1
 /// \param[in]  sorted    - признак отсортированности COO входа по строкам (даёт ускорение в ~2 раза)
 ///
-void MatrixCOOtoCSR( const std::vector<double> &coo_val, const std::vector<unsigned> &coo_row,
-    const std::vector<unsigned> &coo_col, std::vector<double> &csr_val, std::vector<unsigned> &csr_first,
-    std::vector<unsigned> &csr_kk, bool sorted = false );
+void MatrixCOOtoCSR( const std::vector<double> &coo_val, const std::vector<int> &coo_row,
+    const std::vector<int> &coo_col, std::vector<double> &csr_val, std::vector<int> &csr_first,
+    std::vector<int> &csr_kk, bool sorted = false );
+//void MatrixCOOtoCSR( const std::vector<double> &coo_val, const std::vector<unsigned> &coo_row,
+//    const std::vector<unsigned> &coo_col, std::vector<double> &csr_val, std::vector<unsigned> &csr_first,
+//    std::vector<unsigned> &csr_kk, bool sorted = false );
 
 ///
 /// \brief Преобразование матрицы в COO формате (Coordinate list) в CSR формат (Compressed Sparse Row Yale format)
@@ -289,9 +310,12 @@ void MatrixCOOtoCSR( const CMatrixCOO<T> &COO, CMatrixCSR<T> &CSR, bool sorted =
 /// \param[in]  csc_kk    - вектор начальных смещений в векторе CSR, размер m+1
 /// \param[in]  sorted - признак отсортированности COO входа по столбцам (даёт ускорение в ~2 раза)
 ///
-void MatrixCOOtoCSC( const std::vector<double> &coo_val, const std::vector<unsigned> &coo_row,
-    const std::vector<unsigned> &coo_col, std::vector<double> &csc_val, std::vector<unsigned> &csc_first,
-    std::vector<unsigned> &csc_kk, bool sorted = false );
+void MatrixCOOtoCSC( const std::vector<double> &coo_val, const std::vector<int> &coo_row,
+    const std::vector<int> &coo_col, std::vector<double> &csc_val, std::vector<int> &csc_first,
+    std::vector<int> &csc_kk, bool sorted = false );
+//void MatrixCOOtoCSC( const std::vector<double> &coo_val, const std::vector<unsigned> &coo_row,
+//    const std::vector<unsigned> &coo_col, std::vector<double> &csc_val, std::vector<unsigned> &csc_first,
+//    std::vector<unsigned> &csc_kk, bool sorted = false );
 
 ///
 /// \brief Преобразование матрицы в COO формате (Coordinate list) в CSC формат (Compressed Sparse Column Yale format)
@@ -339,7 +363,8 @@ public:
     /// \param[in] i - индекс строки
     /// \param[in] j - индекс столбца
     ///
-    CKeyCOO( unsigned i, unsigned j ) : i_( i ), j_( j ){}
+    CKeyCOO( int i, int j ) : i_( i ), j_( j ){}
+//    CKeyCOO( unsigned i, unsigned j ) : i_( i ), j_( j ){}
 
     bool operator <( CKeyCOO const& other ) const
     {
@@ -350,8 +375,10 @@ public:
     }
 
 private:
-    unsigned i_; ///< Индекс строки
-    unsigned j_; ///< Индекс столбца
+    int i_; ///< Индекс строки
+    int j_; ///< Индекс столбца
+//    unsigned i_; ///< Индекс строки
+//    unsigned j_; ///< Индекс столбца
 };
 
 ////----------------------------------------------------------------------------------------------------------------------

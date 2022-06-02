@@ -17,8 +17,8 @@ namespace Sparse /// Решение задачи о назначениях
 {
 //----------------------------------------------------------------------------------------------------------------------
 
-void MatrixDenseToCOO( const arma::mat &A, std::vector<double> &coo_val, std::vector<unsigned> &coo_row,
-    std::vector<unsigned> &coo_col )
+void MatrixDenseToCOO( const arma::mat &A, std::vector<double> &coo_val, std::vector<int> &coo_row,
+    std::vector<int> &coo_col )
 {
     coo_val.clear();
     coo_row.clear();
@@ -40,8 +40,8 @@ void MatrixDenseToCOO( const arma::mat &A, std::vector<double> &coo_val, std::ve
     }
 }
 
-void MatrixCOOtoDense( const std::vector<double> &coo_val, const std::vector<unsigned> &coo_row,
-    const std::vector<unsigned> &coo_col, arma::mat &A )
+void MatrixCOOtoDense( const std::vector<double> &coo_val, const std::vector<int> &coo_row,
+    const std::vector<int> &coo_col, arma::mat &A )
 {
     int n = *( std::max_element( coo_row.begin(), coo_row.end() ) ) + 1;
     int m = *( std::max_element( coo_col.begin(), coo_col.end() ) ) + 1;
@@ -54,8 +54,8 @@ void MatrixCOOtoDense( const std::vector<double> &coo_val, const std::vector<uns
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void MatrixDenseToCSR( const arma::mat &A, std::vector<double> &csr_val, std::vector<unsigned> &csr_first,
-    std::vector<unsigned> &csr_kk )
+void MatrixDenseToCSR( const arma::mat &A, std::vector<double> &csr_val, std::vector<int> &csr_first,
+    std::vector<int> &csr_kk )
 {
     csr_val.clear();
     csr_first.clear();
@@ -84,8 +84,8 @@ void MatrixDenseToCSR( const arma::mat &A, std::vector<double> &csr_val, std::ve
     }    
 }
 
-void MatrixCSRtoDense( const std::vector<double> &csr_val, const std::vector<unsigned> &csr_first,
-    const std::vector<unsigned> &csr_kk, arma::mat &A )
+void MatrixCSRtoDense( const std::vector<double> &csr_val, const std::vector<int> &csr_first,
+    const std::vector<int> &csr_kk, arma::mat &A )
 {
     int n = csr_kk.size() - 1;
     int m = *( std::max_element( csr_first.begin(), csr_first.end() ) ) + 1;
@@ -102,8 +102,8 @@ void MatrixCSRtoDense( const std::vector<double> &csr_val, const std::vector<uns
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void MatrixDenseToCSC( const arma::mat &A, std::vector<double> &csc_val, std::vector<unsigned> &csc_first,
-    std::vector<unsigned> &csc_kk )
+void MatrixDenseToCSC( const arma::mat &A, std::vector<double> &csc_val, std::vector<int> &csc_first,
+    std::vector<int> &csc_kk )
 {
     csc_val.clear();
     csc_first.clear();
@@ -132,8 +132,8 @@ void MatrixDenseToCSC( const arma::mat &A, std::vector<double> &csc_val, std::ve
     }
 }
 
-void MatrixCSCtoDense( const std::vector<double> &csc_val, const std::vector<unsigned> &csc_first,
-    const std::vector<unsigned> &csc_kk, arma::mat &A )
+void MatrixCSCtoDense( const std::vector<double> &csc_val, const std::vector<int> &csc_first,
+    const std::vector<int> &csc_kk, arma::mat &A )
 {
     int n = *( std::max_element( csc_first.begin(), csc_first.end() ) ) + 1;
     int m = csc_kk.size() - 1;
@@ -150,9 +150,9 @@ void MatrixCSCtoDense( const std::vector<double> &csc_val, const std::vector<uns
 
 //----------------------------------------------------------------------------------------------------------------------
 
-void MatrixCOOtoCSR( const std::vector<double> &coo_val, const std::vector<unsigned> &coo_row,
-    const std::vector<unsigned> &coo_col, std::vector<double> &csr_val, std::vector<unsigned> &csr_first,
-    std::vector<unsigned> &csr_kk, bool sorted )
+void MatrixCOOtoCSR( const std::vector<double> &coo_val, const std::vector<int> &coo_row,
+    const std::vector<int> &coo_col, std::vector<double> &csr_val, std::vector<int> &csr_first,
+    std::vector<int> &csr_kk, bool sorted )
 {
     csr_val.clear();
     csr_first.clear();
@@ -222,9 +222,9 @@ void MatrixCOOtoCSR( const std::vector<double> &coo_val, const std::vector<unsig
     }
 }
 
-void MatrixCOOtoCSC( const std::vector<double> &coo_val, const std::vector<unsigned> &coo_row,
-    const std::vector<unsigned> &coo_col, std::vector<double> &csc_val, std::vector<unsigned> &csc_first,
-    std::vector<unsigned> &csc_kk, bool sorted )
+void MatrixCOOtoCSC( const std::vector<double> &coo_val, const std::vector<int> &coo_row,
+    const std::vector<int> &coo_col, std::vector<double> &csc_val, std::vector<int> &csc_first,
+    std::vector<int> &csc_kk, bool sorted )
 {  
     csc_val.clear();
     csc_first.clear();
