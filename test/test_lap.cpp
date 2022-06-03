@@ -184,8 +184,8 @@ BOOST_AUTO_TEST_CASE( dense5to50 )
     plt::save( "dense5to50.png", dpi );
     plt::show();
     plt::close();
-    plt::clf();
-    plt::cla();
+//    plt::clf();
+//    plt::cla();
 #endif
 }
 
@@ -348,8 +348,8 @@ BOOST_AUTO_TEST_CASE( dense50to1000 )
     plt::save( "dense50to1000.png", dpi );
     plt::show();
     plt::close();
-    plt::clf();
-    plt::cla();
+//    plt::clf();
+//    plt::cla();
 #endif
 }
 
@@ -684,8 +684,8 @@ BOOST_AUTO_TEST_CASE( sparse5to50 )
     plt::save( "sparse5to50.png", dpi );
     plt::show();
     plt::close();
-    plt::clf();
-    plt::cla();
+//    plt::clf();
+//    plt::cla();
 #endif
 }
 
@@ -1021,8 +1021,8 @@ BOOST_AUTO_TEST_CASE( sparse50to1000 )
     plt::save( "sparse50to1000.png", dpi );
     plt::show();
     plt::close();
-    plt::clf();
-    plt::cla();
+//    plt::clf();
+//    plt::cla();
 #endif
 }
 

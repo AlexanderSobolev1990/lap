@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package (Boost COMPONENTS unit_test_framework REQUIRED)
-find_package(BLAS REQUIRED)
+#find_package(BLAS REQUIRED)
 find_package(Armadillo REQUIRED)
 include_directories(/usr/include/python3.8)
 
