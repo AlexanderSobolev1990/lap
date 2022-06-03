@@ -1,7 +1,7 @@
 //----------------------------------------------------------------------------------------------------------------------
 ///
-/// \file       lap_jvc_dense.cpp
-/// \brief      Решение задачи о назначениях методом JVC для плотных матриц (cтандартная линейная дискретная оптимизационная задача)
+/// \file       lap_jvc_sparse.cpp
+/// \brief      Решение задачи о назначениях методом JVC для разреженных матриц (cтандартная линейная дискретная оптимизационная задача)
 /// \date       18.05.22 - создан
 /// \author     Соболев А.А.
 /// \addtogroup spml
@@ -61,8 +61,10 @@ int solveForOneL( std::vector<double> &cc_, const std::vector<int> &kk, const st
         d(j) = dj;
         lab(j) = i0;
 //        if( dj <= min_ ) { //POSSIBLE FLOWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
-        if( ( dj < min_ ) || ( std::abs( dj - min_ ) < resolution ) ) { //POSSIBLE FLOWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
-            if( dj < min_ ) {
+//        if( ( dj < min_ ) || ( std::abs( dj - min_ ) < resolution ) ) { //POSSIBLE FLOWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+        if( ( ( min_ - dj ) > resolution ) || ( std::abs( dj - min_ ) < resolution ) ) { //POSSIBLE FLOWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+            //if( dj < min_ ) {
+            if ( ( min_ - dj ) > resolution ) {
                 td1 = -1;
                 min_ = dj;
             }
@@ -94,9 +96,11 @@ int solveForOneL( std::vector<double> &cc_, const std::vector<int> &kk, const st
         double h = cc_[tp] - v(j0) - min_;
         for( unsigned t = first[i]; t < first[i + 1]; t++ ) {
             j = kk[t];
-            if( !ok(j) ) {
+//            if( !ok(j) ) {
+            if( ok(j) == 0 ) { // if( false )
                 double vj = cc_[t] - v(j) - h;
-                if( vj < d(j) ) {
+//                if( vj < d(j) ) { // POSSIBLE FLOWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+                if( ( d(j) - vj ) > resolution ) { // POSSIBLE FLOWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
                     d(j) = vj;
                     lab(j) = i;
 //                    if( vj == min_ ) { // POSSIBLE FLOWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
@@ -118,8 +122,11 @@ int solveForOneL( std::vector<double> &cc_, const std::vector<int> &kk, const st
             min_ = maxcost;
             last = td2 + 1;
             for( int jp = 0; jp < nc; jp++ ) {
-                if( ( ( d[jp] < min_ ) || ( std::abs( d[jp] - min_ ) < resolution ) ) && !ok(jp) ) {
-                    if( d[jp] < min_ ) {
+//                if( ( ( d[jp] < min_ ) || ( std::abs( d[jp] - min_ ) < resolution ) ) && !ok(jp) ) {
+//                if( ( ( d[jp] < min_ ) || ( std::abs( d[jp] - min_ ) < resolution ) ) && ( ok(jp) == 0 ) ) {
+                if( ( std::abs( d[jp] - maxcost ) > resolution ) && ( ( ( min_ - d[jp] ) > resolution ) || ( std::abs( d[jp] - min_ ) < resolution ) ) && ( ok(jp) == 0 ) ) {
+                    //if( d[jp] < min_ ) {
+                    if( ( min_ - d[jp] ) > resolution ) {
                         td1 = -1;
                         min_ = d(jp);
                     }
@@ -168,10 +175,6 @@ int JVCsparseNEW( const std::vector<double> &cc, const std::vector<int> &kk, con
     y -= 1;
     free -= 1;
     todo -= 1;
-//    x.fill( -1 );
-//    y.fill( -1 );
-//    free.fill( -1 );
-//    todo.fill( -1 );
 
     // Поиск минимума/максимума
     std::vector<double> cc_ = cc;
@@ -188,7 +191,8 @@ int JVCsparseNEW( const std::vector<double> &cc, const std::vector<int> &kk, con
         for( int i = 0; i < nr; i++ ) {
             for( int t = first[i]; t < first[i + 1]; t++ ) {
                 int jp = kk[t];
-                if( cc_[t] < v(jp) ) {
+//                if( cc_[t] < v(jp) ) {
+                if( ( v(jp) - cc_[t] ) > resolution ) {
                     v(jp) = cc_[t];
                     y(jp) = i;
                 }
@@ -217,7 +221,8 @@ int JVCsparseNEW( const std::vector<double> &cc, const std::vector<int> &kk, con
                 for( int t = first[i]; t < first[i + 1]; t++ ) {
                     int jp = kk[t];
                     if( jp != j1 ) {
-                        if( ( cc_[t] - v(jp) ) < min_ ) {
+//                        if( ( cc_[t] - v(jp) ) < min_ ) {
+                        if( ( min_ - ( cc_[t] - v(jp) ) ) > resolution ) {
                             min_ = ( cc_[t] - v(jp) );
                         }
                     }
@@ -253,9 +258,11 @@ int JVCsparseNEW( const std::vector<double> &cc, const std::vector<int> &kk, con
                 for( int t = first[i]; t < first[i + 1]; t++ ) {
                     int jp = kk[t];
                     double dj = cc_[t] - v(jp);
-                    if( dj < vj ) {
+//                    if( dj < vj ) {
+                    if( ( vj - dj ) > resolution ) {
 //                        if( dj >= v0 ) { // POSSIBLE FLOW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-                        if( ( dj > v0 ) || ( std::abs( dj - v0 ) < resolution ) ) {
+//                        if( ( dj > v0 ) || ( std::abs( dj - v0 ) < resolution ) ) {
+                        if( ( ( dj - v0 ) > resolution ) || ( std::abs( dj - v0 ) < resolution ) ) {
                             vj = dj;
                             j1p = jp;
                         } else {
@@ -301,8 +308,8 @@ int JVCsparseNEW( const std::vector<double> &cc, const std::vector<int> &kk, con
                 //------------------------------------------------------------------------------------------------------
 
                 u(i) = vj;
-                //if( v0 < vj ) { // FIX
-                if( ( vj - v0 ) > resolution ) { // FIX
+//                if( v0 < vj ) { // FIX
+                if( ( vj - v0 ) > resolution ) { // MY
                     v(j0p) += ( v0 - vj );
                 } else if( i0 != -1 ) {
                     j0p = j1p;
@@ -312,7 +319,7 @@ int JVCsparseNEW( const std::vector<double> &cc, const std::vector<int> &kk, con
                 y(j0p) = i;
                 if( i0 != -1 ) {
 //                    if( v0 < vj ) { // FIX
-                    if( ( vj - v0 ) > resolution ) { // FIX
+                    if( ( vj - v0 ) > resolution ) { // MY
                         free(--h) = i0;
                     } else {
                         free(lp++) = i0;
