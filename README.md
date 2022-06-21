@@ -4,9 +4,9 @@
 
 ## 1. Brief / Обзор ##
 <br/> Solving linear assignment problem using / Решение задачи о назначениях методами:
-* Jonker-Volgenant-Castanon method (JVC) for dense and sparse (CSR - compressed sparse row) matrices; / Метод Джонкера-Волгенанта-Кастаньона для плотных и разреженных матриц в CSR формате
-* Mack method / Метод Мака;
-* Hungarian (Munkres) method / Венгерский алгоритм.
+* Jonker-Volgenant-Castanon method (JVC) for dense and sparse (CSR - compressed sparse row) matrices / Метод Джонкера-Волгенанта-Кастаньона для плотных и разреженных матриц в CSR формате
+* Mack method / Метод Мака
+* Hungarian (Munkres) method / Венгерский алгоритм
 
 ## 2. References / Ссылки ##
 Papers / Статьи:
@@ -24,12 +24,12 @@ Repositories / Репозитории:
 * https://github.com/fuglede/linearassignment
 
 ## 3. Dependencies / Зависимости ##
-<br/> Armadillo for matrices, Boost for testing / Armadillo для работы с матрицами, Boost для тестирования.
+<br /> Armadillo for matrices, Boost for testing / Armadillo для работы с матрицами, Boost для тестирования.
 
 ## 4. Tests / Тесты ##
-* Сomparison of calculation speed on dense and sparse matrices / Сравнение скорости работы на плотных и разреженных матрицах;
-* Simple assignment problem matrices are provided / Дополнительные тесты на простых матрицах;
-* test JVC algorithm for looping / Тест алгоритма JVCdense на зацикливание.
+* Сomparison of calculation speed on dense and sparse matrices / Сравнение скорости работы на плотных и разреженных матрицах
+* Simple assignment problem matrices are provided / Дополнительные тесты на простых матрицах
+* test JVC algorithm for looping / Тест алгоритма JVCdense на зацикливание
 
 (Sparsity is ~20% / В разреженной матрице ~20% назначенных ячеек)
 
@@ -40,29 +40,29 @@ Repositories / Репозитории:
 <?\image html  doc/pictures/dense5to50.png width=1000px?>
 <?\image latex doc/pictures/dense5to50.png?> 
 
-<center>Fig.1 - Execution time for dense matrices (small dimensions)</center>
+<center>Fig.1 - Execution time for dense matrices (small dimensions) <br /> </center>
 <center>Рис.1 - Время выполнения на плотных матрицах (малые размернсти)</center>
-***
+
 <center><img src="doc/pictures/dense50to1000.png" width="1000px" /></center> 
 
 <?\image html  doc/pictures/dense50to1000.png width=1000?>
 <?\image latex doc/pictures/dense50to1000.png?>
 
-<center>Fig.2 - Execution time for dense matrices (large dimensions)</center>
+<center>Fig.2 - Execution time for dense matrices (large dimensions) <br /> </center>
 <center>Рис.2 - Время выполнения на плотных матрицах (большие размерности)</center>
-***
+
 <center><img src="doc/pictures/sparse5to50.png" width="1000px" /></center>
 
 <?\image html  doc/pictures/sparse5to50.png width=1000px?>
 <?\image latex doc/pictures/sparse5to50.png?> 
 
-<center>Fig.3 - Execution time for sparse matrices (small dimensions)</center>
+<center>Fig.3 - Execution time for sparse matrices (small dimensions) <br /> </center>
 <center>Рис.3 - Время выполнения на разреженных матрицах (малые размернсти)</center>
-***
+
 <center><img src="doc/pictures/sparse50to1000.png" width="1000px" /></center> 
 
 <?\image html  doc/pictures/sparse50to1000.png width=1000?>
 <?\image latex doc/pictures/sparse50to1000.png?>
 
-<center>Fig.4 - Execution time for sparse matrices (large dimensions)</center>
+<center>Fig.4 - Execution time for sparse matrices (large dimensions) <br /> </center>
 <center>Рис.4 - Время выполнения на разреженных матрицах (большие размерности)</center>
