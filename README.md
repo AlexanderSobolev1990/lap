@@ -66,3 +66,11 @@ Repositories / Репозитории:
 
 <center>Fig.4 - Execution time for sparse matrices (large dimensions) <br /> </center>
 <center>Рис.4 - Время выполнения на разреженных матрицах (большие размерности)</center>
+
+<center><img src="doc/pictures/sparse500to7000.png" width="1000px" /></center> 
+
+<?\image html  doc/pictures/sparse500to7000.png width=1000?>
+<?\image latex doc/pictures/sparse500to7000.png?>
+
+<center>Fig.5 - Execution time for sparse matrices (large dimensions) for JVCsparse<br /> </center>
+<center>Рис.5 - Время выполнения на разреженных матрицах (большие размерности) для JVCsparse</center>
