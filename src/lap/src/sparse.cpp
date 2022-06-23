@@ -40,6 +40,11 @@ void MatrixDenseToCOO( const arma::mat &A, std::vector<double> &coo_val, std::ve
     }
 }
 
+void MatrixDenseToCOO( const arma::mat &A, CMatrixCOO &COO )
+{
+    MatrixDenseToCOO( A, COO.coo_val, COO.coo_row, COO.coo_col );
+}
+
 void MatrixCOOtoDense( const std::vector<double> &coo_val, const std::vector<int> &coo_row,
     const std::vector<int> &coo_col, arma::mat &A )
 {
@@ -50,6 +55,11 @@ void MatrixCOOtoDense( const std::vector<double> &coo_val, const std::vector<int
     for( unsigned k = 0; k < coo_val.size(); k++ ) {
         A( coo_row[k], coo_col[k] ) = coo_val[k];
     }
+}
+
+void MatrixCOOtoDense( const CMatrixCOO &COO, arma::mat &A )
+{
+    MatrixCOOtoDense( COO.coo_val, COO.coo_row, COO.coo_col, A );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -84,6 +94,11 @@ void MatrixDenseToCSR( const arma::mat &A, std::vector<double> &csr_val, std::ve
     }    
 }
 
+void MatrixDenseToCSR( const arma::mat &A, CMatrixCSR &CSR )
+{
+    MatrixDenseToCSR( A, CSR.csr_val, CSR.csr_first, CSR.csr_kk );
+}
+
 void MatrixCSRtoDense( const std::vector<double> &csr_val, const std::vector<int> &csr_first,
     const std::vector<int> &csr_kk, arma::mat &A )
 {
@@ -98,6 +113,11 @@ void MatrixCSRtoDense( const std::vector<double> &csr_val, const std::vector<int
             A(i, csr_first[j]) = csr_val[j];//C[m*i+first[j]] = CSR[j];
         }
     }
+}
+
+void MatrixCSRtoDense( const CMatrixCSR &CSR, arma::mat &A )
+{
+    MatrixCSRtoDense( CSR.csr_val, CSR.csr_first, CSR.csr_kk, A );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -132,6 +152,11 @@ void MatrixDenseToCSC( const arma::mat &A, std::vector<double> &csc_val, std::ve
     }
 }
 
+void MatrixDenseToCSC( const arma::mat &A, CMatrixCSC &CSC )
+{
+    MatrixDenseToCSC( A, CSC.csc_val, CSC.csc_first, CSC.csc_kk );
+}
+
 void MatrixCSCtoDense( const std::vector<double> &csc_val, const std::vector<int> &csc_first,
     const std::vector<int> &csc_kk, arma::mat &A )
 {
@@ -146,6 +171,11 @@ void MatrixCSCtoDense( const std::vector<double> &csc_val, const std::vector<int
             A(csc_first[i], j) = csc_val[i];
         }
     }
+}
+
+void MatrixCSCtoDense( const CMatrixCSC &CSC, arma::mat &A )
+{
+    MatrixCSCtoDense( CSC.csc_val, CSC.csc_first, CSC.csc_kk, A );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -222,6 +252,11 @@ void MatrixCOOtoCSR( const std::vector<double> &coo_val, const std::vector<int> 
     }
 }
 
+void MatrixCOOtoCSR( const CMatrixCOO &COO, CMatrixCSR &CSR, bool sorted )
+{
+    MatrixCOOtoCSR( COO.coo_val, COO.coo_row, COO.coo_col, CSR.csr_val, CSR.csr_first, CSR.csr_kk, sorted );
+}
+
 void MatrixCOOtoCSC( const std::vector<double> &coo_val, const std::vector<int> &coo_row,
     const std::vector<int> &coo_col, std::vector<double> &csc_val, std::vector<int> &csc_first,
     std::vector<int> &csc_kk, bool sorted )
@@ -294,6 +329,10 @@ void MatrixCOOtoCSC( const std::vector<double> &coo_val, const std::vector<int> 
     }
 }
 
+void MatrixCOOtoCSC( const CMatrixCOO &COO, CMatrixCSC &CSC, bool sorted )
+{
+    MatrixCOOtoCSC( COO.coo_val, COO.coo_row, COO.coo_col, CSC.csc_val, CSC.csc_first, CSC.csc_kk, sorted );
+}
 
 } // end namespace Sparse
 } // end namespace SPML

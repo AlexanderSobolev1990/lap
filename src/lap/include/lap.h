@@ -67,17 +67,18 @@ void JVCdense( const arma::mat &assigncost, int dim, TSearchParam sp, double max
 ///
 /// \brief Метод Джонкера-Волгенанта-Кастаньона (Jonker-Volgenant-Castanon) решения задачи о назначениях для
 /// разреженных матриц
-/// \param[in]  cc         -
-/// \param[in]  kk         -
-/// \param[in]  ii         -
+/// \param[in]  cc         - вектор ненулевых элементов матрицы
+/// \param[in]  kk         - вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов
+/// \param[in]  first      - вектор начальных смещений в векторе сс
 /// \param[in]  sp         - критерий поиска (минимум/максимум)
 /// \param[in]  maxcost    - модуль максимального элемента матрицы assigncost
 /// \param[in]  resolution - точность для сравнения двух вещественных чисел
 /// \param[out] rowsol     - результат задачи о назначениях, размерность [dim] (индекс макс/мин элемента в i-ой строке)
 /// rowsol[i] = j --> в i-ой строке выбран j-ый элемент
 /// \param[out] lapcost    - сумма назначенных элементов матрицы ценности assigncost
+/// \return 0 - OK, 1 - fail
 ///
-int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const std::vector<int> &first,
+int JVCsparse(const std::vector<double> &cc, const std::vector<int> &kk, const std::vector<int> &first,
     TSearchParam sp, double maxcost, double resolution, arma::ivec &rowsol, double &lapcost );
 
 ///
@@ -90,9 +91,10 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
 /// \param[out] rowsol     - результат задачи о назначениях, размерность [dim] (индекс макс/мин элемента в i-ой строке)
 /// rowsol[i] = j --> в i-ой строке выбран j-ый элемент
 /// \param[out] lapcost    - сумма назначенных элементов матрицы ценности assigncost
+/// \return 0 - OK, 1 - fail
 ///
-void JVCsparse( const SPML::Sparse::CMatrixCSR<double> &csr, TSearchParam sp, double maxcost,
-    double resolution, arma::ivec &rowsol, double &lapcost );
+int JVCsparse( const Sparse::CMatrixCSR &csr, TSearchParam sp, double maxcost, double resolution, arma::ivec &rowsol,
+    double &lapcost );
 
 //----------------------------------------------------------------------------------------------------------------------
 ///
@@ -117,8 +119,11 @@ void Mack( const arma::mat &assigncost, int dim, TSearchParam sp, double maxcost
 /// \param[in]  assigncost - квадратная матрица ценности, размер [dim,dim]
 /// \param[in]  dim        - порядок квадратной матрицы ценности и размерность результата res соответственно
 /// \param[in]  sp         - критерий поиска (минимум/максимум)
+/// \param[in]  maxcost    - модуль максимального элемента матрицы assigncost
+/// \param[in]  resolution - точность для сравнения двух вещественных чисел
 /// \param[out] rowsol     - результат задачи о назначениях, размерность [dim] (индекс макс/мин элемента в i-ой строке)
 /// rowsol[i] = j --> в i-ой строке выбран j-ый элемент
+/// \param[out] lapcost    - сумма назначенных элементов матрицы ценности assigncost
 ///
 void Hungarian( const arma::mat &assigncost, int dim, TSearchParam sp, double maxcost, double resolution,
     arma::ivec &rowsol, double &lapcost );

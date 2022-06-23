@@ -41,9 +41,6 @@ void updateAssignments( arma::ivec &lab, arma::ivec &y, arma::ivec &x, int j, in
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-//int solveForOneL( std::vector<double> &cc_, const std::vector<unsigned> &kk, const std::vector<unsigned> &first,
-//    int l, int nc, arma::vec &d, arma::ivec &ok, arma::ivec &free, arma::vec &v, arma::ivec &lab, arma::ivec &todo,
-//    arma::ivec &y, arma::ivec &x, int td1, double resolution, double maxcost, bool &fail )
 int solveForOneL( std::vector<double> &cc_, const std::vector<int> &kk, const std::vector<int> &first,
     int l, int nc, arma::vec &d, arma::ivec &ok, arma::ivec &free, arma::vec &v, arma::ivec &lab, arma::ivec &todo,
     arma::ivec &y, arma::ivec &x, int td1, double resolution, double maxcost, bool &fail )
@@ -94,7 +91,7 @@ int solveForOneL( std::vector<double> &cc_, const std::vector<int> &kk, const st
             tp++;
         }
         double h = cc_[tp] - v(j0) - min_;
-        for( unsigned t = first[i]; t < first[i + 1]; t++ ) {
+        for( int t = first[i]; t < first[i + 1]; t++ ) {
             j = kk[t];
 //            if( !ok(j) ) {
             if( ok(j) == 0 ) { // if( false )
@@ -153,7 +150,7 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
     // Объявления
     int nr = first.size() - 1; // Кол-во строк
     int max_kk = -1;
-    for( int i = 0; i < kk.size(); i++ ) { // Поиск максимального элемента в массиве kk - это и будет кол-во столбцов
+    for( unsigned i = 0; i < kk.size(); i++ ) { // Поиск максимального элемента в массиве kk - это и будет кол-во столбцов
         if( kk[i] > max_kk ) {
             max_kk = kk[i];
         }
@@ -385,6 +382,14 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
         }
     }
     return 0;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+int JVCsparse( const Sparse::CMatrixCSR &csr, TSearchParam sp, double maxcost, double resolution, arma::ivec &rowsol,
+    double &lapcost )
+{
+    int result = JVCsparse( csr.csr_val, csr.csr_first, csr.csr_kk, sp, maxcost, resolution, rowsol, lapcost );
+    return result;
 }
 
 }
