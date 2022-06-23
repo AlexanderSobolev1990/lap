@@ -36,13 +36,9 @@ Repositories / Репозитории:
 ***
 <center>Results for time measuring / Результаты замеров скорости работы:</center>
 
-<!--<center><img src="doc/pictures/dense5to50.png" width="1000px"></center>
+<center><img src="doc/pictures/dense5to50.png" width="1000px"></center>
 <?\image html  doc/pictures/dense5to50.png width=1000px?>
-<?\image latex doc/pictures/dense5to50.png?> -->
-
-<!--<center><img src="dense5to50.png" width="1000px"></center>-->
-<?\image html  dense5to50.png width=1000px?>
-<?\image latex dense5to50.png?> 
+<?\image latex doc/pictures/dense5to50.png?> 
 <center>Fig.1 - Execution time for dense matrices (small dimensions)<br /> </center>
 <center>Рис.1 - Время выполнения на плотных матрицах (малые размернсти)<br /></center>
 

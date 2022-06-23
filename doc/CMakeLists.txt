@@ -8,6 +8,7 @@ set(DOXYGEN_INPUT_DIRECTORY # Откуда брать исходники для 
 set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}) # Куда положить сгенерированную документацию
 
 set(DOXYGEN_IMAGE_PATH ${ROOT_DIR}/doc/pictures)
+#set(DOXYGEN_IMAGE_PATH pictures)
 
 if(${CMAKE_VERSION} VERSION_GREATER "3.8")
     message(WARNING "Doxygen do not need config file, options are taken from CMakeLists.txt")

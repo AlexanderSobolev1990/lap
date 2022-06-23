@@ -15,8 +15,7 @@ set(HEADERS
 set(SOURCES
     src/sparse.cpp
     src/lap_jvc_dense.cpp
-    src/lap_jvc_sparse.cpp
-    src/lap_jvc_sparse2.cpp
+    src/lap_jvc_sparse.cpp    
     src/lap_mack.cpp
     src/lap_hungarian.cpp
 )

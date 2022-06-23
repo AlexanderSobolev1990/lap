@@ -416,7 +416,7 @@ void Hungarian( const arma::mat &assigncost, int dim, TSearchParam sp, double ma
                 hungarian_step_3( step, indM, ccov, N );
                 break;
             case 4:
-                hungarian_step_4(step, cost, indM, rcov, ccov, rpath_0, cpath_0, N );
+                hungarian_step_4( step, cost, indM, rcov, ccov, rpath_0, cpath_0, N );
                 break;
             case 5:
                 hungarian_step_5( step, indM, rcov, ccov, path, rpath_0, cpath_0, N );
@@ -427,6 +427,8 @@ void Hungarian( const arma::mat &assigncost, int dim, TSearchParam sp, double ma
             case 7:
                 done = true;
                 break;
+            default:
+                assert( false );
         }
     }
 

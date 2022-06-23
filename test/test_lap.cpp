@@ -220,7 +220,7 @@ BOOST_AUTO_TEST_CASE( dense50to1000 )
     double resolution = 1.0e-6;
 
     bool print = true; //false; //
-    int cycle_count = 1;
+    int cycle_count = 10;
 #ifdef MATPLOTLIB
     namespace plt = matplotlibcpp;
     double width = 100;
@@ -441,7 +441,7 @@ BOOST_AUTO_TEST_CASE( sparse5to50 )
     double resolution = 1.0e-6; // -6
 
     bool print = true; //false; //
-    int cycle_count = 1;//1000; //
+    int cycle_count = 1000; //1;//
 #ifdef MATPLOTLIB
     namespace plt = matplotlibcpp;    
     double width = 100;
@@ -642,7 +642,7 @@ BOOST_AUTO_TEST_CASE( sparse5to50 )
             timer.at( "JVCdense" ).EndTimer();
 
             timer.at( "JVCsparse" ).StartTimer();
-            int resSparse = SPML::LAP::JVCsparseNEW( mat_JVCsparse2N.csr_val, mat_JVCsparse2N.csr_first, mat_JVCsparse2N.csr_kk,
+            int resSparse = SPML::LAP::JVCsparse( mat_JVCsparse2N.csr_val, mat_JVCsparse2N.csr_first, mat_JVCsparse2N.csr_kk,
                 sp, infValue, resolution, actualJVCsparse2N, lapcostJVCsparse );
             timer.at( "JVCsparse" ).EndTimer();
             assert( resSparse == 0 );
@@ -807,7 +807,7 @@ BOOST_AUTO_TEST_CASE( sparse50to1000 )
     double resolution = 1.0e-6; // -6
 
     bool print = true; //false; //
-    int cycle_count = 3;//1000; //
+    int cycle_count = 10;//1000; //
 #ifdef MATPLOTLIB
     namespace plt = matplotlibcpp;
     double width = 100;
@@ -1003,7 +1003,7 @@ BOOST_AUTO_TEST_CASE( sparse50to1000 )
             timer.at( "JVCdense" ).EndTimer();
 
             timer.at( "JVCsparse" ).StartTimer();
-            int resSparse = SPML::LAP::JVCsparseNEW( mat_JVCsparse2N.csr_val, mat_JVCsparse2N.csr_first, mat_JVCsparse2N.csr_kk,
+            int resSparse = SPML::LAP::JVCsparse( mat_JVCsparse2N.csr_val, mat_JVCsparse2N.csr_first, mat_JVCsparse2N.csr_kk,
                 sp, infValue, resolution, actualJVCsparse2N, lapcostJVCsparse );
             timer.at( "JVCsparse" ).EndTimer();
             assert( resSparse == 0 );
@@ -1165,11 +1165,9 @@ BOOST_AUTO_TEST_CASE( sparse50to1000 )
 BOOST_AUTO_TEST_CASE( sparse500to7000 )
 {
     SPML::LAP::TSearchParam sp = SPML::LAP::TSearchParam::SP_Max;
-//    double maxvalue = 1.0e6;
-    double resolution = 1.0e-6; // -6
-
+    double resolution = 1.0e-6;
     bool print = true; //false; //
-    int cycle_count = 3;//1000; //
+    int cycle_count = 5;//1000; //
 #ifdef MATPLOTLIB
     namespace plt = matplotlibcpp;
     double width = 100;
@@ -1193,24 +1191,15 @@ BOOST_AUTO_TEST_CASE( sparse500to7000 )
     }
 
     std::map<std::string, std::vector<double>> dimensionDouble = {
-//        { "JVCdense", dimensionLong },
         { "JVCsparse", dimensionLong }//,
-//        { "Mack", dimensionLong },
-//        { "Hungarian", dimensionShort }
     };
 
     std::map<std::string, std::vector<double>> timeOfMethod = {
-//        { "JVCdense", {} },
         { "JVCsparse", {} }//,
-//        { "Mack",{} },
-//        { "Hungarian",{} }
     };
 
     std::map<std::string, std::map<std::string, std::string>> estimated_keywords = {
-//        { "JVCdense", { { "color", "red" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "JVCdense" } } },
         { "JVCsparse", { { "color", "magenta" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "JVCsparse" } } }//,
-//        { "Mack", { { "color", "green" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "Mack" } } },
-//        { "Hungarian", { { "color", "blue" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "Hungarian" } } }
     };
 
     std::mt19937 generator; // Генератор псевдослучайных чисел Mersenne Twister
@@ -1250,13 +1239,10 @@ BOOST_AUTO_TEST_CASE( sparse500to7000 )
         arma::ivec actualMack2N = arma::ivec( 2*n, arma::fill::zeros );
         arma::ivec actualHungarian2N = arma::ivec( 2*n, arma::fill::zeros );
 
-        double lapcostJVCdense = 0.0, lapcostJVCsparse = 0.0, lapcostMack = 0.0, lapcostHungarian = 0.0;
+        double lapcostJVCsparse = 0.0;
 
         std::map<std::string, SPML::Timing::CTimeKeeper> timer = {
-//            { "JVCdense", SPML::Timing::CTimeKeeper() },
             { "JVCsparse", SPML::Timing::CTimeKeeper() }//,
-//            { "Mack", SPML::Timing::CTimeKeeper() },
-//            { "Hungarian", SPML::Timing::CTimeKeeper() }
         };
 
         for( int cycle = 0; cycle < cycle_count; cycle++ ) {
@@ -1269,9 +1255,10 @@ BOOST_AUTO_TEST_CASE( sparse500to7000 )
 
 //            bool doSparse = false;
             bool doSparse = true;
-            double infValue = 1.0e6;
-            double bigValue = 1.0e5;
-            double halfInfValue = 1.0e3;//infValue * 0.5;
+
+            double infValue = 1.0e7;
+            double bigValue = 1.0e-6;
+            double halfBigValue = 1.0e-3;
 
             if( doSparse ) {
                 // Проредим матрицу в случайных местах
@@ -1318,10 +1305,9 @@ BOOST_AUTO_TEST_CASE( sparse500to7000 )
             //----------
             // FOR DENSE
             arma::mat emptyDense = arma::mat( n, n, arma::fill::ones );
-            emptyDense *= -halfInfValue;//-infValue;//
-//            ( empty2.diag() ).fill( -bigValue );
+            emptyDense *= halfBigValue;
             arma::mat verbotenDense = arma::mat( n, n, arma::fill::ones );
-            verbotenDense *= -halfInfValue;//-infValue;
+            verbotenDense *= halfBigValue;
 
             mat_JVCdense2N.submat( 0, n, ( n - 1 ), ( 2 * n - 1 ) ) = emptyDense;
             mat_JVCdense2N.submat( n, 0, ( 2 * n - 1 ), ( n - 1 ) ) = emptyDense;
@@ -1330,12 +1316,10 @@ BOOST_AUTO_TEST_CASE( sparse500to7000 )
             //----------
             // FOR SPARSE
             arma::mat emptySparse = arma::mat( n, n, arma::fill::eye );
-//            arma::mat empty = arma::mat( n, n, arma::fill::ones );
-            emptySparse *= -halfInfValue;//-bigValue;//-halfInfValue;//-infValue;//
+            emptySparse *= halfBigValue;
 
-//            arma::mat verbotenSparse = arma::mat( n, n, arma::fill::ones );
             arma::mat verbotenSparse = arma::mat( n, n, arma::fill::eye );
-            verbotenSparse *= -bigValue;//-infValue;//-halfInfValue;//
+            verbotenSparse *= bigValue;//-infValue;//-halfInfValue;//
 
             mat_JVCdenseForSparse2N.submat( 0, n, ( n - 1 ), ( 2 * n - 1 ) ) = emptySparse;
             mat_JVCdenseForSparse2N.submat( n, 0, ( 2 * n - 1 ), ( n - 1 ) ) = emptySparse;
@@ -1354,26 +1338,11 @@ BOOST_AUTO_TEST_CASE( sparse500to7000 )
             mat_Mack2N = mat_JVCdense2N;
             mat_Hungarian2N = mat_JVCdense2N;
 
-            // Запуск решений с замерами времени выполнения
-//            timer.at( "JVCdense" ).StartTimer();
-//            SPML::LAP::JVCdense( mat_JVCdense2N, 2*n, sp, infValue, resolution, actualJVCdense2N, lapcostJVCdense );
-//            timer.at( "JVCdense" ).EndTimer();
-
             timer.at( "JVCsparse" ).StartTimer();
-            int resSparse = SPML::LAP::JVCsparseNEW( mat_JVCsparse2N.csr_val, mat_JVCsparse2N.csr_first, mat_JVCsparse2N.csr_kk,
+            int resSparse = SPML::LAP::JVCsparse( mat_JVCsparse2N.csr_val, mat_JVCsparse2N.csr_first, mat_JVCsparse2N.csr_kk,
                 sp, infValue, resolution, actualJVCsparse2N, lapcostJVCsparse );
             timer.at( "JVCsparse" ).EndTimer();
             assert( resSparse == 0 );
-
-//            timer.at( "Mack" ).StartTimer();
-//            SPML::LAP::Mack( mat_Mack2N, 2*n, sp, infValue, resolution, actualMack2N, lapcostMack );
-//            timer.at( "Mack" ).EndTimer();
-
-//            if( n <= boundN ) {
-//                timer.at( "Hungarian" ).StartTimer();
-//                SPML::LAP::Hungarian( mat_Hungarian2N, 2*n, sp, infValue, resolution, actualHungarian2N, lapcostHungarian );
-//                timer.at( "Hungarian" ).EndTimer();
-//            }
 
             // Проверим соответствие решений всех методов!
             std::vector< std::pair<int, int> > solutionJVCdense;
@@ -1382,76 +1351,10 @@ BOOST_AUTO_TEST_CASE( sparse500to7000 )
             std::vector< std::pair<int, int> > solutionHungarian;
 
             for( int i = 0; i < n; i++ ) {
-//                if( actualJVCdense2N(i) < n ) {
-//                    solutionJVCdense.push_back( std::make_pair( i, actualJVCdense2N(i) ) );
-//                }
                 if( actualJVCsparse2N(i) < n ) {
                     solutionJVCsparse.push_back( std::make_pair( i, actualJVCsparse2N(i) ) );
                 }
-//                if( actualMack2N(i) < n ) {
-//                    solutionMack.push_back( std::make_pair( i, actualMack2N(i) ) );
-//                }
-//                if( n <= boundN ) { // Для венгерки
-//                    if( actualHungarian2N(i) < n ) {
-//                        solutionHungarian.push_back( std::make_pair( i, actualHungarian2N(i) ) );
-//                    }
-//                }
             }
-
-//            if( ( solutionJVCdense.size() != solutionJVCsparse.size() ) ||
-//                ( solutionJVCdense.size() != solutionMack.size() ) ||
-//                ( ( n <= boundN ) && ( solutionJVCdense.size() != solutionHungarian.size() ) ) )
-//            if( ( solutionJVCdense.size() != solutionJVCsparse.size() ) )
-//            {
-//                counter_assign++;
-//            } else {
-//                int size = solutionJVCdense.size();
-//                for( int i = 0; i < size; i++ ) {
-//                    if( ( solutionJVCdense[i].first != solutionJVCsparse[i].first ) ||
-//                        ( solutionJVCdense[i].second != solutionJVCsparse[i].second ) )
-////                        ( solutionJVCdense[i].first != solutionMack[i].first ) ||
-////                        ( solutionJVCdense[i].second != solutionMack[i].second ) ||
-////                        ( ( n <= boundN ) && ( ( solutionJVCdense[i].first != solutionHungarian[i].first ) ||
-////                        ( solutionJVCdense[i].second != solutionHungarian[i].second ) ) ) )
-//                    {
-//                        counter_assign++;
-//                        break;
-//                    }
-//                }
-//            }
-
-//            // Оценим LAPCOST - суммарную стоимость назначения
-//            double totalcostJVCdense = 0.0;
-//            for( auto &elem : solutionJVCdense ) {
-//                totalcostJVCdense += mat_JVCdense( elem.first, elem.second );
-//            }
-//            double totalcostJVCsparse = 0.0;
-//            for( auto &elem : solutionJVCsparse ) {
-//                totalcostJVCsparse += mat_JVCdense( elem.first, elem.second );
-//            }
-//            double totalcostHungarian = 0.0;
-//            for( auto &elem : solutionHungarian ) {
-//                totalcostHungarian += mat_JVCdense( elem.first, elem.second );
-//            }
-//            double totalcostMack = 0.0;
-//            for( auto &elem : solutionMack ) {
-//                totalcostMack+= mat_JVCdense( elem.first, elem.second );
-//            }
-
-//            bool eq_totalcostJVCdense_totalcostMack = std::abs( totalcostJVCdense - totalcostMack ) < 1e-5;
-//            bool eq_totalcostJVCdense_totalcostJVCsparse = std::abs( totalcostJVCdense - totalcostJVCsparse ) < 1e-5;
-//            bool eq_totalcostJVCdense_totalcostHungarian = false;
-//            if( n <= boundN ) {
-//                eq_totalcostJVCdense_totalcostHungarian = std::abs( totalcostJVCdense - totalcostHungarian ) < 1e-5;
-//            }
-
-//            if( !eq_totalcostJVCdense_totalcostMack ||
-//                !eq_totalcostJVCdense_totalcostJVCsparse ||
-//                ( ( n <= boundN ) && ( !eq_totalcostJVCdense_totalcostHungarian ) ) )
-//            if( !eq_totalcostJVCdense_totalcostJVCsparse )
-//            {
-//                counter_lapcost++;
-//            }
         }
         if( print ) {
             for( auto &t : timer ) {
@@ -1460,12 +1363,7 @@ BOOST_AUTO_TEST_CASE( sparse500to7000 )
         }
 
         for( auto &t : timer ) {
-//            if( ( n > boundN ) && ( t.first == "Hungarian" ) ) {
-//                continue;
-//            }
-
-//            timeOfMethod.at( t.first ).push_back( timer.at( t.first ).TimePerOp() * 1.0e3 ); // мс
-            timeOfMethod.at( t.first ).push_back( std::log10( timer.at( t.first ).TimePerOp() * 1.0e3 ) ); // мс
+            timeOfMethod.at( t.first ).push_back( timer.at( t.first ).TimePerOp() * 1.0e3 ); // мс
         }
         std::cout << "counter_lapcost=" << counter_lapcost << std::endl;
         std::cout << "counter_assign=" << counter_assign << std::endl;
@@ -1491,8 +1389,6 @@ BOOST_AUTO_TEST_CASE( sparse500to7000 )
     plt::save( "sparse500to7000.png", dpi );
     plt::show();
     plt::close();
-//    plt::clf();
-//    plt::cla();
 #endif
 #ifdef PRINTTOTXT
     std::ofstream os;
@@ -1521,7 +1417,7 @@ BOOST_AUTO_TEST_CASE( sparse500to7000 )
 #endif
 }
 
-BOOST_AUTO_TEST_CASE( ttt )
+BOOST_AUTO_TEST_CASE( test_spec )
 {
     SPML::LAP::TSearchParam sp = SPML::LAP::TSearchParam::SP_Max;
     double resolution = 1.0e-6;
@@ -1589,7 +1485,7 @@ BOOST_AUTO_TEST_CASE( ttt )
 
     arma::ivec actualJVCsparse = arma::ivec( ( k + l ), arma::fill::zeros );
     double lapcostJVCsparse = 0.0;
-    int resSparse = SPML::LAP::JVCsparseNEW( mat_sparse.csr_val, mat_sparse.csr_first, mat_sparse.csr_kk,
+    int resSparse = SPML::LAP::JVCsparse( mat_sparse.csr_val, mat_sparse.csr_first, mat_sparse.csr_kk,
         sp, infValue, resolution, actualJVCsparse, lapcostJVCsparse );
 
     // Проверим соответствие решений всех методов!
@@ -1628,10 +1524,6 @@ BOOST_AUTO_TEST_CASE( ttt )
         BOOST_CHECK_EQUAL( solutionJVCdense[i].first, solutionHung[i].first );
         BOOST_CHECK_EQUAL( solutionJVCdense[i].second, solutionHung[i].second );
     }
-
-//    BOOST_CHECK_EQUAL_COLLECTIONS( solutionJVCdense.begin(), solutionJVCdense.end(), solutionJVCsparse.begin(), solutionJVCsparse.end() );
-//    BOOST_CHECK_EQUAL_COLLECTIONS( solutionJVCdense.begin(), solutionJVCdense.end(), actualMackdense.begin(), actualMackdense.end() );
-//    BOOST_CHECK_EQUAL_COLLECTIONS( solutionJVCdense.begin(), solutionJVCdense.end(), solutionHung.begin(), solutionHung.end() );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -1858,7 +1750,7 @@ BOOST_AUTO_TEST_CASE( test_mat_3_jvc_sparse_min )
     double resolution = 1e-6;
     double lapcost1, lapcost2;
     SPML::LAP::JVCdense( mat_3_dense, size, SPML::LAP::TSearchParam::SP_Max, infValue, resolution, actual1, lapcost1 );
-    SPML::LAP::JVCsparse( csr_val, csr_kk, csr_first, size, SPML::LAP::TSearchParam::SP_Max, infValue, resolution, actual2, lapcost2 );
+    SPML::LAP::JVCsparse( csr_val, csr_kk, csr_first, SPML::LAP::TSearchParam::SP_Max, infValue, resolution, actual2, lapcost2 );
 
     double eps = 1e-6;
     BOOST_CHECK_EQUAL( ( std::abs( lapcost1 - lapcost2 ) < eps ), true );

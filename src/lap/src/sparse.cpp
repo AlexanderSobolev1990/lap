@@ -292,7 +292,6 @@ void MatrixCOOtoCSC( const std::vector<double> &coo_val, const std::vector<int> 
         }
         //now Bp,Bj,Bx form a CSC representation (with possible duplicates)
     }
-
 }
 
 
