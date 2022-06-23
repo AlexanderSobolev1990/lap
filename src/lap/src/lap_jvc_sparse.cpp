@@ -388,7 +388,7 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
 int JVCsparse( const Sparse::CMatrixCSR &csr, TSearchParam sp, double maxcost, double resolution, arma::ivec &rowsol,
     double &lapcost )
 {
-    int result = JVCsparse( csr.csr_val, csr.csr_first, csr.csr_kk, sp, maxcost, resolution, rowsol, lapcost );
+    int result = JVCsparse( csr.csr_val, csr.csr_kk, csr.csr_first, sp, maxcost, resolution, rowsol, lapcost );
     return result;
 }
 

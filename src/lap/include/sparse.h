@@ -43,8 +43,8 @@ struct CMatrixCOO
 struct CMatrixCSR
 {
     std::vector<double> csr_val;    ///< Вектор ненулевых элементов матрицы A[n,m] (n - число строк, m - число столбцов), размер nnz
-    std::vector<int> csr_first;     ///< Вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов nnz
-    std::vector<int> csr_kk;        ///< Вектор начальных смещений в векторе CSR, размер n+1
+    std::vector<int> csr_kk;        ///< Вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов nnz
+    std::vector<int> csr_first;     ///< Вектор начальных смещений в векторе CSR, размер n+1
 };
 
 ///
@@ -54,8 +54,8 @@ struct CMatrixCSR
 struct CMatrixCSC
 {
     std::vector<double> csc_val;    ///< Вектор ненулевых элементов матрицы A[n,m] (n - число строк, m - число столбцов), размер nnz
-    std::vector<int> csc_first;     ///< Вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов nnz
-    std::vector<int> csc_kk;        ///< Вектор начальных смещений в векторе CSC, размер m+1
+    std::vector<int> csc_kk;        ///< Вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов nnz
+    std::vector<int> csc_first;     ///< вектор начальных смещений в векторе CSC, размер m+1
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -99,11 +99,11 @@ void MatrixCOOtoDense( const CMatrixCOO &COO, arma::mat &A );
 /// \details Данный способ хранения эффективен, если кол-во ненулевых элементов NNZ<(m*(n-1)-1)/2
 /// \param[in]  A         - исходная матрица, размер [n,m] (n - число строк, m - число столбцов)
 /// \param[out] csr_val   - вектор ненулевых элементов матрицы A, размер равен количеству ненулевых элементов nnz
-/// \param[out] csr_first - вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов nnz
-/// \param[out] csr_kk    - вектор начальных смещений в векторе CSR, размер n+1
+/// \param[out] csr_kk    - вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов nnz
+/// \param[out] csr_first - вектор начальных смещений в векторе CSR, размер n+1
 ///
-void MatrixDenseToCSR( const arma::mat &A, std::vector<double> &csr_val, std::vector<int> &csr_first,
-    std::vector<int> &csr_kk );
+void MatrixDenseToCSR( const arma::mat &A, std::vector<double> &csr_val, std::vector<int> &csr_kk,
+    std::vector<int> &csr_first );
 
 ///
 /// \brief Преобразование плотной матрицы в CSR формат (Compressed Sparse Row Yale format)
@@ -115,12 +115,12 @@ void MatrixDenseToCSR( const arma::mat &A, CMatrixCSR &CSR );
 ///
 /// \brief Преобразование матрицы из CSR формата (Compressed Sparse Row Yale format) в плотную матрицу
 /// \param[in]  csr_val   - вектор ненулевых элементов матрицы A, размер равен количеству ненулевых элементов nnz
-/// \param[in]  csr_first - вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов nnz
-/// \param[in]  csr_kk    - вектор начальных смещений в векторе CSR, размер n+1
+/// \param[in]  csr_kk    - вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов nnz
+/// \param[in]  csr_first - вектор начальных смещений в векторе CSR, размер n+1
 /// \param[out] A         - плотная матрица, размер [n,m] (n - число строк, m - число столбцов)
 ///
-void MatrixCSRtoDense( const std::vector<double> &csr_val, const std::vector<int> &csr_first,
-    const std::vector<int> &csr_kk, arma::mat &A );
+void MatrixCSRtoDense( const std::vector<double> &csr_val, const std::vector<int> &csr_kk,
+    const std::vector<int> &csr_first, arma::mat &A );
 
 ///
 /// \brief Преобразование матрицы из CSR формата (Compressed Sparse Row Yale format) в плотную матрицу
@@ -135,11 +135,11 @@ void MatrixCSRtoDense( const CMatrixCSR &CSR, arma::mat &A );
 /// \details Данный способ хранения эффективен, если кол-во ненулевых элементов NNZ<(m*(n-1)-1)/2
 /// \param[in]  A         - исходная матрица, размер [n,m] (n - число строк, m - число столбцов)
 /// \param[out] csc_val   - вектор ненулевых элементов матрицы A, размер равен количеству ненулевых элементов nnz
-/// \param[out] csc_first - вектор индексов строк ненулевых элементов, размер равен количеству ненулевых элементов nnz
-/// \param[out] csc_kk    - вектор начальных смещений в векторе CSR, размер m+1
+/// \param[out] csc_kk    - вектор индексов строк ненулевых элементов, размер равен количеству ненулевых элементов nnz
+/// \param[out] csc_first - вектор начальных смещений в векторе CSR, размер m+1
 ///
-void MatrixDenseToCSC( const arma::mat &A, std::vector<double> &csc_val, std::vector<int> &csc_first,
-    std::vector<int> &csc_kk );
+void MatrixDenseToCSC( const arma::mat &A, std::vector<double> &csc_val, std::vector<int> &csc_kk,
+    std::vector<int> &csc_first );
 
 ///
 /// \brief Преобразование плотной матрицы в CSC формат (Compressed Sparse Column Yale format)
@@ -151,12 +151,12 @@ void MatrixDenseToCSC( const arma::mat &A, CMatrixCSC &CSC );
 ///
 /// \brief Преобразование матрицы из CSC формата (Compressed Sparse Column Yale format) в плотную матрицу
 /// \param[in]  csc_val   - вектор ненулевых элементов матрицы A, размер равен количеству ненулевых элементов nnz
-/// \param[in]  csc_first - вектор индексов строк ненулевых элементов, размер равен количеству ненулевых элементов nnz
-/// \param[in]  csc_kk    - вектор начальных смещений в векторе CSR, размер m+1
+/// \param[in]  csc_kk    - вектор индексов строк ненулевых элементов, размер равен количеству ненулевых элементов nnz
+/// \param[in]  csc_first - вектор начальных смещений в векторе CSR, размер m+1
 /// \param[out] A         - плотная матрица, размер [n,m] (n - число строк, m - число столбцов)
 ///
-void MatrixCSCtoDense( const std::vector<double> &csc_val, const std::vector<int> &csc_first,
-    const std::vector<int> &csc_kk, arma::mat &A );
+void MatrixCSCtoDense( const std::vector<double> &csc_val, const std::vector<int> &csc_kk,
+    const std::vector<int> &csc_first, arma::mat &A );
 
 ///
 /// \brief Преобразование матрицы из CSC формата (Compressed Sparse Column Yale format) в плотную матрицу
@@ -172,13 +172,13 @@ void MatrixCSCtoDense( const CMatrixCSC &CSC, arma::mat &A );
 /// \param[in]  coo_row   - индексы строк ненулевых элементов, размер nnz
 /// \param[in]  coo_col   - индексы столбцов ненулевых элементов, размер nnz
 /// \param[in]  csr_val   - вектор ненулевых элементов матрицы A, размер равен количеству ненулевых элементов nnz
-/// \param[in]  csr_first - вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов nnz
-/// \param[in]  csr_kk    - вектор начальных смещений в векторе CSR, размер n+1
+/// \param[in]  csr_kk    - вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов nnz
+/// \param[in]  csr_first - вектор начальных смещений в векторе CSR, размер n+1
 /// \param[in]  sorted    - признак отсортированности COO входа по строкам (даёт ускорение в ~2 раза)
 ///
 void MatrixCOOtoCSR( const std::vector<double> &coo_val, const std::vector<int> &coo_row,
-    const std::vector<int> &coo_col, std::vector<double> &csr_val, std::vector<int> &csr_first,
-    std::vector<int> &csr_kk, bool sorted = false );
+    const std::vector<int> &coo_col, std::vector<double> &csr_val, std::vector<int> &csr_kk,
+    std::vector<int> &csr_first, bool sorted = false );
 
 ///
 /// \brief Преобразование матрицы в COO формате (Coordinate list) в CSR формат (Compressed Sparse Row Yale format)
@@ -194,13 +194,13 @@ void MatrixCOOtoCSR( const CMatrixCOO &COO, CMatrixCSR &CSR, bool sorted = false
 /// \param[in]  coo_row   - индексы строк ненулевых элементов, размер nnz
 /// \param[in]  coo_col   - индексы столбцов ненулевых элементов, размер nnz
 /// \param[in]  csc_val   - вектор ненулевых элементов матрицы A, размер равен количеству ненулевых элементов nnz
-/// \param[in]  csc_first - вектор индексов строк ненулевых элементов, размер равен количеству ненулевых элементов nnz
-/// \param[in]  csc_kk    - вектор начальных смещений в векторе CSR, размер m+1
-/// \param[in]  sorted - признак отсортированности COO входа по столбцам (даёт ускорение в ~2 раза)
+/// \param[in]  csc_kk    - вектор индексов строк ненулевых элементов, размер равен количеству ненулевых элементов nnz
+/// \param[in]  csc_first - вектор начальных смещений в векторе CSR, размер m+1
+/// \param[in]  sorted    - признак отсортированности COO входа по столбцам (даёт ускорение в ~2 раза)
 ///
 void MatrixCOOtoCSC( const std::vector<double> &coo_val, const std::vector<int> &coo_row,
-    const std::vector<int> &coo_col, std::vector<double> &csc_val, std::vector<int> &csc_first,
-    std::vector<int> &csc_kk, bool sorted = false );
+    const std::vector<int> &coo_col, std::vector<double> &csc_val, std::vector<int> &csc_kk,
+    std::vector<int> &csc_first, bool sorted = false );
 
 ///
 /// \brief Преобразование матрицы в COO формате (Coordinate list) в CSC формат (Compressed Sparse Column Yale format)

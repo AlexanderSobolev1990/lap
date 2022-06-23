@@ -78,7 +78,7 @@ void JVCdense( const arma::mat &assigncost, int dim, TSearchParam sp, double max
 /// \param[out] lapcost    - сумма назначенных элементов матрицы ценности assigncost
 /// \return 0 - OK, 1 - fail
 ///
-int JVCsparse(const std::vector<double> &cc, const std::vector<int> &kk, const std::vector<int> &first,
+int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const std::vector<int> &first,
     TSearchParam sp, double maxcost, double resolution, arma::ivec &rowsol, double &lapcost );
 
 ///

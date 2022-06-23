@@ -39,16 +39,16 @@ SPML::Sparse::CMatrixCOO A1_coo_expected_colwise{ A1_coo_val_expected_colwise, A
     A1_coo_col_expected_colwise };
 
 std::vector<double> A1_csr_val_expected = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0 };
-std::vector<int> A1_csr_first_expected = { 0, 1, 1, 3, 2, 3, 4, 5 };
-std::vector<int> A1_csr_kk_expected = { 0, 2, 4, 7, 8 };
-SPML::Sparse::CMatrixCSR A1_csr_expected{ A1_csr_val_expected, A1_csr_first_expected, A1_csr_kk_expected };
+std::vector<int> A1_csr_kk_expected = { 0, 1, 1, 3, 2, 3, 4, 5 };
+std::vector<int> A1_csr_first_expected = { 0, 2, 4, 7, 8 };
+SPML::Sparse::CMatrixCSR A1_csr_expected{ A1_csr_val_expected, A1_csr_kk_expected, A1_csr_first_expected };
 
 std::vector<double> A1_csc_val_expected = { 1.0, 2.0, 3.0, 5.0, 4.0, 6.0, 7.0, 8.0 };
-std::vector<int> A1_csc_first_expected = { 0, 0, 1, 2, 1, 2, 2, 3 };
-std::vector<int> A1_csc_kk_expected = { 0, 1, 3, 4, 6, 7, 8 };
-SPML::Sparse::CMatrixCSC A1_csc_expected{ A1_csc_val_expected, A1_csc_first_expected, A1_csc_kk_expected };
+std::vector<int> A1_csc_kk_expected = { 0, 0, 1, 2, 1, 2, 2, 3 };
+std::vector<int> A1_csc_first_expected = { 0, 1, 3, 4, 6, 7, 8 };
+SPML::Sparse::CMatrixCSC A1_csc_expected{ A1_csc_val_expected, A1_csc_kk_expected, A1_csc_first_expected };
 
-BOOST_AUTO_TEST_SUITE( test_A1 )
+BOOST_AUTO_TEST_SUITE( test_mat_A1 )
 
 BOOST_AUTO_TEST_CASE( MatrixDenseToCOO_A1_1 )
 {
@@ -87,13 +87,13 @@ BOOST_AUTO_TEST_CASE( MatrixDenseToCSR_A1_1 )
     std::vector<double> CSR_value;
     std::vector<int> CSR_first, CSR_kk;
 
-    SPML::Sparse::MatrixDenseToCSR( A1, CSR_value, CSR_first, CSR_kk );
-    BOOST_CHECK_EQUAL_COLLECTIONS( CSR_value.begin(), CSR_value.end(), A1_csr_val_expected.begin(), A1_csr_val_expected.end() );
-    BOOST_CHECK_EQUAL_COLLECTIONS( CSR_first.begin(), CSR_first.end(), A1_csr_first_expected.begin(), A1_csr_first_expected.end() );
+    SPML::Sparse::MatrixDenseToCSR( A1, CSR_value, CSR_kk, CSR_first );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSR_value.begin(), CSR_value.end(), A1_csr_val_expected.begin(), A1_csr_val_expected.end() );    
     BOOST_CHECK_EQUAL_COLLECTIONS( CSR_kk.begin(), CSR_kk.end(), A1_csr_kk_expected.begin(), A1_csr_kk_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSR_first.begin(), CSR_first.end(), A1_csr_first_expected.begin(), A1_csr_first_expected.end() );
 
     arma::mat Arestored;
-    SPML::Sparse::MatrixCSRtoDense( CSR_value, CSR_first, CSR_kk, Arestored );
+    SPML::Sparse::MatrixCSRtoDense( CSR_value, CSR_kk, CSR_first, Arestored );
 
     double eps = 1e-6;
     BOOST_CHECK_EQUAL( arma::approx_equal( A1, Arestored, "absdiff", eps ), true );
@@ -104,9 +104,9 @@ BOOST_AUTO_TEST_CASE( MatrixDenseToCSR_A1_2 )
     SPML::Sparse::CMatrixCSR CSR;
 
     SPML::Sparse::MatrixDenseToCSR( A1, CSR );
-    BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_val.begin(), CSR.csr_val.end(), A1_csr_val_expected.begin(), A1_csr_val_expected.end() );
-    BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_first.begin(), CSR.csr_first.end(), A1_csr_first_expected.begin(), A1_csr_first_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_val.begin(), CSR.csr_val.end(), A1_csr_val_expected.begin(), A1_csr_val_expected.end() );    
     BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_kk.begin(), CSR.csr_kk.end(), A1_csr_kk_expected.begin(), A1_csr_kk_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_first.begin(), CSR.csr_first.end(), A1_csr_first_expected.begin(), A1_csr_first_expected.end() );
 
     arma::mat Arestored;
     SPML::Sparse::MatrixCSRtoDense( CSR, Arestored );
@@ -120,13 +120,13 @@ BOOST_AUTO_TEST_CASE( MatrixDenseToCSC_A1_1 )
     std::vector<double> CSC_value;
     std::vector<int> CSC_first, CSC_kk;
 
-    SPML::Sparse::MatrixDenseToCSC( A1, CSC_value, CSC_first, CSC_kk );
+    SPML::Sparse::MatrixDenseToCSC( A1, CSC_value, CSC_kk, CSC_first );
     BOOST_CHECK_EQUAL_COLLECTIONS( CSC_value.begin(), CSC_value.end(), A1_csc_val_expected.begin(), A1_csc_val_expected.end() );
-    BOOST_CHECK_EQUAL_COLLECTIONS( CSC_first.begin(), CSC_first.end(), A1_csc_first_expected.begin(), A1_csc_first_expected.end() );
     BOOST_CHECK_EQUAL_COLLECTIONS( CSC_kk.begin(), CSC_kk.end(), A1_csc_kk_expected.begin(), A1_csc_kk_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSC_first.begin(), CSC_first.end(), A1_csc_first_expected.begin(), A1_csc_first_expected.end() );
 
     arma::mat Arestored;
-    SPML::Sparse::MatrixCSCtoDense( CSC_value, CSC_first, CSC_kk, Arestored );
+    SPML::Sparse::MatrixCSCtoDense( CSC_value, CSC_kk, CSC_first, Arestored );
 
     double eps = 1e-6;
     BOOST_CHECK_EQUAL( arma::approx_equal( A1, Arestored, "absdiff", eps ), true );
@@ -137,9 +137,9 @@ BOOST_AUTO_TEST_CASE( MatrixDenseToCSC_A1_2 )
     SPML::Sparse::CMatrixCSC CSC;
 
     SPML::Sparse::MatrixDenseToCSC( A1, CSC );
-    BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_val.begin(), CSC.csc_val.end(), A1_csc_val_expected.begin(), A1_csc_val_expected.end() );
-    BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_first.begin(), CSC.csc_first.end(), A1_csc_first_expected.begin(), A1_csc_first_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_val.begin(), CSC.csc_val.end(), A1_csc_val_expected.begin(), A1_csc_val_expected.end() );    
     BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_kk.begin(), CSC.csc_kk.end(), A1_csc_kk_expected.begin(), A1_csc_kk_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_first.begin(), CSC.csc_first.end(), A1_csc_first_expected.begin(), A1_csc_first_expected.end() );
 
     arma::mat Arestored;
     SPML::Sparse::MatrixCSCtoDense( CSC, Arestored );
@@ -153,9 +153,9 @@ BOOST_AUTO_TEST_CASE( MatrixCOOtoCSR_A1 )
     SPML::Sparse::CMatrixCSR CSR;
     SPML::Sparse::MatrixCOOtoCSR( A1_coo_expected, CSR );
 
-    BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_val.begin(), CSR.csr_val.end(), A1_csr_val_expected.begin(), A1_csr_val_expected.end() );
-    BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_first.begin(), CSR.csr_first.end(), A1_csr_first_expected.begin(), A1_csr_first_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_val.begin(), CSR.csr_val.end(), A1_csr_val_expected.begin(), A1_csr_val_expected.end() );    
     BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_kk.begin(), CSR.csr_kk.end(), A1_csr_kk_expected.begin(), A1_csr_kk_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_first.begin(), CSR.csr_first.end(), A1_csr_first_expected.begin(), A1_csr_first_expected.end() );
 }
 
 BOOST_AUTO_TEST_CASE( MatrixCOOtoCSC_A1 )
@@ -163,9 +163,9 @@ BOOST_AUTO_TEST_CASE( MatrixCOOtoCSC_A1 )
     SPML::Sparse::CMatrixCSC CSC;
     SPML::Sparse::MatrixCOOtoCSC( A1_coo_expected, CSC );
 
-    BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_val.begin(), CSC.csc_val.end(), A1_csc_val_expected.begin(), A1_csc_val_expected.end() );
-    BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_first.begin(), CSC.csc_first.end(), A1_csc_first_expected.begin(), A1_csc_first_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_val.begin(), CSC.csc_val.end(), A1_csc_val_expected.begin(), A1_csc_val_expected.end() );    
     BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_kk.begin(), CSC.csc_kk.end(), A1_csc_kk_expected.begin(), A1_csc_kk_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_first.begin(), CSC.csc_first.end(), A1_csc_first_expected.begin(), A1_csc_first_expected.end() );
 }
 
 BOOST_AUTO_TEST_CASE( test_sorted )
@@ -204,9 +204,9 @@ BOOST_AUTO_TEST_CASE( test_sorted )
     SPML::Sparse::MatrixCOOtoCSR( coo, csr1, true );
     SPML::Sparse::MatrixCOOtoCSR( coo, csr2, false );
 
-    BOOST_CHECK_EQUAL_COLLECTIONS( csr1.csr_val.begin(), csr1.csr_val.end(), csr2.csr_val.begin(), csr2.csr_val.end() );
-    BOOST_CHECK_EQUAL_COLLECTIONS( csr1.csr_first.begin(), csr1.csr_first.end(), csr2.csr_first.begin(), csr2.csr_first.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( csr1.csr_val.begin(), csr1.csr_val.end(), csr2.csr_val.begin(), csr2.csr_val.end() );    
     BOOST_CHECK_EQUAL_COLLECTIONS( csr1.csr_kk.begin(), csr1.csr_kk.end(), csr2.csr_kk.begin(), csr2.csr_kk.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( csr1.csr_first.begin(), csr1.csr_first.end(), csr2.csr_first.begin(), csr2.csr_first.end() );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -224,9 +224,9 @@ BOOST_AUTO_TEST_CASE( MatrixCOOtoCSR_FAST )
 
     SPML::Sparse::CMatrixCSR CSR;
     SPML::Sparse::MatrixCOOtoCSR( A1_coo_expected, CSR, true );
-    BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_val.begin(), CSR.csr_val.end(), A1_csr_val_expected.begin(), A1_csr_val_expected.end() );
-    BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_first.begin(), CSR.csr_first.end(), A1_csr_first_expected.begin(), A1_csr_first_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_val.begin(), CSR.csr_val.end(), A1_csr_val_expected.begin(), A1_csr_val_expected.end() );    
     BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_kk.begin(), CSR.csr_kk.end(), A1_csr_kk_expected.begin(), A1_csr_kk_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_first.begin(), CSR.csr_first.end(), A1_csr_first_expected.begin(), A1_csr_first_expected.end() );
 }
 
 BOOST_AUTO_TEST_CASE( MatrixCOOtoCSR_SLOW )
@@ -242,9 +242,9 @@ BOOST_AUTO_TEST_CASE( MatrixCOOtoCSR_SLOW )
 
     SPML::Sparse::CMatrixCSR CSR;
     SPML::Sparse::MatrixCOOtoCSR( A1_coo_expected, CSR, true );
-    BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_val.begin(), CSR.csr_val.end(), A1_csr_val_expected.begin(), A1_csr_val_expected.end() );
-    BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_first.begin(), CSR.csr_first.end(), A1_csr_first_expected.begin(), A1_csr_first_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_val.begin(), CSR.csr_val.end(), A1_csr_val_expected.begin(), A1_csr_val_expected.end() );    
     BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_kk.begin(), CSR.csr_kk.end(), A1_csr_kk_expected.begin(), A1_csr_kk_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSR.csr_first.begin(), CSR.csr_first.end(), A1_csr_first_expected.begin(), A1_csr_first_expected.end() );
 }
 
 BOOST_AUTO_TEST_CASE( MatrixCOOtoCSC_FAST )
@@ -254,17 +254,15 @@ BOOST_AUTO_TEST_CASE( MatrixCOOtoCSC_FAST )
         SPML::Sparse::CMatrixCSC CSC;
         tk.StartTimer();
         SPML::Sparse::MatrixCOOtoCSC( A1_coo_expected_colwise, CSC, true );
-//        SPML::Sparse::MatrixCOOtoCSC( A1_coo_expected, CSC, false );
         tk.EndTimer();
     }
     std::cout << "MatrixCOOtoCSC_FAST tk.TimePerOp() = " << tk.TimePerOp() * 1.0e6 << " [us]" << std::endl;
 
     SPML::Sparse::CMatrixCSC CSC;
     SPML::Sparse::MatrixCOOtoCSC( A1_coo_expected_colwise, CSC, true );
-//    SPML::Sparse::MatrixCOOtoCSC( A1_coo_expected, CSC, true );
-    BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_val.begin(), CSC.csc_val.end(), A1_csc_val_expected.begin(), A1_csc_val_expected.end() );
-    BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_first.begin(), CSC.csc_first.end(), A1_csc_first_expected.begin(), A1_csc_first_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_val.begin(), CSC.csc_val.end(), A1_csc_val_expected.begin(), A1_csc_val_expected.end() );    
     BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_kk.begin(), CSC.csc_kk.end(), A1_csc_kk_expected.begin(), A1_csc_kk_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_first.begin(), CSC.csc_first.end(), A1_csc_first_expected.begin(), A1_csc_first_expected.end() );
 }
 
 BOOST_AUTO_TEST_CASE( MatrixCOOtoCSC_SLOW )
@@ -274,19 +272,13 @@ BOOST_AUTO_TEST_CASE( MatrixCOOtoCSC_SLOW )
         SPML::Sparse::CMatrixCSC CSC;
         tk.StartTimer();
         SPML::Sparse::MatrixCOOtoCSC( A1_coo_expected_colwise, CSC, false );
-//        SPML::Sparse::MatrixCOOtoCSC( A1_coo_expected, CSC, false );
         tk.EndTimer();
     }
     std::cout << "MatrixCOOtoCSC_SLOW tk.TimePerOp() = " << tk.TimePerOp() * 1.0e6 << " [us]" << std::endl;
 
     SPML::Sparse::CMatrixCSC CSC;
-//    SPML::Sparse::MatrixCOOtoCSC( A1_coo_expected_colwise, CSC, false );
     SPML::Sparse::MatrixCOOtoCSC( A1_coo_expected, CSC, false );
-    BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_val.begin(), CSC.csc_val.end(), A1_csc_val_expected.begin(), A1_csc_val_expected.end() );
-    BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_first.begin(), CSC.csc_first.end(), A1_csc_first_expected.begin(), A1_csc_first_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_val.begin(), CSC.csc_val.end(), A1_csc_val_expected.begin(), A1_csc_val_expected.end() );    
     BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_kk.begin(), CSC.csc_kk.end(), A1_csc_kk_expected.begin(), A1_csc_kk_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_first.begin(), CSC.csc_first.end(), A1_csc_first_expected.begin(), A1_csc_first_expected.end() );
 }
-
-
-
-
