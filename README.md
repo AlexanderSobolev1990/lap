@@ -35,42 +35,45 @@ Repositories / Репозитории:
 
 ***
 <center>Results for time measuring / Результаты замеров скорости работы:</center>
-<center><img src="doc/pictures/dense5to50.png" width="1000px" /></center>
 
+<!--<center><img src="doc/pictures/dense5to50.png" width="1000px"></center>
 <?\image html  doc/pictures/dense5to50.png width=1000px?>
-<?\image latex doc/pictures/dense5to50.png?> 
+<?\image latex doc/pictures/dense5to50.png?> -->
 
-<center>Fig.1 - Execution time for dense matrices (small dimensions) <br /> </center>
-<center>Рис.1 - Время выполнения на плотных матрицах (малые размернсти)</center>
+<!--<center><img src="dense5to50.png" width="1000px"></center>-->
+<?\image html  dense5to50.png width=1000px?>
+<?\image latex dense5to50.png?> 
+<center>Fig.1 - Execution time for dense matrices (small dimensions)<br /> </center>
+<center>Рис.1 - Время выполнения на плотных матрицах (малые размернсти)<br /></center>
+
+***
 
 <center><img src="doc/pictures/dense50to1000.png" width="1000px" /></center> 
-
 <?\image html  doc/pictures/dense50to1000.png width=1000?>
 <?\image latex doc/pictures/dense50to1000.png?>
-
 <center>Fig.2 - Execution time for dense matrices (large dimensions) <br /> </center>
 <center>Рис.2 - Время выполнения на плотных матрицах (большие размерности)</center>
 
-<center><img src="doc/pictures/sparse5to50.png" width="1000px" /></center>
+***
 
+<center><img src="doc/pictures/sparse5to50.png" width="1000px" /></center>
 <?\image html  doc/pictures/sparse5to50.png width=1000px?>
 <?\image latex doc/pictures/sparse5to50.png?> 
-
 <center>Fig.3 - Execution time for sparse matrices (small dimensions) <br /> </center>
 <center>Рис.3 - Время выполнения на разреженных матрицах (малые размернсти)</center>
 
-<center><img src="doc/pictures/sparse50to1000.png" width="1000px" /></center> 
+***
 
+<center><img src="doc/pictures/sparse50to1000.png" width="1000px" /></center> 
 <?\image html  doc/pictures/sparse50to1000.png width=1000?>
 <?\image latex doc/pictures/sparse50to1000.png?>
-
 <center>Fig.4 - Execution time for sparse matrices (large dimensions) <br /> </center>
 <center>Рис.4 - Время выполнения на разреженных матрицах (большие размерности)</center>
 
-<center><img src="doc/pictures/sparse500to7000.png" width="1000px" /></center> 
+***
 
+<center><img src="doc/pictures/sparse500to7000.png" width="1000px" /></center> 
 <?\image html  doc/pictures/sparse500to7000.png width=1000?>
 <?\image latex doc/pictures/sparse500to7000.png?>
-
 <center>Fig.5 - Execution time for sparse matrices (large dimensions) for JVCsparse<br /> </center>
 <center>Рис.5 - Время выполнения на разреженных матрицах (большие размерности) для JVCsparse</center>
