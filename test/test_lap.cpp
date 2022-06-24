@@ -607,7 +607,7 @@ BOOST_AUTO_TEST_CASE( sparse5to50 )
             timer.at( "JVCdense" ).EndTimer();
 
             timer.at( "JVCsparse" ).StartTimer();
-            int resSparse = SPML::LAP::JVCsparse( mat_JVCsparse2N.csr_val, mat_JVCsparse2N.csr_first, mat_JVCsparse2N.csr_kk,
+            int resSparse = SPML::LAP::JVCsparse( mat_JVCsparse2N.csr_val, mat_JVCsparse2N.csr_kk, mat_JVCsparse2N.csr_first,
                 sp, infValue, resolution, actualJVCsparse2N, lapcostJVCsparse );
             timer.at( "JVCsparse" ).EndTimer();
             if( resSparse == 1 ) {
@@ -950,7 +950,7 @@ BOOST_AUTO_TEST_CASE( sparse50to1000 )
             timer.at( "JVCdense" ).EndTimer();
 
             timer.at( "JVCsparse" ).StartTimer();
-            int resSparse = SPML::LAP::JVCsparse( mat_JVCsparse2N.csr_val, mat_JVCsparse2N.csr_first, mat_JVCsparse2N.csr_kk,
+            int resSparse = SPML::LAP::JVCsparse( mat_JVCsparse2N.csr_val, mat_JVCsparse2N.csr_kk, mat_JVCsparse2N.csr_first,
                 sp, infValue, resolution, actualJVCsparse2N, lapcostJVCsparse );
             timer.at( "JVCsparse" ).EndTimer();
             if( resSparse == 1 ) {
@@ -1243,7 +1243,7 @@ BOOST_AUTO_TEST_CASE( sparse500to5000 )
             mat_Hungarian2N = mat_JVCdense2N;
 
             timer.at( "JVCsparse" ).StartTimer();
-            int resSparse = SPML::LAP::JVCsparse( mat_JVCsparse2N.csr_val, mat_JVCsparse2N.csr_first, mat_JVCsparse2N.csr_kk,
+            int resSparse = SPML::LAP::JVCsparse( mat_JVCsparse2N.csr_val, mat_JVCsparse2N.csr_kk, mat_JVCsparse2N.csr_first,
                 sp, infValue, resolution, actualJVCsparse2N, lapcostJVCsparse );
             timer.at( "JVCsparse" ).EndTimer();
             if( resSparse == 1 ) {

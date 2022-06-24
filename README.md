@@ -1,7 +1,5 @@
 # LAP - Linear Assignment Problem / Линейная дискретная оптимизационная задача (задача о назначениях) #
 
-***
-
 ## 1. Brief / Обзор ##
 <br/> Solving linear assignment problem using / Решение задачи о назначениях методами:
 * Jonker-Volgenant-Castanon method (JVC) for dense and sparse (CSR - compressed sparse row) matrices / Метод Джонкера-Волгенанта-Кастаньона для плотных и разреженных матриц в CSR формате
