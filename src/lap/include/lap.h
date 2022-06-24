@@ -16,6 +16,7 @@
 #include <limits>
 #include <cassert>
 #include <armadillo>
+#include <set>
 
 // SPML includes:
 #include <sparse.h>
@@ -33,6 +34,25 @@ enum TSearchParam
     SP_Min, ///< Поиск минимума
     SP_Max  ///< Поиск максимума
 };
+
+//----------------------------------------------------------------------------------------------------------------------
+///
+/// \brief Процедура последовательного поиска экстремума по строкам/столбцам матрицы ценностей
+/// \details Неоптимальная процедура, сумма назначений будет неоптимальна, поскольку строки/столбцы с найденным
+/// экстремумом исключаются из анализа.
+/// \param[in]  assigncost - матрица ценности
+/// \param[in]  sp         - критерий поиска (минимум/максимум)
+/// \param[in]  maxcost    - модуль максимального элемента матрицы assigncost
+/// \param[in]  resolution - точность для сравнения двух вещественных чисел
+/// \param[out] rowsol     - результат задачи о назначениях, размерность [dim] (индекс макс/мин элемента в i-ой строке)
+/// rowsol[i] = j --> в i-ой строке выбран j-ый элемент
+/// \param[out] lapcost    - сумма назначенных элементов матрицы ценности assigncost
+///
+void SequentalExtremum( const arma::mat &assigncost, TSearchParam sp, double maxcost, double resolution,
+    arma::ivec &rowsol, double &lapcost );
+
+void SequentalExtremum( const Sparse::CMatrixCOO assigncost, TSearchParam sp, double maxcost, double resolution,
+    arma::ivec &rowsol, double &lapcost );
 
 //----------------------------------------------------------------------------------------------------------------------
 ///

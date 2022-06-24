@@ -1885,6 +1885,9 @@ arma::mat mat_1_dense = {
 };
 arma::ivec expected_1_min = { 2, 4, 0, 3, 1 };
 arma::ivec expected_1_max = { 3, 2, 4, 1, 0 };
+
+arma::ivec expected_1_subextr_min = { 2, 0, 3, 4, 1 };
+arma::ivec expected_1_subextr_max = { 3, 0, 4, 1, 2 };
 //----------------------------------------------------------------------------------------------------------------------
 // 2
 arma::mat mat_2_dense = {
@@ -1912,13 +1915,43 @@ arma::mat mat_3_dense = {
 arma::ivec expected_3_max = { 1, 3, 2, 0, 4, 5 };
 //----------------------------------------------------------------------------------------------------------------------
 
+BOOST_AUTO_TEST_CASE( test_mat_1_seqextr_min )
+{
+    int size = mat_1_dense.n_cols;
+    arma::ivec actual = arma::ivec( size, arma::fill::zeros );
+    double infValue = 1.0e6;//mat_1_dense.max();
+    double resolution = 1e-6;
+    double lapcost;
+    SPML::LAP::SequentalExtremum( mat_1_dense, SPML::LAP::TSearchParam::SP_Min, infValue, resolution, actual, lapcost );
+    double eps = 1e-6;
+    BOOST_CHECK_EQUAL( arma::approx_equal( actual, expected_1_subextr_min, "absdiff", eps ), true );
+
+    SPML::Sparse::CMatrixCOO mat_1_coo;
+    SPML::Sparse::MatrixDenseToCOO( mat_1_dense, mat_1_coo );
+
+    int z = 0;
+}
+
+BOOST_AUTO_TEST_CASE( test_mat_1_seqextr_max )
+{
+    int size = mat_1_dense.n_cols;
+    arma::ivec actual = arma::ivec( size, arma::fill::zeros );
+    double infValue = 1.0e6;//mat_1_dense.max();
+    double resolution = 1e-6;
+    double lapcost;
+    SPML::LAP::SequentalExtremum( mat_1_dense, SPML::LAP::TSearchParam::SP_Max, infValue, resolution, actual, lapcost );
+    double eps = 1e-6;
+    BOOST_CHECK_EQUAL( arma::approx_equal( actual, expected_1_subextr_max, "absdiff", eps ), true );
+}
+
+
 BOOST_AUTO_TEST_SUITE( test_mat_1_min )
 
 BOOST_AUTO_TEST_CASE( test_mat_1_jvc_dense_min )
 {
     int size = mat_1_dense.n_cols;
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
-    double infValue = mat_1_dense.max();
+    double infValue = 1.0e6;
     double resolution = 1e-6;
     double lapcost;
     SPML::LAP::JVCdense( mat_1_dense, size, SPML::LAP::TSearchParam::SP_Min, infValue, resolution, actual, lapcost );
@@ -1930,7 +1963,7 @@ BOOST_AUTO_TEST_CASE( test_mat_1_mack_min )
 {
     int size = mat_1_dense.n_cols;
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
-    double infValue = mat_1_dense.max();
+    double infValue = 1.0e6;
     double resolution = 1e-6;
     double lapcost;
     SPML::LAP::Mack( mat_1_dense, size, SPML::LAP::TSearchParam::SP_Min, infValue, resolution, actual, lapcost );
@@ -1942,7 +1975,7 @@ BOOST_AUTO_TEST_CASE( test_mat_1_hungarian_min )
 {
     int size = mat_1_dense.n_cols;
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
-    double infValue = mat_1_dense.max();
+    double infValue = 1.0e6;
     double resolution = 1e-6;
     double lapcost;
     SPML::LAP::Hungarian( mat_1_dense, size, SPML::LAP::TSearchParam::SP_Min, infValue, resolution, actual, lapcost );
@@ -1960,7 +1993,7 @@ BOOST_AUTO_TEST_CASE( test_mat_1_jvc_dense_max )
 {
     int size = mat_1_dense.n_cols;
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
-    double infValue = mat_1_dense.max();
+    double infValue = 1.0e6;
     double resolution = 1e-6;
     double lapcost;
     SPML::LAP::JVCdense( mat_1_dense, size, SPML::LAP::TSearchParam::SP_Max, infValue, resolution, actual, lapcost );
@@ -1972,7 +2005,7 @@ BOOST_AUTO_TEST_CASE( test_mat_1_mack_max )
 {
     int size = mat_1_dense.n_cols;
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
-    double infValue = mat_1_dense.max();
+    double infValue = 1.0e6;
     double resolution = 1e-6;
     double lapcost;
     SPML::LAP::Mack( mat_1_dense, size, SPML::LAP::TSearchParam::SP_Max, infValue, resolution, actual, lapcost );
@@ -1984,7 +2017,7 @@ BOOST_AUTO_TEST_CASE( test_mat_1_hungarian_max )
 {
     int size = mat_1_dense.n_cols;
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
-    double infValue = mat_1_dense.max();
+    double infValue = 1.0e6;
     double resolution = 1e-6;
     double lapcost;
     SPML::LAP::Hungarian( mat_1_dense, size, SPML::LAP::TSearchParam::SP_Max, infValue, resolution, actual, lapcost );
@@ -2002,7 +2035,7 @@ BOOST_AUTO_TEST_CASE( test_mat_2_jvc_dense_min )
 {
     int size = mat_2_dense.n_cols;
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
-    double infValue = mat_2_dense.max();
+    double infValue = 1.0e6;
     double resolution = 1e-6;
     double lapcost;
     SPML::LAP::JVCdense( mat_2_dense, size, SPML::LAP::TSearchParam::SP_Min, infValue, resolution, actual, lapcost );
@@ -2014,7 +2047,7 @@ BOOST_AUTO_TEST_CASE( test_mat_2_mack_min )
 {
     int size = mat_2_dense.n_cols;
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
-    double infValue = mat_1_dense.max();
+    double infValue = 1.0e6;
     double resolution = 1e-6;
     double lapcost;
     SPML::LAP::Mack( mat_2_dense, size, SPML::LAP::TSearchParam::SP_Min, infValue, resolution, actual, lapcost );
@@ -2044,7 +2077,7 @@ BOOST_AUTO_TEST_CASE( test_mat_2_jvc_dense_max )
 {
     int size = mat_2_dense.n_cols;
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
-    double infValue = mat_2_dense.max();
+    double infValue = 1.0e6;
     double resolution = 1e-6;
     double lapcost;
     SPML::LAP::JVCdense( mat_2_dense, size, SPML::LAP::TSearchParam::SP_Max, infValue, resolution, actual, lapcost );
@@ -2056,7 +2089,7 @@ BOOST_AUTO_TEST_CASE( test_mat_2_mack_max )
 {
     int size = mat_2_dense.n_cols;
     arma::ivec actual = arma::ivec( size, arma::fill::zeros );
-    double infValue = mat_1_dense.max();
+    double infValue = 1.0e6;
     double resolution = 1e-6;
     double lapcost;
     SPML::LAP::Mack( mat_2_dense, size, SPML::LAP::TSearchParam::SP_Max, infValue, resolution, actual, lapcost );
@@ -2092,7 +2125,7 @@ BOOST_AUTO_TEST_CASE( test_mat_3_jvc_sparse_min )
     unsigned size = mat_3_dense.n_cols;
     arma::ivec actual1 = arma::ivec( size, arma::fill::zeros );
     arma::ivec actual2 = arma::ivec( size, arma::fill::zeros );
-    double infValue = mat_1_dense.max();
+    double infValue =1.0e6;
     double resolution = 1e-6;
     double lapcost1, lapcost2;
     SPML::LAP::JVCdense( mat_3_dense, size, SPML::LAP::TSearchParam::SP_Max, infValue, resolution, actual1, lapcost1 );
@@ -2124,7 +2157,7 @@ BOOST_AUTO_TEST_CASE( accordance )
         arma::arma_rng::set_seed( cycle );
         mat_Mack.randn();
 
-        double infValue = mat_JVCdense.max();// + 1.0;
+        double infValue = 1.0e6;
         double resolution = 1e-6;
         SPML::LAP::JVCdense( mat_JVCdense, n, SPML::LAP::TSearchParam::SP_Max, infValue, resolution, actualJVCdense, lapcostJVCdense );
 

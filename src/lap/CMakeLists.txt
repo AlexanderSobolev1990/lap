@@ -18,6 +18,7 @@ set(SOURCES
     src/lap_jvc_sparse.cpp    
     src/lap_mack.cpp
     src/lap_hungarian.cpp
+    src/lap_seqextr.cpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${HEADERS} ${SOURCES}) # Динамическая библиотека
