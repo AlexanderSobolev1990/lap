@@ -84,13 +84,12 @@ void SequentalExtremum( const arma::mat &assigncost, TSearchParam sp, double max
 void SequentalExtremum( const Sparse::CMatrixCOO &assigncost, TSearchParam sp, double maxcost, double resolution,
     arma::ivec &rowsol, double &lapcost )
 {
-    // Нахождение числа строк/столбцов через std::set
-//    size_t cols = std::set<int>( ( assigncost.coo_col ).begin(), ( assigncost.coo_col ).end() ).size();
-//    size_t rows = std::set<int>( ( assigncost.coo_row ).begin(), ( assigncost.coo_row ).end() ).size();
-    const std::size_t n_elems = assigncost.coo_val.size();
+    rowsol.zeros();
+    rowsol -= 1;
 
-    std::vector<int> pulled;
-//    pulled.resize( n_elems, false ); // Сброшено в false
+    // Нахождение числа строк/столбцов через std::set
+    const std::size_t n_elems = assigncost.coo_val.size();
+    std::set<int> pulled; // чтобы не морочиться на уникальность вхождений
 
     std::vector<double> cost = assigncost.coo_val;
     if( sp == TSearchParam::SP_Max ) {
@@ -99,24 +98,14 @@ void SequentalExtremum( const Sparse::CMatrixCOO &assigncost, TSearchParam sp, d
     }
 
     // Процедура всегда ищет минимум!
-
-//    // Вектора выкинутых индексов
-//    std::vector<int> cols_pulled;
-//    std::vector<int> rows_pulled;
-//    cols_pulled.reserve( cols );
-//    rows_pulled.reserve( rows );
-
     while( pulled.size() < n_elems ) {
 
         double min_val = maxcost;
         int min_row = INT32_MAX;
         int min_col = INT32_MAX;
-//        int min_pos = INT32_MAX;
         bool min_found = false;
 
         for( size_t n = 0; n < n_elems; n++ ) {
-//            if( ( std::find( rows_pulled.begin(), rows_pulled.end(), assigncost.coo_row[n] ) != rows_pulled.end() ) ||
-//                ( std::find( cols_pulled.begin(), cols_pulled.end(), assigncost.coo_col[n] ) != cols_pulled.end() ) )
             if( std::find( pulled.begin(), pulled.end(), n ) != pulled.end() ) {
                 continue; // индексы выкинуты
             }
@@ -124,7 +113,6 @@ void SequentalExtremum( const Sparse::CMatrixCOO &assigncost, TSearchParam sp, d
                 min_val = cost[n];
                 min_row = assigncost.coo_row[n];
                 min_col = assigncost.coo_col[n];
-//                min_pos = n;
                 min_found = true;
             }
         }
@@ -133,16 +121,39 @@ void SequentalExtremum( const Sparse::CMatrixCOO &assigncost, TSearchParam sp, d
                 if( ( assigncost.coo_row[n] == min_row ) ||
                     ( assigncost.coo_col[n] == min_col ) )
                 {
-                    pulled.push_back( n );
+                    pulled.insert( n );
                 }
             }
-//            rows_pulled.push_back( min_row );
-//            cols_pulled.push_back( min_col );
-
             rowsol( min_row ) = min_col; // Решение!
         }
-
     }
+    // calculate lapcost.
+
+
+    // Нахождение числа строк/столбцов через std::set
+//    size_t cols = std::set<int>( ( assigncost.coo_col ).begin(), ( assigncost.coo_col ).end() ).size();
+//    size_t rows = std::set<int>( ( assigncost.coo_row ).begin(), ( assigncost.coo_row ).end() ).size();
+    lapcost = 0.0;
+    for( size_t i = 0; i < rowsol.n_elem; i++ ) {
+        if( i < 0 ) {
+            continue;
+        }
+        int j = rowsol(i);
+        if( j < 0 ) {
+            continue;
+        }
+        for( size_t n = 0; n < n_elems; n++ ) {
+            if( ( assigncost.coo_row[n] == i ) &&
+                ( assigncost.coo_col[n] == j ) )
+            {
+                if( !SPML::Compare::AreEqualAbs( assigncost.coo_val[n], maxcost, resolution ) ) {
+                    lapcost += assigncost.coo_val[n];
+//                    break;
+                }
+            }
+        }
+    }
+    return;
 }
 
 } // end namespace LAP

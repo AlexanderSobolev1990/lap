@@ -767,7 +767,7 @@ BOOST_AUTO_TEST_CASE( dense5to50SeqExtr )
 }
 
 
-BOOST_AUTO_TEST_CASE( dense50to1000 )
+BOOST_AUTO_TEST_CASE( dense100to1000 )
 {
     SPML::LAP::TSearchParam sp = SPML::LAP::TSearchParam::SP_Max;
     double resolution = 1.0e-6;
@@ -789,10 +789,10 @@ BOOST_AUTO_TEST_CASE( dense50to1000 )
     plt::xlabel( "Размерность задачи N" );
     plt::ylabel( "Время, [мс]" );
 #endif
-    std::vector<int> dimensionXlim =        { 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000 };
-    std::vector<double> dimensionLongLong = { 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000 };
-    std::vector<double> dimensionLong =     { 50, 100, 150, 200, 250, 300, 350, 400, 450 };
-    std::vector<double> dimensionShort =    { 50, 100, 150, 200, 250, 300 };
+    std::vector<int> dimensionXlim =        { 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000 };
+    std::vector<double> dimensionLongLong = { 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000 };
+    std::vector<double> dimensionLong =     { 100, 150, 200, 250, 300, 350, 400, 450 };
+    std::vector<double> dimensionShort =    { 100, 150, 200, 250, 300 };
 
     int boundN = dimensionShort.back();
     int boundN2 = dimensionLong.back();
@@ -933,7 +933,7 @@ BOOST_AUTO_TEST_CASE( dense50to1000 )
     plt::grid( true );
     plt::xlim( dimensionXlim.front(), dimensionXlim.back() );
     plt::legend();
-    plt::save( "dense50to1000.png", dpi );
+    plt::save( "dense100to1000.png", dpi );
     if( show ) {
         plt::show();
     }
@@ -942,7 +942,7 @@ BOOST_AUTO_TEST_CASE( dense50to1000 )
 
 #ifdef PRINTTOTXT
     std::ofstream os;
-    os.open( "dense50to1000.ods", std::ofstream::out );
+    os.open( "dense100to1000.ods", std::ofstream::out );
     if( print ) {
         std::cout << "plotting..." << std::endl;
     }
@@ -1716,7 +1716,7 @@ BOOST_AUTO_TEST_CASE( sparse5to50SeqExtr )
 #endif
 }
 
-BOOST_AUTO_TEST_CASE( sparse50to1000 )
+BOOST_AUTO_TEST_CASE( sparse100to1000 )
 {
     SPML::LAP::TSearchParam sp = SPML::LAP::TSearchParam::SP_Max;
     double resolution = 1.0e-6;
@@ -1738,8 +1738,8 @@ BOOST_AUTO_TEST_CASE( sparse50to1000 )
     plt::xlabel( "Размерность задачи N" );
     plt::ylabel( "Время, [мс]" );
 #endif
-    std::vector<int> dimensionXlim =     { 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000 };
-    std::vector<double> dimensionLong =  { 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000 };
+    std::vector<int> dimensionXlim =     { 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000 };
+    std::vector<double> dimensionLong =  { 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000 };
 
     std::map<std::string, std::vector<double>> dimensionDouble = {
         { "JVCdense", dimensionLong },
@@ -1982,7 +1982,7 @@ BOOST_AUTO_TEST_CASE( sparse50to1000 )
     plt::grid( true );
     plt::xlim( dimensionXlim.front(), dimensionXlim.back() );
     plt::legend();
-    plt::save( "sparse50to1000.png", dpi );
+    plt::save( "sparse100to1000.png", dpi );
     if( show ) {
         plt::show();
     }
@@ -1990,7 +1990,7 @@ BOOST_AUTO_TEST_CASE( sparse50to1000 )
 #endif
 #ifdef PRINTTOTXT
     std::ofstream os;
-    os.open( "sparse50to1000.ods", std::ofstream::out );
+    os.open( "sparse100to1000.ods", std::ofstream::out );
     if( print ) {
         std::cout << "plotting..." << std::endl;
     }
@@ -2016,7 +2016,7 @@ BOOST_AUTO_TEST_CASE( sparse50to1000 )
 }
 
 
-BOOST_AUTO_TEST_CASE( sparse50to1000SeqExtr )
+BOOST_AUTO_TEST_CASE( sparse100to1000SeqExtr )
 {
     SPML::LAP::TSearchParam sp = SPML::LAP::TSearchParam::SP_Max;
     double resolution = 1.0e-6;
@@ -2038,8 +2038,8 @@ BOOST_AUTO_TEST_CASE( sparse50to1000SeqExtr )
     plt::xlabel( "Размерность задачи N" );
     plt::ylabel( "Время, [мс]" );
 #endif
-    std::vector<int> dimensionXlim =     { 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000 };
-    std::vector<double> dimensionLong =  { 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000 };
+    std::vector<int> dimensionXlim =     { 100, 200, 300, 400, 500 }; //, 600, 700, 800, 900, 1000 };
+    std::vector<double> dimensionLong =  { 100, 200, 300, 400, 500 }; //, 600, 700, 800, 900, 1000 };
 
     std::map<std::string, std::vector<double>> dimensionDouble = {
         { "JVCdense", dimensionLong },
@@ -2305,7 +2305,7 @@ BOOST_AUTO_TEST_CASE( sparse50to1000SeqExtr )
     plt::grid( true );
     plt::xlim( dimensionXlim.front(), dimensionXlim.back() );
     plt::legend();
-    plt::save( "sparse50to1000SeqExtr.png", dpi );
+    plt::save( "sparse100to1000SeqExtr.png", dpi );
     if( show ) {
         plt::show();
     }
@@ -2313,7 +2313,7 @@ BOOST_AUTO_TEST_CASE( sparse50to1000SeqExtr )
 #endif
 #ifdef PRINTTOTXT
     std::ofstream os;
-    os.open( "sparse50to1000.ods", std::ofstream::out );
+    os.open( "sparse100to1000.ods", std::ofstream::out );
     if( print ) {
         std::cout << "plotting..." << std::endl;
     }
@@ -2339,7 +2339,7 @@ BOOST_AUTO_TEST_CASE( sparse50to1000SeqExtr )
 }
 
 
-BOOST_AUTO_TEST_CASE( sparse500to3000 )
+BOOST_AUTO_TEST_CASE( sparse500to5000 )
 {
     SPML::LAP::TSearchParam sp = SPML::LAP::TSearchParam::SP_Max;
     double resolution = 1.0e-6;
@@ -2362,7 +2362,7 @@ BOOST_AUTO_TEST_CASE( sparse500to3000 )
 #endif
     std::vector<int> dimensionXlim;// =     { 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000 };
     std::vector<double> dimensionLong;// =  { 50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000 };
-    for( int i = 500; i <= 3000; i = i + 500 ) {
+    for( int i = 500; i <= 5000; i = i + 500 ) {
         dimensionXlim.push_back( i );
         dimensionLong.push_back( static_cast<double>( i ) );
     }
@@ -3052,6 +3052,9 @@ BOOST_AUTO_TEST_CASE( test_spec )
     double lapcostHungdense = 0.0;
     SPML::LAP::Hungarian( mat_dense_kl, ( k + l ), sp, infValue, resolution, actualHungdense, lapcostHungdense );
 
+    arma::ivec actualSeqExtr = arma::ivec( ( k + l ), arma::fill::zeros );
+    double lapcostSeqExtr = 0.0;
+    SPML::LAP::SequentalExtremum( mat_dense_kl, sp, infValue, resolution, actualSeqExtr, lapcostSeqExtr );
 
     arma::mat mat_dense_sp = arma::mat( k, l, arma::fill::zeros );
     for( int i = 0; i < k; i++ ) {
@@ -3071,21 +3074,29 @@ BOOST_AUTO_TEST_CASE( test_spec )
 
     mat_for_sparse.print( "mat_for_sparse" );
 
-    SPML::Sparse::CMatrixCSR mat_sparse;
-    SPML::Sparse::MatrixDenseToCSR( mat_for_sparse, mat_sparse );
+    SPML::Sparse::CMatrixCSR mat_csr;
+    SPML::Sparse::MatrixDenseToCSR( mat_for_sparse, mat_csr );
 
     arma::ivec actualJVCsparse = arma::ivec( ( k + l ), arma::fill::zeros );
-    arma::ivec actualJVCsparse2 = arma::ivec( ( k + l ), arma::fill::zeros );
-    double lapcostJVCsparse = 0.0, lapcostJVCsparse2 = 0.0;
-    int resSparse = SPML::LAP::JVCsparse( mat_sparse.csr_val, mat_sparse.csr_kk, mat_sparse.csr_first,
+    double lapcostJVCsparse = 0.0;
+    int resSparse = SPML::LAP::JVCsparse( mat_csr.csr_val, mat_csr.csr_kk, mat_csr.csr_first,
         sp, infValue, resolution, actualJVCsparse, lapcostJVCsparse );
     if( resSparse == 1 ) {
         assert( false );
     }
-    int resSparse2 = SPML::LAP::JVCsparse( mat_sparse, sp, infValue, resolution, actualJVCsparse2, lapcostJVCsparse2 );
+
+    arma::ivec actualJVCsparse2 = arma::ivec( ( k + l ), arma::fill::zeros );
+    double lapcostJVCsparse2 = 0.0;
+    int resSparse2 = SPML::LAP::JVCsparse( mat_csr, sp, infValue, resolution, actualJVCsparse2, lapcostJVCsparse2 );
     if( resSparse2 == 1 ) {
         assert( false );
     }
+    SPML::Sparse::CMatrixCOO mat_coo;
+    SPML::Sparse::MatrixDenseToCOO( mat_for_sparse, mat_coo );
+
+    arma::ivec actualSeqExtrCOO = arma::ivec( ( k + l ), arma::fill::zeros );
+    double lapcostSeqExtrCOO = 0.0;
+    SPML::LAP::SequentalExtremum( mat_coo, sp, infValue, resolution, actualSeqExtrCOO, lapcostSeqExtrCOO );
 
     // Проверим соответствие решений всех методов!
     std::vector< std::pair<int, int> > solutionJVCdense;
@@ -3093,6 +3104,8 @@ BOOST_AUTO_TEST_CASE( test_spec )
     std::vector< std::pair<int, int> > solutionJVCsparse2;
     std::vector< std::pair<int, int> > solutionMack;
     std::vector< std::pair<int, int> > solutionHung;
+    std::vector< std::pair<int, int> > solutionSeqExtr;
+    std::vector< std::pair<int, int> > solutionSeqExtrCOO;
 
     for( int i = 0; i < k; i++ ) {
         if( actualJVCdense(i) < l ) {
@@ -3109,6 +3122,12 @@ BOOST_AUTO_TEST_CASE( test_spec )
         }
         if( actualHungdense(i) < l ) {
             solutionHung.push_back( std::make_pair( i, actualHungdense(i) ) );
+        }
+        if( actualSeqExtr(i) < l ) {
+            solutionSeqExtr.push_back( std::make_pair( i, actualSeqExtr(i) ) );
+        }
+        if( actualSeqExtrCOO(i) < l ) {
+            solutionSeqExtrCOO.push_back( std::make_pair( i, actualSeqExtrCOO(i) ) );
         }
     }    
 
