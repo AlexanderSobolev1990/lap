@@ -42,9 +42,9 @@ Repositories / Репозитории:
 
 ***
 
-<center><img src="doc/pictures/dense50to1000.png" width="1000px" /></center> 
-<?\image html  doc/pictures/dense50to1000.png width=1000?>
-<?\image latex doc/pictures/dense50to1000.png?>
+<center><img src="doc/pictures/dense100to1000.png" width="1000px" /></center> 
+<?\image html  doc/pictures/dense100to1000.png width=1000?>
+<?\image latex doc/pictures/dense100to1000.png?>
 <center>Fig.2 - Execution time for dense matrices (large dimensions) <br /> </center>
 <center>Рис.2 - Время выполнения на плотных матрицах (большие размерности)</center>
 
@@ -58,41 +58,74 @@ Repositories / Репозитории:
 
 ***
 
-<center><img src="doc/pictures/sparse50to1000.png" width="1000px" /></center> 
-<?\image html  doc/pictures/sparse50to1000.png width=1000?>
-<?\image latex doc/pictures/sparse50to1000.png?>
+<center><img src="doc/pictures/sparse100to1000.png" width="1000px" /></center> 
+<?\image html  doc/pictures/sparse100to1000.png width=1000?>
+<?\image latex doc/pictures/sparse100to1000.png?>
 <center>Fig.4 - Execution time for sparse matrices (large dimensions) <br /> </center>
 <center>Рис.4 - Время выполнения на разреженных матрицах (большие размерности)</center>
 
 ***
 
-<center><img src="doc/pictures/sparse500to7000.png" width="1000px" /></center> 
-<?\image html  doc/pictures/sparse500to7000.png width=1000?>
-<?\image latex doc/pictures/sparse500to7000.png?>
+<center><img src="doc/pictures/sparse500to5000.png" width="1000px" /></center> 
+<?\image html  doc/pictures/sparse500to5000.png width=1000?>
+<?\image latex doc/pictures/sparse500to5000.png?>
 <center>Fig.5 - Execution time for sparse matrices (large dimensions) for JVCsparse<br /> </center>
 <center>Рис.5 - Время выполнения на разреженных матрицах (большие размерности) для JVCsparse</center>
 
-## 5. Time measurements tables / Сводные таблицы замеров времени выполнения
+***
+
+Additional graphs pics for methods of sequental extremum for dense and sparse matrices in dense and COOrdinated formats /
+Дополнительные графики для методов последовательного выбора экстремума для плотных и разреженных матриц в обычном плотном виде и COO-формате.
+
+***
+
+<center><img src="doc/pictures/dense5to50SeqExtr.png" width="1000px" /></center> 
+<?\image html  doc/pictures/dense5to50SeqExtr.png width=1000?>
+<?\image latex doc/pictures/dense5to50SeqExtr.png?>
+<center>Fig.6 - Execution time for dense matrices (small dimensions)<br /> </center>
+<center>Рис.6 - Время выполнения на плотных матрицах (малые размерности)</center>
+
+***
+
+<center><img src="doc/pictures/sparse5to50SeqExtr.png" width="1000px" /></center> 
+<?\image html  doc/pictures/sparse5to50SeqExtr.png width=1000?>
+<?\image latex doc/pictures/sparse5to50SeqExtr.png?>
+<center>Fig.7 - Execution time for sparse matrices (small dimensions)<br /> </center>
+<center>Рис.7 - Время выполнения на разреженных матрицах (малые размерности)</center>
+
+## 5. Time measurements tables for sparse matrices / Сводные таблицы замеров времени выполнения для разреженных матриц
 
 Table 1 - Execution time, milliseconds / Таблица 1 - Время выполнения, миллисекунды
 
-| N | 5 | 10 | 25 | 50 | 100 | 150 | 200 | 250 | 500 | 1000 |	
+<!--Таблица получена из теста time_table-->
+
+| N | 5 | 10 | 25 | 50 | 100 | 150 | 200 | 250 | 500 | 1000 |
 | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
-| Hungarian | 0.016 | 0.086 | 1.680 | 21.895 | 349.339 | 1811.32 | 6618.14 | - | - | - |	
-| Mack      | 0.005 | 0.035 | 0.713 | 9.673 | 125.7 | 577.939 | 1703.67 | - | - | - |	
-| JVCdense  | 0.003 | 0.008 | 0.052 | 0.226 | 1.421 | 4.511 | 10.346 | 20.888 | 232.497 | 3921.59 |	
-| JVCsparse | 0.001 | 0.001 | 0.004 | 0.013 | 0.050 | 0.136 | 0.271 | 0.568 | 4.623 | 22.131 |
+| Hungarian | 0.013 | 0.095 | 1.931 | 24.129 | 253.358 | 1772.925 | 6687.237 | - | - | - |
+| Mack | 0.005 | 0.037 | 0.801 | 10.185 | 135.415 | 627.683 | 1815.623 | - | - | - |
+| SeqExtr | 0.006 | 0.035 | 0.577 | 6.556 | 88.152 | 433.079 | 1343.761 | - | - | - |
+| SeqExtrCOO | 0.003 | 0.015 | 0.152 | 1.216 | 15.856 | 83.929 | 323.072 | - | - | - |
+| JVCdense | 0.003 | 0.009 | 0.052 | 0.220 | 1.400 | 4.562 | 10.246 | 20.598 | 232.334 | 3876.377 |
+| JVCsparse | 0.001 | 0.002 | 0.005 | 0.013 | 0.049 | 0.132 | 0.261 | 0.535 | 4.481 | 21.902 |
 
 ***
 
 Table 2 - Increasing execution time relative to JVCsparse (times) / Таблица 2 - Возрастание времени выполнения относительно метода JVCsparse (разы)
 
-| N | 5 | 10 | 25 | 50 | 100 | 150 | 200 | 250 | 500 | 1000 |	
+<!--Таблица получена из теста time_table-->
+
+| N | 5 | 10 | 25 | 50 | 100 | 150 | 200 | 250 | 500 | 1000 |
 | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
-| Hungarian | 15.434 | 45.964 | 353.878 | 1589.14 | 6935.4 | 13247 | 24384.1 | - | - | - |	
-| Mack      | 5.161 | 18.643 | 150.171 | 702.077 | 2495.52 | 4226.73 | 6277.05 | - | - | - |	
-| JVCdense  | 3.129 | 4.480 | 11.137 | 16.455 | 28.214 | 32.996 | 38.1224 | 36.722 | 50.285 | 177.192 |	
+| Hungarian | 10.914 | 46.775 | 407.213 | 1884.278 | 5146.364 | 13436.377 | 25614.081 | - | - | - |
+| Mack | 4.437 | 17.944 | 168.873 | 795.364 | 2750.645 | 4756.991 | 6954.369 | - | - | - |
+| SeqExtr | 4.789 | 17.179 | 121.615 | 511.956 | 1790.602 | 3282.153 | 5147.001 | - | - | - |
+| SeqExtrCOO | 2.848 | 7.351 | 32.091 | 94.928 | 322.073 | 636.071 | 1237.459 | - | - | - |
+| JVCdense | 2.246 | 4.249 | 10.926 | 17.158 | 28.438 | 34.577 | 39.247 | 38.476 | 51.850 | 176.988 |
 
 ## 6. Conclusion / Вывод
 
-JVCsparse is the fastest method from considered / JVCsparse самый быстрый метод среди рассмотренных
+JVCsparse is the fastest method from considered (for sparse matrices), cause it works with compact CSR storage and uses fast JVC algorithm. JVCdense is the fastest for dense.
+Method of sequental extremum is non-optimal and it's usage is not recommended.
+/ 
+JVCsparse самый быстрый метод среди рассмотренных (для разреженных матриц), поскольку работает с матрицами, хранящимися в компактном CSR формате и использует быстрый JVC алгоритм. Для плотных матриц самый быстрый JVCdense.
+Метод последовательного выбора экстремума неоптимален и его использование не рекомендуется.

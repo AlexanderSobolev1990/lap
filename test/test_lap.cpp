@@ -10,7 +10,7 @@
 #define BOOST_TEST_MODULE test_lap
 
 #define MATPLOTLIB
-//#define PRINTTOTXT
+#define PRINTTOTXT
 
 #include <boost/test/unit_test.hpp>
 #include <vector>
@@ -416,7 +416,7 @@ BOOST_AUTO_TEST_CASE( dense5to50 )
     size_t pixels_width = std::round( width * mm2px);//
     size_t pixels_height = std::round( height * mm2px);//
     plt::figure_size( pixels_width, pixels_height );
-    plt::title( "Время решения задачи о назначениях на плотных матрицах" );
+//    plt::title( "Время решения задачи о назначениях на плотных матрицах" );
     plt::xlabel( "Размерность задачи N" );
     plt::ylabel( "Время, [мс]" );
 #endif
@@ -595,7 +595,7 @@ BOOST_AUTO_TEST_CASE( dense5to50SeqExtr )
     size_t pixels_width = std::round( width * mm2px);//
     size_t pixels_height = std::round( height * mm2px);//
     plt::figure_size( pixels_width, pixels_height );
-    plt::title( "Время решения задачи о назначениях на плотных матрицах" );
+//    plt::title( "Время решения задачи о назначениях на плотных матрицах" );
     plt::xlabel( "Размерность задачи N" );
     plt::ylabel( "Время, [мс]" );
 #endif
@@ -766,7 +766,6 @@ BOOST_AUTO_TEST_CASE( dense5to50SeqExtr )
 #endif
 }
 
-
 BOOST_AUTO_TEST_CASE( dense100to1000 )
 {
     SPML::LAP::TSearchParam sp = SPML::LAP::TSearchParam::SP_Max;
@@ -785,7 +784,7 @@ BOOST_AUTO_TEST_CASE( dense100to1000 )
     size_t pixels_width = std::round( width * mm2px);//
     size_t pixels_height = std::round( height * mm2px);//
     plt::figure_size( pixels_width, pixels_height );
-    plt::title( "Время решения задачи о назначениях на плотных матрицах" );
+//    plt::title( "Время решения задачи о назначениях на плотных матрицах" );
     plt::xlabel( "Размерность задачи N" );
     plt::ylabel( "Время, [мс]" );
 #endif
@@ -985,7 +984,7 @@ BOOST_AUTO_TEST_CASE( sparse5to50 )
     size_t pixels_width = std::round( width * mm2px);//
     size_t pixels_height = std::round( height * mm2px);//
     plt::figure_size( pixels_width, pixels_height );
-    plt::title( "Время решения задачи о назначениях на разреженных матрицах" );
+//    plt::title( "Время решения задачи о назначениях на разреженных матрицах" );
     plt::xlabel( "Размерность задачи N" );
     plt::ylabel( "Время, [мс]" );
 #endif
@@ -1339,7 +1338,7 @@ BOOST_AUTO_TEST_CASE( sparse5to50SeqExtr )
     size_t pixels_width = std::round( width * mm2px);//
     size_t pixels_height = std::round( height * mm2px);//
     plt::figure_size( pixels_width, pixels_height );
-    plt::title( "Время решения задачи о назначениях на разреженных матрицах" );
+//    plt::title( "Время решения задачи о назначениях на разреженных матрицах" );
     plt::xlabel( "Размерность задачи N" );
     plt::ylabel( "Время, [мс]" );
 #endif
@@ -1734,7 +1733,7 @@ BOOST_AUTO_TEST_CASE( sparse100to1000 )
     size_t pixels_width = std::round( width * mm2px);//
     size_t pixels_height = std::round( height * mm2px);//
     plt::figure_size( pixels_width, pixels_height );
-    plt::title( "Время решения задачи о назначениях на разреженных матрицах" );
+//    plt::title( "Время решения задачи о назначениях на разреженных матрицах" );
     plt::xlabel( "Размерность задачи N" );
     plt::ylabel( "Время, [мс]" );
 #endif
@@ -2015,7 +2014,6 @@ BOOST_AUTO_TEST_CASE( sparse100to1000 )
 #endif
 }
 
-
 BOOST_AUTO_TEST_CASE( sparse100to1000SeqExtr )
 {
     SPML::LAP::TSearchParam sp = SPML::LAP::TSearchParam::SP_Max;
@@ -2034,7 +2032,7 @@ BOOST_AUTO_TEST_CASE( sparse100to1000SeqExtr )
     size_t pixels_width = std::round( width * mm2px);//
     size_t pixels_height = std::round( height * mm2px);//
     plt::figure_size( pixels_width, pixels_height );
-    plt::title( "Время решения задачи о назначениях на разреженных матрицах" );
+//    plt::title( "Время решения задачи о назначениях на разреженных матрицах" );
     plt::xlabel( "Размерность задачи N" );
     plt::ylabel( "Время, [мс]" );
 #endif
@@ -2338,7 +2336,6 @@ BOOST_AUTO_TEST_CASE( sparse100to1000SeqExtr )
 #endif
 }
 
-
 BOOST_AUTO_TEST_CASE( sparse500to5000 )
 {
     SPML::LAP::TSearchParam sp = SPML::LAP::TSearchParam::SP_Max;
@@ -2356,7 +2353,7 @@ BOOST_AUTO_TEST_CASE( sparse500to5000 )
     size_t pixels_width = std::round( width * mm2px);//
     size_t pixels_height = std::round( height * mm2px);//
     plt::figure_size( pixels_width, pixels_height );
-    plt::title( "Время решения задачи о назначениях на разреженных матрицах" );
+//    plt::title( "Время решения задачи о назначениях на разреженных матрицах" );
     plt::xlabel( "Размерность задачи N" );
     plt::ylabel( "Время, [мс]" );
 #endif
@@ -2616,13 +2613,16 @@ BOOST_AUTO_TEST_CASE( time_table )
     size_t pixels_width = std::round( width * mm2px);//
     size_t pixels_height = std::round( height * mm2px);//
     plt::figure_size( pixels_width, pixels_height );
-    plt::title( "Время решения задачи о назначениях на разреженных матрицах" );
+//    plt::title( "Время решения задачи о назначениях на разреженных матрицах" );
     plt::xlabel( "Размерность задачи N" );
     plt::ylabel( "Время, [мс]" );
 #endif
     std::vector<int> dimensionXlim    = { 5, 10, 25, 50, 100, 150, 200, 250, 500, 1000 };
     std::vector<double> dimensionLong = { 5, 10, 25, 50, 100, 150, 200, 250, 500, 1000 };
     std::vector<double> dimensionShort= { 5, 10, 25, 50, 100, 150, 200 };
+//    std::vector<int> dimensionXlim    = { 5, 10, 25, 50 };
+//    std::vector<double> dimensionLong = { 5, 10, 25, 50 };
+//    std::vector<double> dimensionShort= { 5, 10, 25, 50 };
 
     int boundN = dimensionShort.back();
 
@@ -2630,21 +2630,27 @@ BOOST_AUTO_TEST_CASE( time_table )
         { "JVCdense", dimensionLong },
         { "JVCsparse", dimensionLong },
         { "Mack", dimensionShort },
-        { "Hungarian", dimensionShort }
+        { "Hungarian", dimensionShort },
+        { "SeqExtr", dimensionShort },
+        { "SeqExtrCOO", dimensionShort }
     };
 
     std::map<std::string, std::vector<double>> timeOfMethod = {
         { "JVCdense", {} },
         { "JVCsparse", {} },
-        { "Mack",{} },
-        { "Hungarian",{} }
+        { "Mack", {} },
+        { "Hungarian", {} },
+        { "SeqExtr", {} },
+        { "SeqExtrCOO", {} }
     };
 
     std::map<std::string, std::map<std::string, std::string>> estimated_keywords = {
         { "JVCdense", { { "color", "red" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "JVCdense" } } },
         { "JVCsparse", { { "color", "magenta" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "JVCsparse" } } },
         { "Mack", { { "color", "green" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "Mack" } } },
-        { "Hungarian", { { "color", "blue" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "Hungarian" } } }
+        { "Hungarian", { { "color", "blue" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "Hungarian" } } },
+        { "SeqExtr", { { "color", "orange" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "SeqExtr" } } },
+        { "SeqExtrCOO", { { "color", "yellow" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "SeqExtrCOO" } } }
     };
 
     std::mt19937 generator; // Генератор псевдослучайных чисел Mersenne Twister
@@ -2663,6 +2669,7 @@ BOOST_AUTO_TEST_CASE( time_table )
 
         SPML::Sparse::CMatrixCSR mat_JVCsparse;
         SPML::Sparse::CMatrixCSR mat_JVCsparse2N;
+        SPML::Sparse::CMatrixCOO mat_COOsparse;
 
         arma::mat mat_JVCdense( n, n, arma::fill::zeros );
         arma::mat mat_JVCdenseForSparse( n, n, arma::fill::zeros );
@@ -2673,6 +2680,7 @@ BOOST_AUTO_TEST_CASE( time_table )
         arma::mat mat_JVCdenseForSparse2N( 2*n, 2*n, arma::fill::zeros );
         arma::mat mat_Mack2N( 2*n, 2*n, arma::fill::zeros );
         arma::mat mat_Hungarian2N( 2*n, 2*n, arma::fill::zeros );
+        arma::mat mat_SeqExtr2N( 2*n, 2*n, arma::fill::zeros );
 
         arma::ivec actualJVCdense = arma::ivec( n, arma::fill::zeros );
         arma::ivec actualJVCsparse = arma::ivec( n, arma::fill::zeros );
@@ -2683,14 +2691,19 @@ BOOST_AUTO_TEST_CASE( time_table )
         arma::ivec actualJVCsparse2N = arma::ivec( 2*n, arma::fill::zeros );
         arma::ivec actualMack2N = arma::ivec( 2*n, arma::fill::zeros );
         arma::ivec actualHungarian2N = arma::ivec( 2*n, arma::fill::zeros );
+        arma::ivec actualSeqExtr2N = arma::ivec( 2*n, arma::fill::zeros );
+        arma::ivec actualSeqExtrCOO2N = arma::ivec( 2*n, arma::fill::zeros );
 
-        double lapcostJVCdense = 0.0, lapcostJVCsparse = 0.0, lapcostMack = 0.0, lapcostHungarian = 0.0;
+        double lapcostJVCdense = 0.0, lapcostJVCsparse = 0.0, lapcostMack = 0.0, lapcostHungarian = 0.0,
+            lapcostSeqExtr = 0.0, lapcostSeqExtrCOO = 0.0;
 
         std::map<std::string, SPML::Timing::CTimeKeeper> timer = {
             { "JVCdense", SPML::Timing::CTimeKeeper() },
             { "JVCsparse", SPML::Timing::CTimeKeeper() },
             { "Mack", SPML::Timing::CTimeKeeper() },
-            { "Hungarian", SPML::Timing::CTimeKeeper() }
+            { "Hungarian", SPML::Timing::CTimeKeeper() },
+            { "SeqExtr", SPML::Timing::CTimeKeeper() },
+            { "SeqExtrCOO", SPML::Timing::CTimeKeeper() }
         };
 
         for( int cycle = 0; cycle < cycle_count; cycle++ ) {
@@ -2784,6 +2797,8 @@ BOOST_AUTO_TEST_CASE( time_table )
             SPML::Sparse::MatrixDenseToCSR( mat_JVCdenseForSparse2N, mat_JVCsparse2N );
             mat_Mack2N = mat_JVCdense2N;
             mat_Hungarian2N = mat_JVCdense2N;
+            mat_SeqExtr2N = mat_JVCdense2N;
+            SPML::Sparse::MatrixDenseToCOO( mat_JVCdenseForSparse2N, mat_COOsparse );
 
             // Запуск решений с замерами времени выполнения
             timer.at( "JVCdense" ).StartTimer();
@@ -2806,6 +2821,14 @@ BOOST_AUTO_TEST_CASE( time_table )
                 timer.at( "Hungarian" ).StartTimer();
                 SPML::LAP::Hungarian( mat_Hungarian2N, 2*n, sp, infValue, resolution, actualHungarian2N, lapcostHungarian );
                 timer.at( "Hungarian" ).EndTimer();
+
+                timer.at( "SeqExtr" ).StartTimer();
+                SPML::LAP::SequentalExtremum( mat_SeqExtr2N, sp, infValue, resolution, actualSeqExtr2N, lapcostSeqExtr );
+                timer.at( "SeqExtr" ).EndTimer();
+
+                timer.at( "SeqExtrCOO" ).StartTimer();
+                SPML::LAP::SequentalExtremum( mat_COOsparse, sp, infValue, resolution, actualSeqExtrCOO2N, lapcostSeqExtrCOO );
+                timer.at( "SeqExtrCOO" ).EndTimer();
             }
 
             // Проверим соответствие решений всех методов!
@@ -2895,6 +2918,8 @@ BOOST_AUTO_TEST_CASE( time_table )
 
         for( auto &t : timer ) {
             if( ( ( n > boundN ) && ( t.first == "Hungarian" ) ) ||
+                ( ( n > boundN ) && ( t.first == "SeqExtr" ) ) ||
+                ( ( n > boundN ) && ( t.first == "SeqExtrCOO" ) ) ||
                 ( ( n > boundN ) && ( t.first == "Mack" ) ) )
             {
                 continue;
@@ -2922,89 +2947,78 @@ BOOST_AUTO_TEST_CASE( time_table )
     plt::grid( true );
     plt::xlim( dimensionXlim.front(), dimensionXlim.back() );
     plt::legend();
-    plt::save( "time.png", dpi );
+    plt::save( "time2.png", dpi );
     if( show ) {
         plt::show();
     }
     plt::close();
 #endif
-    std::ofstream os1;
-    os1.open( "time1.ods", std::ofstream::out );
-    os1 << "N" << "\t";
-    for( int i = 0; i < dimensionXlim.size(); i++ ) {
-        os1 << dimensionXlim[i] << "\t";
-    }
-    os1 << std::endl;
-    std::vector<std::string> methods1 = { "Hungarian", "Mack", "JVCdense", "JVCsparse" };
-
-    for( auto &m : methods1 ) {
-        os1 << m << "\t";
-        for( int i = 0; i < dimensionXlim.size(); i++ ) {
-            for( auto &t : timeOfMethod ) {
-                if( t.first == m ) {
-                    if( i < ( ( t.second ).size() ) ) {
-                        os1 << ( ( t.second )[i] ) << "\t";
-                    } else {
-                        os1 << "-" << "\t";
-                    }
-                }
-            }
-        }
-        os1 << std::endl;
-    }
-    os1.close();
-
-    ///
-
-    std::ofstream os2;
-    os1.open( "time2.ods", std::ofstream::out );
-    os1 << "N" << "\t";
-    for( int i = 0; i < dimensionXlim.size(); i++ ) {
-        os1 << dimensionXlim[i] << "\t";
-    }
-    os1 << std::endl;
-    std::vector<std::string> methods2 = { "Hungarian", "Mack", "JVCdense" };// , "JVCsparse"
-
-    for( auto &m : methods2 ) {
-        os1 << m << "\t";
-        for( int i = 0; i < dimensionXlim.size(); i++ ) {
-            for( auto &t : timeOfMethod ) {
-                if( t.first == m ) {
-                    if( i < ( ( t.second ).size() ) ) {
-                        os1 << ( ( t.second )[i] ) / ( timeOfMethod.at( "JVCsparse" ))[i] << "\t";
-                    } else {
-                        os1 << "-" << "\t";
-                    }
-                }
-            }
-        }
-        os1 << std::endl;
-    }
-    os1.close();
 #ifdef PRINTTOTXT
-    std::ofstream os;
-    os.open( "sparse5to50.ods", std::ofstream::out );
-    if( print ) {
-        std::cout << "plotting..." << std::endl;
-    }
-    os << "N" << "\t";
-    for( auto &t : timeOfMethod ) {
-        os << t.first << "\t";
-    }
-    os << std::endl;
+    // Оптимизировано для вывода в таблицу для документации
+    std::ofstream os3;
+    os3.open( "time_table.txt", std::ofstream::out );
+    os3 << "| N ";
     for( int i = 0; i < dimensionXlim.size(); i++ ) {
-        os << dimensionXlim[i] << "\t";
-        for( auto &t : timeOfMethod ) {
-            std::string method = t.first;
-            double value = 0.0; //(t.second)[i];
-            if( i < ( ( t.second ).size() ) ) {
-                value = ( t.second )[i];
-            }
-            os << value << "\t";
-        }
-        os << std::endl;
+        os3 << "| " << dimensionXlim[i] << " ";
     }
-    os.close();
+    os3 << "|" << std::endl;
+
+    for( int i = 0; i <= dimensionXlim.size(); i++ ) {
+        os3 << "| :-: ";
+    }
+    os3 << "|" << std::endl;
+
+    std::vector<std::string> methods3 = { "Hungarian", "Mack", "SeqExtr", "SeqExtrCOO", "JVCdense", "JVCsparse" };
+
+    for( auto &m : methods3 ) {
+        os3 << "| " << m << " ";
+        for( int i = 0; i < dimensionXlim.size(); i++ ) {
+            for( auto &t : timeOfMethod ) {
+                if( t.first == m ) {
+                    if( i < ( ( t.second ).size() ) ) {
+                        os3 << std::fixed << std::setprecision( 3 ) << "| " <<  ( ( t.second )[i] ) << " ";
+                    } else {
+                        os3 << "| - ";
+                    }
+                }
+            }
+        }
+        os3 << "|" << std::endl;
+    }
+    os3.close();
+
+    // Оптимизировано для вывода в таблицу для документации
+    std::ofstream os4;
+    os4.open( "time_table_relative.txt", std::ofstream::out );
+    os4 << "| N ";
+    for( int i = 0; i < dimensionXlim.size(); i++ ) {
+        os4 << "| " << dimensionXlim[i] << " ";
+    }
+    os4 << "|" << std::endl;
+
+    for( int i = 0; i <= dimensionXlim.size(); i++ ) {
+        os4 << "| :-: ";
+    }
+    os4 << "|" << std::endl;
+
+    std::vector<std::string> methods4 = { "Hungarian", "Mack", "SeqExtr", "SeqExtrCOO", "JVCdense" };
+
+    for( auto &m : methods4 ) {
+        os4 << "| " << m << " ";
+        for( int i = 0; i < dimensionXlim.size(); i++ ) {
+            for( auto &t : timeOfMethod ) {
+                if( t.first == m ) {
+                    if( i < ( ( t.second ).size() ) ) {
+                        os4 << std::fixed << std::setprecision( 3 ) << "| " <<  ( ( t.second )[i] ) / ( timeOfMethod.at( "JVCsparse" ))[i] << " ";
+                    } else {
+                        os4 << "| - ";
+                    }
+                }
+            }
+        }
+        os4 << "|" << std::endl;
+    }
+    os4.close();
 #endif
 }
 
