@@ -10,7 +10,7 @@
 #define BOOST_TEST_MODULE test_lap
 
 #define MATPLOTLIB
-#define PRINTTOTXT
+//#define PRINTTOTXT
 
 #include <boost/test/unit_test.hpp>
 #include <vector>
@@ -397,13 +397,16 @@ BOOST_AUTO_TEST_CASE( cycling_jvc )
 
 //----------------------------------------------------------------------------------------------------------------------
 
-BOOST_AUTO_TEST_CASE( dense5to50 )
+BOOST_AUTO_TEST_CASE( dense4to64 )
 {
     SPML::LAP::TSearchParam sp = SPML::LAP::TSearchParam::SP_Max;
     double resolution = 1.0e-6;
 
     bool print = true; //false; //
-    int cycle_count = 1000;
+    int cycle_count = 100000;
+
+    std::mt19937 gen; ///< Генератор псевдослучайных чисел Mersenne Twister
+    std::uniform_real_distribution<double> random_0_1( resolution, 1.0 - resolution ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
 
 #ifdef MATPLOTLIB
     namespace plt = matplotlibcpp;
@@ -420,7 +423,21 @@ BOOST_AUTO_TEST_CASE( dense5to50 )
     plt::xlabel( "Размерность задачи N" );
     plt::ylabel( "Время, [мс]" );
 #endif
-    std::vector<int> dimensionXlim = { 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
+//    std::vector<int> dimensionXlim = { 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
+    std::vector<int> dimensionXlim;// = { 4 ... 64 };
+    int startPow = 2;
+    int endPow = 6;
+    for( int i = startPow; i <= endPow; i++ ) {
+        int value = static_cast<int>( std::pow( 2, i ) ); // Степень двойки
+        dimensionXlim.push_back( value );
+        if( i < endPow ) {
+            int valueNext = static_cast<int>( std::pow( 2, ( i + 1 ) ) );
+            dimensionXlim.push_back( value + ( ( valueNext - value ) / 4 ) );
+            dimensionXlim.push_back( value + ( ( valueNext - value ) / 2 ) );
+            dimensionXlim.push_back( value + 3 * ( ( valueNext - value ) / 4 ) );
+        }
+    }
+
     std::vector<double> dimensionLong( dimensionXlim.begin(), dimensionXlim.end() );
     std::vector<double> dimensionShort( dimensionXlim.begin(), dimensionXlim.end() );
     int boundN = dimensionShort.back();
@@ -445,12 +462,21 @@ BOOST_AUTO_TEST_CASE( dense5to50 )
 
     int counter_assign = 0;
     int counter_lapcost = 0;
+    int counter_assign_sum = 0;
+    int counter_lapcost_sum = 0;
+
+    double scaleFactor = 1.0;
 
     for( auto &n : dimensionXlim ) {
 
-        arma::mat mat_JVCdense( n, n, arma::fill::randn );
-        arma::mat mat_Mack( n, n, arma::fill::randn );
-        arma::mat mat_Hungarian( n, n, arma::fill::randn );
+//        arma::mat mat_JVCdense( n, n, arma::fill::randn );
+//        arma::mat mat_Mack( n, n, arma::fill::randn );
+//        arma::mat mat_Hungarian( n, n, arma::fill::randn );
+
+        arma::mat mat_JVCdense( n, n, arma::fill::zeros );
+        arma::mat mat_Mack( n, n, arma::fill::zeros );
+        arma::mat mat_Hungarian( n, n, arma::fill::zeros );
+
         arma::ivec actualJVCdense = arma::ivec( n, arma::fill::zeros );
         arma::ivec actualMack = arma::ivec( n, arma::fill::zeros );
         arma::ivec actualHungarian = arma::ivec( n, arma::fill::zeros );
@@ -466,8 +492,18 @@ BOOST_AUTO_TEST_CASE( dense5to50 )
             if( print ) {
                 std::cout << "cycle = " << ( cycle + 1 ) << "/" << cycle_count << " dim = " << n << std::endl;
             }
-            arma::arma_rng::set_seed( cycle );
-            mat_JVCdense.randu();
+            // old
+//            arma::arma_rng::set_seed( cycle );
+//            mat_JVCdense.randu();
+
+            // new
+            gen.seed( cycle );
+            for( int i = 0; i < n; i++ ) {
+                for( int j = 0; j < n; j++ ) {
+                    double randomNum = random_0_1( gen );
+                    mat_JVCdense(i,j) = randomNum * scaleFactor;
+                }
+            }
 
             /////////////////////
 //            mat_JVCdense.print();
@@ -477,7 +513,6 @@ BOOST_AUTO_TEST_CASE( dense5to50 )
             mat_Hungarian = mat_JVCdense;
 
             double maxcost = mat_JVCdense.max() + 1.0;
-//            double maxcost = maxvalue;
 
             timer.at( "JVCdense" ).StartTimer();
             SPML::LAP::JVCdense( mat_JVCdense, n, sp, maxcost, resolution, actualJVCdense, lapcostJVCdense );
@@ -517,7 +552,7 @@ BOOST_AUTO_TEST_CASE( dense5to50 )
             {
                 counter_assign++;
             }
-        }
+        }/*
         if( print ) {
             for( auto &t : timer ) {
                 std::cout << "timer " + t.first + " TimePerOp() = " << t.second.TimePerOp() << std::endl;
@@ -533,6 +568,28 @@ BOOST_AUTO_TEST_CASE( dense5to50 )
     }
     std::cout << "counter_lapcost=" << counter_lapcost << std::endl;
     std::cout << "counter_assign=" << counter_assign << std::endl;
+    */
+        if( print ) {
+            for( auto &t : timer ) {
+                std::cout << "timer " + t.first + " TimePerOp() = " << t.second.TimePerOp() << std::endl;
+            }
+        }
+
+        for( auto &t : timer ) {
+            if( ( n > boundN ) && ( t.first == "Hungarian" ) ) {
+                continue;
+            }
+            timeOfMethod.at( t.first ).push_back( timer.at( t.first ).TimePerOp() * 1.0e3 ); // мс
+        }
+        std::cout << "counter_lapcost=" << counter_lapcost << std::endl;
+        std::cout << "counter_assign=" << counter_assign << std::endl;
+        counter_lapcost_sum += counter_lapcost;
+        counter_assign_sum += counter_assign;
+    } // for n
+    std::cout << "counter_lapcost_sum=" << counter_lapcost_sum << std::endl;
+    std::cout << "counter_assign_sum=" << counter_assign_sum << std::endl;
+
+
 #ifdef MATPLOTLIB
     if( print ) {
         std::cout << "plotting..." << std::endl;
@@ -546,8 +603,9 @@ BOOST_AUTO_TEST_CASE( dense5to50 )
     }
     plt::grid( true );
     plt::xlim( dimensionXlim.front(), dimensionXlim.back() );
+    plt::ylim( 0.0, 3.0 );
     plt::legend();
-    plt::save( "dense5to50.png", dpi );
+    plt::save( "dense4to64.png", dpi );
     if( show ) {
         plt::show();
     }
@@ -556,7 +614,7 @@ BOOST_AUTO_TEST_CASE( dense5to50 )
 
 #ifdef PRINTTOTXT
     std::ofstream os;
-    os.open( "dense5to50.ods", std::ofstream::out );
+    os.open( "dense4to64.ods", std::ofstream::out );
     if( print ) {
         std::cout << "plotting..." << std::endl;
     }
@@ -966,13 +1024,18 @@ BOOST_AUTO_TEST_CASE( dense100to1000 )
 #endif
 }
 
-BOOST_AUTO_TEST_CASE( sparse5to50 )
+BOOST_AUTO_TEST_CASE( sparse4to64 )
 {
     SPML::LAP::TSearchParam sp = SPML::LAP::TSearchParam::SP_Max;
-    double resolution = 1.0e-6;
+    double resolution = 1.0e-7;
 
     bool print = true; //false; //
-    int cycle_count = 1000; //1;//
+    int cycle_count = 100000; //1;//
+
+    std::mt19937 gen; ///< Генератор псевдослучайных чисел Mersenne Twister
+    std::uniform_real_distribution<double> random_0_1( resolution, 1.0 - resolution ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
+    std::uniform_real_distribution<double> random_double_probability( resolution, 1.0 - resolution ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
+
 #ifdef MATPLOTLIB
     namespace plt = matplotlibcpp;    
     double width = 100;
@@ -989,7 +1052,21 @@ BOOST_AUTO_TEST_CASE( sparse5to50 )
     plt::ylabel( "Время, [мс]" );
 #endif
 
-    std::vector<int> dimensionXlim = { 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
+//    std::vector<int> dimensionXlim = { 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
+    std::vector<int> dimensionXlim;// = { 4, 8, 16, 32, 64 };
+    int startPow = 2;
+    int endPow = 6;//4;//3;//
+    for( int i = startPow; i <= endPow; i++ ) {
+        int value = static_cast<int>( std::pow( 2, i ) ); // Степень двойки
+        dimensionXlim.push_back( value );
+        if( i < endPow ) {
+            int valueNext = static_cast<int>( std::pow( 2, ( i + 1 ) ) );
+            dimensionXlim.push_back( value + ( ( valueNext - value ) / 4 ) );
+            dimensionXlim.push_back( value + ( ( valueNext - value ) / 2 ) );
+            dimensionXlim.push_back( value + 3 * ( ( valueNext - value ) / 4 ) );
+        }
+    }
+
     std::vector<double> dimensionLong( dimensionXlim.begin(), dimensionXlim.end() );
     std::vector<double> dimensionShort( dimensionXlim.begin(), dimensionXlim.end() );
 
@@ -1016,13 +1093,12 @@ BOOST_AUTO_TEST_CASE( sparse5to50 )
         { "Hungarian", { { "color", "blue" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "Hungarian" } } }
     };
 
-    std::mt19937 generator; // Генератор псевдослучайных чисел Mersenne Twister
-    std::uniform_real_distribution<double> random_double_0_1( 0.0, 1.0 ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
-
     int counter_assign = 0;
     int counter_lapcost = 0;
     int counter_assign_sum = 0;
     int counter_lapcost_sum = 0;
+
+    double scaleFactor = 1.0;
 
     for( auto &n : dimensionXlim ) {
         counter_assign = 0;
@@ -1065,17 +1141,28 @@ BOOST_AUTO_TEST_CASE( sparse5to50 )
         for( int cycle = 0; cycle < cycle_count; cycle++ ) {
             if( print ) {
                 std::cout << "cycle = " << ( cycle + 1 ) << "/" << cycle_count << " dim = " << n << std::endl;
+            }            
+            // old
+//            arma::arma_rng::set_seed( cycle );
+//            mat_JVCdense.randu();// 0..1
+
+            // new
+            gen.seed( cycle );
+            for( int i = 0; i < n; i++ ) {
+                for( int j = 0; j < n; j++ ) {
+                    double randomNum = random_0_1( gen );
+                    mat_JVCdense(i,j) = randomNum * scaleFactor;
+                }
             }
-            arma::arma_rng::set_seed( cycle );
-            mat_JVCdense.randu(); // 0..1
+
             mat_JVCdenseForSparse = mat_JVCdense;
 
 //            bool doSparse = false;
             bool doSparse = true;
 
             double infValue = 1.0e7;
-            double bigValue = 1.0e-6;
-            double halfBigValue = 1.0e-5;
+            double bigValue = -1.0e6;
+            double halfBigValue = -1.0e5;
 
             if( doSparse ) {
                 // Проредим матрицу в случайных местах
@@ -1083,16 +1170,16 @@ BOOST_AUTO_TEST_CASE( sparse5to50 )
                 for( int i = 0; i < n; i++ ) {
                     int zeros_in_row = 0;
                     for( int j = 0; j < n; j++ ) {
-                        double randomDouble = random_double_0_1( generator ); // Случайное вещественное число от 0 до 1
+                        double randomDouble = random_double_probability( gen ); // Случайное вещественное число от 0 до 1
                         if( randomDouble > levelCut ) {
-                            mat_JVCdense(i, j) = -bigValue;//-infValue;
+                            mat_JVCdense(i, j) = bigValue;
                             mat_JVCdenseForSparse(i,j) = 0;
                             zeros_in_row++;
                         }
                     }
                     if( zeros_in_row == n ) { // Слишком проредили
-                        int randomInt = random_uint_0_n( generator );
-                        double randomDouble = random_double_0_1( generator ); // Случайное вещественное число от 0 до 1
+                        int randomInt = random_uint_0_n( gen );
+                        double randomDouble = random_double_probability( gen ); // Случайное вещественное число от 0 до 1
                         mat_JVCdense(i, randomInt) = randomDouble;
                         mat_JVCdenseForSparse(i, randomInt) = randomDouble;
                     }
@@ -1105,15 +1192,16 @@ BOOST_AUTO_TEST_CASE( sparse5to50 )
                         }
                     }
                     if( zeros_in_col == n ) { // Слишком проредили
-                        int randomInt = random_uint_0_n( generator );
-                        double randomDouble = random_double_0_1( generator ); // Случайное вещественное число от 0 до 1
+                        int randomInt = random_uint_0_n( gen );
+                        double randomDouble = random_double_probability( gen ); // Случайное вещественное число от 0 до 1
                         mat_JVCdense(randomInt, j) = randomDouble;
                         mat_JVCdenseForSparse(randomInt, j) = randomDouble;
                     }
                 }
             }
             // Матрицы размера 2N для учета неназначений
-            arma::mat mat_JVCdense2N = arma::mat( ( n * 2 ), ( n * 2 ), arma::fill::zeros );
+            arma::mat mat_JVCdense2N = arma::mat( ( n * 2 ), ( n * 2 ), arma::fill::ones );
+            mat_JVCdense2N *= bigValue;
             arma::mat mat_JVCdenseForSparse2N = arma::mat( ( n * 2 ), ( n * 2 ), arma::fill::zeros );
 
             // Копируем основную часть матрицы в новую
@@ -1121,24 +1209,44 @@ BOOST_AUTO_TEST_CASE( sparse5to50 )
             mat_JVCdenseForSparse2N.submat( 0, 0, ( n - 1 ), ( n - 1 ) ) = mat_JVCdenseForSparse;
             //----------
             // FOR DENSE
+            //old
+//            arma::mat emptyDense = arma::mat( n, n, arma::fill::ones );
+////            arma::mat emptyDense = arma::mat( n, n, arma::fill::randu );
+//            emptyDense *= -halfBigValue;
+            //new
             arma::mat emptyDense = arma::mat( n, n, arma::fill::ones );
-            emptyDense *= halfBigValue;
-            arma::mat verbotenDense = arma::mat( n, n, arma::fill::ones );
-            verbotenDense *= halfBigValue;
+            emptyDense *= bigValue;
+            arma::vec emptyDenseDiag = arma::vec( n, arma::fill::ones );
+            emptyDenseDiag *= halfBigValue;
+            emptyDense.diag() = emptyDenseDiag;
+
+//            arma::mat verbotenDense = arma::mat( n, n, arma::fill::ones );
+////            arma::mat verbotenDense = arma::mat( n, n, arma::fill::randu );
+//            verbotenDense *= bigValue;//halfBigValue;
 
             mat_JVCdense2N.submat( 0, n, ( n - 1 ), ( 2 * n - 1 ) ) = emptyDense;
-            mat_JVCdense2N.submat( n, 0, ( 2 * n - 1 ), ( n - 1 ) ) = emptyDense;
-            mat_JVCdense2N.submat( n, n, ( 2 * n - 1 ), ( 2 * n - 1 ) ) = verbotenDense;
-
+//            mat_JVCdense2N.submat( n, 0, ( 2 * n - 1 ), ( n - 1 ) ) = emptyDense;
+//            mat_JVCdense2N.submat( n, n, ( 2 * n - 1 ), ( 2 * n - 1 ) ) = verbotenDense;
+            mat_Mack2N = mat_JVCdense2N;
+            mat_Hungarian2N = mat_JVCdense2N;
             //----------
             // FOR SPARSE
             arma::mat emptySparse = arma::mat( n, n, arma::fill::eye );
+//            arma::mat emptySparse = arma::mat( n, n, arma::fill::zeros );
+//            arma::vec emptySparseDiag = arma::vec( n, arma::fill::randu );
+//            emptySparse.diag() = emptySparseDiag;
             emptySparse *= halfBigValue;
-            arma::mat verbotenSparse = arma::mat( n, n, arma::fill::eye );            
-            verbotenSparse *= bigValue;
 
-            mat_JVCdenseForSparse2N.submat( 0, n, ( n - 1 ), ( 2 * n - 1 ) ) = emptySparse;
-            mat_JVCdenseForSparse2N.submat( n, 0, ( 2 * n - 1 ), ( n - 1 ) ) = emptySparse;
+            arma::mat verbotenSparse = arma::mat( n, n, arma::fill::eye );
+//            arma::mat verbotenSparse = arma::mat( n, n, arma::fill::zeros );
+//            arma::vec verbotenSparseDiag = arma::vec( n, arma::fill::randu );
+//            verbotenSparse.diag() = verbotenSparseDiag;
+            verbotenSparse *= halfBigValue;// bigValue;
+
+//            mat_JVCdenseForSparse2N.submat( 0, n, ( n - 1 ), ( 2 * n - 1 ) ) = emptySparse;
+//            mat_JVCdenseForSparse2N.submat( n, 0, ( 2 * n - 1 ), ( n - 1 ) ) = emptySparse;
+            mat_JVCdenseForSparse2N.submat( 0, n, ( n - 1 ), ( 2 * n - 1 ) ) = verbotenSparse;
+            mat_JVCdenseForSparse2N.submat( n, 0, ( 2 * n - 1 ), ( n - 1 ) ) = verbotenSparse;
             mat_JVCdenseForSparse2N.submat( n, n, ( 2 * n - 1 ), ( 2 * n - 1 ) ) = verbotenSparse;
 
             mat_JVCdenseForSparse2N = mat_JVCdenseForSparse2N.submat( 0, 0, ( n - 1 ), ( 2 * n - 1 ) );
@@ -1151,8 +1259,6 @@ BOOST_AUTO_TEST_CASE( sparse5to50 )
 
             // Сделаем CSR матрицу для JVCsparse
             SPML::Sparse::MatrixDenseToCSR( mat_JVCdenseForSparse2N, mat_JVCsparse2N );
-            mat_Mack2N = mat_JVCdense2N;
-            mat_Hungarian2N = mat_JVCdense2N;
 
             // Запуск решений с замерами времени выполнения
             timer.at( "JVCdense" ).StartTimer();
@@ -1276,18 +1382,24 @@ BOOST_AUTO_TEST_CASE( sparse5to50 )
 #ifdef MATPLOTLIB
     if( print ) {
         std::cout << "plotting..." << std::endl;
-    }    
+    }        
     for( auto &t : timeOfMethod ) {
+        std::vector<double> dim = dimensionDouble.at( t.first );
+        for( auto &ii : dim ) {
+            ii *= 2;
+        }
         plt::plot(
-            dimensionDouble.at( t.first ),
+//            dimensionDouble.at( t.first ),
+            dim,
             ( t.second ), // Y
             estimated_keywords.at( t.first )
             );
     }
     plt::grid( true );
     plt::xlim( dimensionXlim.front(), dimensionXlim.back() );
+    plt::ylim( 0.0, 3.0 );
     plt::legend();
-    plt::save( "sparse5to50.png", dpi );
+    plt::save( "sparse4to64.png", dpi );
     if( show ) {
         plt::show();
     }
@@ -1295,9 +1407,9 @@ BOOST_AUTO_TEST_CASE( sparse5to50 )
 #endif
 #ifdef PRINTTOTXT
     std::ofstream os;
-    os.open( "sparse5to50.ods", std::ofstream::out );
+    os.open( "sparse4to64.ods", std::ofstream::out );
     if( print ) {
-        std::cout << "plotting..." << std::endl;
+        std::cout << "PRINTTOTXT..." << std::endl;
     }
     os << "N" << "\t";
     for( auto &t : timeOfMethod ) {
@@ -1377,7 +1489,7 @@ BOOST_AUTO_TEST_CASE( sparse5to50SeqExtr )
     };
 
     std::mt19937 generator; // Генератор псевдослучайных чисел Mersenne Twister
-    std::uniform_real_distribution<double> random_double_0_1( 0.0, 1.0 ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
+    std::uniform_real_distribution<double> random_double_probability( 0.0, 1.0 ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
 
     int counter_assign = 0;
     int counter_lapcost = 0;
@@ -1450,7 +1562,7 @@ BOOST_AUTO_TEST_CASE( sparse5to50SeqExtr )
                 for( int i = 0; i < n; i++ ) {
                     int zeros_in_row = 0;
                     for( int j = 0; j < n; j++ ) {
-                        double randomDouble = random_double_0_1( generator ); // Случайное вещественное число от 0 до 1
+                        double randomDouble = random_double_probability( generator ); // Случайное вещественное число от 0 до 1
                         if( randomDouble > levelCut ) {
                             mat_JVCdense(i, j) = -bigValue;//-infValue;
                             mat_JVCdenseForSparse(i,j) = 0;
@@ -1459,7 +1571,7 @@ BOOST_AUTO_TEST_CASE( sparse5to50SeqExtr )
                     }
                     if( zeros_in_row == n ) { // Слишком проредили
                         int randomInt = random_uint_0_n( generator );
-                        double randomDouble = random_double_0_1( generator ); // Случайное вещественное число от 0 до 1
+                        double randomDouble = random_double_probability( generator ); // Случайное вещественное число от 0 до 1
                         mat_JVCdense(i, randomInt) = randomDouble;
                         mat_JVCdenseForSparse(i, randomInt) = randomDouble;
                     }
@@ -1473,7 +1585,7 @@ BOOST_AUTO_TEST_CASE( sparse5to50SeqExtr )
                     }
                     if( zeros_in_col == n ) { // Слишком проредили
                         int randomInt = random_uint_0_n( generator );
-                        double randomDouble = random_double_0_1( generator ); // Случайное вещественное число от 0 до 1
+                        double randomDouble = random_double_probability( generator ); // Случайное вещественное число от 0 до 1
                         mat_JVCdense(randomInt, j) = randomDouble;
                         mat_JVCdenseForSparse(randomInt, j) = randomDouble;
                     }
@@ -1722,6 +1834,11 @@ BOOST_AUTO_TEST_CASE( sparse100to1000 )
 
     bool print = true; //false; //
     int cycle_count = 10;//1000; //
+
+    std::mt19937 gen; ///< Генератор псевдослучайных чисел Mersenne Twister
+    std::uniform_real_distribution<double> random_0_1( resolution, 1.0 - resolution ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
+    std::uniform_real_distribution<double> random_double_probability( resolution, 1.0 - resolution ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
+
 #ifdef MATPLOTLIB
     namespace plt = matplotlibcpp;
     double width = 100;
@@ -1755,13 +1872,12 @@ BOOST_AUTO_TEST_CASE( sparse100to1000 )
         { "JVCsparse", { { "color", "magenta" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "JVCsparse" } } }
     };
 
-    std::mt19937 generator; // Генератор псевдослучайных чисел Mersenne Twister
-    std::uniform_real_distribution<double> random_double_0_1( 0.0, 1.0 ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
-
     int counter_assign = 0;
     int counter_lapcost = 0;
     int counter_assign_sum = 0;
     int counter_lapcost_sum = 0;
+
+    double scaleFactor = 1.0;
 
     for( auto &n : dimensionXlim ) {
         counter_assign = 0;
@@ -1804,9 +1920,19 @@ BOOST_AUTO_TEST_CASE( sparse100to1000 )
         for( int cycle = 0; cycle < cycle_count; cycle++ ) {
             if( print ) {
                 std::cout << "cycle = " << ( cycle + 1 ) << "/" << cycle_count << " dim = " << n << std::endl;
+            }            
+            // old
+//            arma::arma_rng::set_seed( cycle );
+//            mat_JVCdense.randu();// 0..1
+
+            // new
+            gen.seed( cycle );
+            for( int i = 0; i < n; i++ ) {
+                for( int j = 0; j < n; j++ ) {
+                    double randomNum = random_0_1( gen );
+                    mat_JVCdense(i,j) = randomNum * scaleFactor;
+                }
             }
-            arma::arma_rng::set_seed( cycle );
-            mat_JVCdense.randu(); // 0..1
             mat_JVCdenseForSparse = mat_JVCdense;
 
 //            bool doSparse = false;
@@ -1821,7 +1947,7 @@ BOOST_AUTO_TEST_CASE( sparse100to1000 )
                 for( int i = 0; i < n; i++ ) {
                     int zeros_in_row = 0;
                     for( int j = 0; j < n; j++ ) {
-                        double randomDouble = random_double_0_1( generator ); // Случайное вещественное число от 0 до 1
+                        double randomDouble = random_double_probability( gen ); // Случайное вещественное число от 0 до 1
                         if( randomDouble > levelCut ) {
                             mat_JVCdense(i, j) = -infValue;
                             mat_JVCdenseForSparse(i,j) = 0;
@@ -1829,8 +1955,8 @@ BOOST_AUTO_TEST_CASE( sparse100to1000 )
                         }
                     }
                     if( zeros_in_row == n ) { // Слишком проредили
-                        int randomInt = random_uint_0_n( generator );
-                        double randomDouble = random_double_0_1( generator ); // Случайное вещественное число от 0 до 1
+                        int randomInt = random_uint_0_n( gen );
+                        double randomDouble = random_double_probability( gen ); // Случайное вещественное число от 0 до 1
                         mat_JVCdense(i, randomInt) = randomDouble;
                         mat_JVCdenseForSparse(i, randomInt) = randomDouble;
                     }
@@ -1843,8 +1969,8 @@ BOOST_AUTO_TEST_CASE( sparse100to1000 )
                         }
                     }
                     if( zeros_in_col == n ) { // Слишком проредили
-                        int randomInt = random_uint_0_n( generator );
-                        double randomDouble = random_double_0_1( generator ); // Случайное вещественное число от 0 до 1
+                        int randomInt = random_uint_0_n( gen );
+                        double randomDouble = random_double_probability( gen ); // Случайное вещественное число от 0 до 1
                         mat_JVCdense(randomInt, j) = randomDouble;
                         mat_JVCdenseForSparse(randomInt, j) = randomDouble;
                     }
@@ -2061,7 +2187,7 @@ BOOST_AUTO_TEST_CASE( sparse100to1000SeqExtr )
     };
 
     std::mt19937 generator; // Генератор псевдослучайных чисел Mersenne Twister
-    std::uniform_real_distribution<double> random_double_0_1( 0.0, 1.0 ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
+    std::uniform_real_distribution<double> random_double_probability( 0.0, 1.0 ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
 
     int counter_assign = 0;
     int counter_lapcost = 0;
@@ -2133,7 +2259,7 @@ BOOST_AUTO_TEST_CASE( sparse100to1000SeqExtr )
                 for( int i = 0; i < n; i++ ) {
                     int zeros_in_row = 0;
                     for( int j = 0; j < n; j++ ) {
-                        double randomDouble = random_double_0_1( generator ); // Случайное вещественное число от 0 до 1
+                        double randomDouble = random_double_probability( generator ); // Случайное вещественное число от 0 до 1
                         if( randomDouble > levelCut ) {
                             mat_JVCdense(i, j) = -infValue;
                             mat_JVCdenseForSparse(i,j) = 0;
@@ -2142,7 +2268,7 @@ BOOST_AUTO_TEST_CASE( sparse100to1000SeqExtr )
                     }
                     if( zeros_in_row == n ) { // Слишком проредили
                         int randomInt = random_uint_0_n( generator );
-                        double randomDouble = random_double_0_1( generator ); // Случайное вещественное число от 0 до 1
+                        double randomDouble = random_double_probability( generator ); // Случайное вещественное число от 0 до 1
                         mat_JVCdense(i, randomInt) = randomDouble;
                         mat_JVCdenseForSparse(i, randomInt) = randomDouble;
                     }
@@ -2156,7 +2282,7 @@ BOOST_AUTO_TEST_CASE( sparse100to1000SeqExtr )
                     }
                     if( zeros_in_col == n ) { // Слишком проредили
                         int randomInt = random_uint_0_n( generator );
-                        double randomDouble = random_double_0_1( generator ); // Случайное вещественное число от 0 до 1
+                        double randomDouble = random_double_probability( generator ); // Случайное вещественное число от 0 до 1
                         mat_JVCdense(randomInt, j) = randomDouble;
                         mat_JVCdenseForSparse(randomInt, j) = randomDouble;
                     }
@@ -2377,7 +2503,7 @@ BOOST_AUTO_TEST_CASE( sparse500to5000 )
     };
 
     std::mt19937 generator; // Генератор псевдослучайных чисел Mersenne Twister
-    std::uniform_real_distribution<double> random_double_0_1( 0.0, 1.0 ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
+    std::uniform_real_distribution<double> random_double_probability( 0.0, 1.0 ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
 
     int counter_assign = 0;
     int counter_lapcost = 0;
@@ -2440,7 +2566,7 @@ BOOST_AUTO_TEST_CASE( sparse500to5000 )
                 for( int i = 0; i < n; i++ ) {
                     int zeros_in_row = 0;
                     for( int j = 0; j < n; j++ ) {
-                        double randomDouble = random_double_0_1( generator ); // Случайное вещественное число от 0 до 1
+                        double randomDouble = random_double_probability( generator ); // Случайное вещественное число от 0 до 1
                         if( randomDouble > levelCut ) {
                             mat_JVCdense(i, j) = -infValue;
                             mat_JVCdenseForSparse(i,j) = 0;
@@ -2449,7 +2575,7 @@ BOOST_AUTO_TEST_CASE( sparse500to5000 )
                     }
                     if( zeros_in_row == n ) { // Слишком проредили
                         int randomInt = random_uint_0_n( generator );
-                        double randomDouble = random_double_0_1( generator ); // Случайное вещественное число от 0 до 1
+                        double randomDouble = random_double_probability( generator ); // Случайное вещественное число от 0 до 1
                         mat_JVCdense(i, randomInt) = randomDouble;
                         mat_JVCdenseForSparse(i, randomInt) = randomDouble;
                     }
@@ -2463,7 +2589,7 @@ BOOST_AUTO_TEST_CASE( sparse500to5000 )
                     }
                     if( zeros_in_col == n ) { // Слишком проредили
                         int randomInt = random_uint_0_n( generator );
-                        double randomDouble = random_double_0_1( generator ); // Случайное вещественное число от 0 до 1
+                        double randomDouble = random_double_probability( generator ); // Случайное вещественное число от 0 до 1
                         mat_JVCdense(randomInt, j) = randomDouble;
                         mat_JVCdenseForSparse(randomInt, j) = randomDouble;
                     }
@@ -2654,7 +2780,7 @@ BOOST_AUTO_TEST_CASE( time_table )
     };
 
     std::mt19937 generator; // Генератор псевдослучайных чисел Mersenne Twister
-    std::uniform_real_distribution<double> random_double_0_1( 0.0, 1.0 ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
+    std::uniform_real_distribution<double> random_double_probability( 0.0, 1.0 ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
 
     int counter_assign = 0;
     int counter_lapcost = 0;
@@ -2727,7 +2853,7 @@ BOOST_AUTO_TEST_CASE( time_table )
                 for( int i = 0; i < n; i++ ) {
                     int zeros_in_row = 0;
                     for( int j = 0; j < n; j++ ) {
-                        double randomDouble = random_double_0_1( generator ); // Случайное вещественное число от 0 до 1
+                        double randomDouble = random_double_probability( generator ); // Случайное вещественное число от 0 до 1
                         if( randomDouble > levelCut ) {
                             mat_JVCdense(i, j) = -infValue;
                             mat_JVCdenseForSparse(i,j) = 0;
@@ -2736,7 +2862,7 @@ BOOST_AUTO_TEST_CASE( time_table )
                     }
                     if( zeros_in_row == n ) { // Слишком проредили
                         int randomInt = random_uint_0_n( generator );
-                        double randomDouble = random_double_0_1( generator ); // Случайное вещественное число от 0 до 1
+                        double randomDouble = random_double_probability( generator ); // Случайное вещественное число от 0 до 1
                         mat_JVCdense(i, randomInt) = randomDouble;
                         mat_JVCdenseForSparse(i, randomInt) = randomDouble;
                     }
@@ -2750,7 +2876,7 @@ BOOST_AUTO_TEST_CASE( time_table )
                     }
                     if( zeros_in_col == n ) { // Слишком проредили
                         int randomInt = random_uint_0_n( generator );
-                        double randomDouble = random_double_0_1( generator ); // Случайное вещественное число от 0 до 1
+                        double randomDouble = random_double_probability( generator ); // Случайное вещественное число от 0 до 1
                         mat_JVCdense(randomInt, j) = randomDouble;
                         mat_JVCdenseForSparse(randomInt, j) = randomDouble;
                     }
@@ -3144,6 +3270,180 @@ BOOST_AUTO_TEST_CASE( test_spec )
             solutionSeqExtrCOO.push_back( std::make_pair( i, actualSeqExtrCOO(i) ) );
         }
     }    
+
+    BOOST_REQUIRE_EQUAL( solutionJVCdense.size(), solutionJVCsparse.size() );
+    BOOST_REQUIRE_EQUAL( solutionJVCdense.size(), solutionJVCsparse2.size() );
+    BOOST_REQUIRE_EQUAL( solutionJVCdense.size(), solutionMack.size() );
+    BOOST_REQUIRE_EQUAL( solutionJVCdense.size(), solutionHung.size() );
+
+    for( unsigned i = 0; i < solutionJVCdense.size(); i++ ) {
+        BOOST_CHECK_EQUAL( solutionJVCdense[i].first, solutionJVCsparse[i].first );
+        BOOST_CHECK_EQUAL( solutionJVCdense[i].second, solutionJVCsparse[i].second );
+
+        BOOST_CHECK_EQUAL( solutionJVCdense[i].first, solutionJVCsparse2[i].first );
+        BOOST_CHECK_EQUAL( solutionJVCdense[i].second, solutionJVCsparse2[i].second );
+
+        BOOST_CHECK_EQUAL( solutionJVCdense[i].first, solutionMack[i].first );
+        BOOST_CHECK_EQUAL( solutionJVCdense[i].second, solutionMack[i].second );
+
+        BOOST_CHECK_EQUAL( solutionJVCdense[i].first, solutionHung[i].first );
+        BOOST_CHECK_EQUAL( solutionJVCdense[i].second, solutionHung[i].second );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( test_spec2 )
+{
+    SPML::LAP::TSearchParam sp = SPML::LAP::TSearchParam::SP_Max;
+    double resolution = 1.0e-7;
+
+    double infValue = 1.0e7;//1.0e7;
+    double bigValue = -1.0e6;
+    double halfBigValue = -1.0e5;
+
+//    double bigValue = -1.0e-2;
+//    double halfBigValue = -1.0e-6;
+
+//    double bigValue = 1.0e-6;
+//    double halfBigValue = 1.0e-5;
+
+    int k = 3;//5;//
+    int l = 3;
+    arma::mat mat_dense = arma::mat( k, l, arma::fill::ones );
+    mat_dense *= bigValue;
+    mat_dense(0,0) = 0.1;
+    mat_dense(1,0) = 0.2;
+    mat_dense(1,1) = 0.3;
+    mat_dense(1,2) = 0.4;
+    mat_dense(2,0) = 0.5;
+
+//    arma::ivec actualJVCdense0 = arma::ivec( ( k + l ), arma::fill::zeros );
+//    double lapcostJVCdense0 = 0.0;
+//    SPML::LAP::JVCdense( mat_dense, 3, sp, infValue, resolution, actualJVCdense0, lapcostJVCdense0 );
+
+//    mat_dense(0,0) = 15;
+//    mat_dense(1,1) = 63;
+//    mat_dense(1,2) = 0.1;
+//    mat_dense(2,2) = 93;
+//    mat_dense(2,4) = 42;
+//    mat_dense(3,0) = 59;
+//    mat_dense(3,1) = 84;
+//    mat_dense(3,3) = 0.1;
+////    mat_dense(4,3) = 74;
+
+    mat_dense.print( "mat_dense" );
+
+    arma::mat mat_dense_kl = arma::mat( ( k + l ), ( k + l ), arma::fill::ones );
+    mat_dense_kl *= bigValue; //-bigValue;//
+
+    arma::mat mat_dense_kk = arma::mat( k, k, arma::fill::ones );
+    mat_dense_kk *= bigValue;
+    arma::vec mat_dense_kk_diag = arma::vec( k, arma::fill::ones );
+    mat_dense_kk_diag *= halfBigValue;//bigValue;//-
+    mat_dense_kk.diag() = mat_dense_kk_diag;
+
+    arma::mat mat_dense_ll = arma::mat( l, l, arma::fill::ones );
+    mat_dense_ll *= bigValue;
+//    arma::vec mat_dense_ll_diag = arma::vec( l, arma::fill::ones );
+//    mat_dense_ll_diag *= halfBigValue;//bigValue;//-
+//    mat_dense_ll.diag() = mat_dense_ll_diag;
+
+    // Заполняем плотную матрицу:
+    mat_dense_kl.submat( 0, 0, ( k - 1 ), ( l - 1 ) ) = mat_dense;
+    mat_dense_kl.submat( k, 0, ( k + l - 1 ), ( l - 1 ) ) = mat_dense_ll;
+    mat_dense_kl.submat( 0, l, ( k - 1 ), ( k + l - 1 ) ) = mat_dense_kk;
+//    mat_dense_kl.submat( k, l, ( k + l - 1 ), ( k + l - 1 ) ) = mat_dense_kk;
+    mat_dense_kl.print( "mat_dense_kl" );
+
+    arma::ivec actualJVCdense = arma::ivec( ( k + l ), arma::fill::zeros );
+    double lapcostJVCdense = 0.0;
+    SPML::LAP::JVCdense( mat_dense_kl, ( k + l ), sp, infValue, resolution, actualJVCdense, lapcostJVCdense );
+
+    arma::ivec actualMackdense = arma::ivec( ( k + l ), arma::fill::zeros );
+    double lapcostMackdense = 0.0;
+    SPML::LAP::Mack( mat_dense_kl, ( k + l ), sp, infValue, resolution, actualMackdense, lapcostMackdense );
+
+    arma::ivec actualHungdense = arma::ivec( ( k + l ), arma::fill::zeros );
+    double lapcostHungdense = 0.0;
+    SPML::LAP::Hungarian( mat_dense_kl, ( k + l ), sp, infValue, resolution, actualHungdense, lapcostHungdense );
+
+    arma::ivec actualSeqExtr = arma::ivec( ( k + l ), arma::fill::zeros );
+    double lapcostSeqExtr = 0.0;
+    SPML::LAP::SequentalExtremum( mat_dense_kl, sp, infValue, resolution, actualSeqExtr, lapcostSeqExtr );
+
+    arma::mat mat_dense_sp = arma::mat( k, l, arma::fill::zeros );
+    for( int i = 0; i < k; i++ ) {
+        for( int j = 0; j < l; j++ ) {
+            if( mat_dense(i,j) > 0.0 ) {
+                mat_dense_sp(i,j) = mat_dense(i,j);
+            }
+        }
+    }
+    mat_dense_sp.print( "mat_dense_sp" );
+
+    arma::mat mat_diag_big = arma::mat( k, k, arma::fill::eye );
+    mat_diag_big *= halfBigValue; // -bigValue;//
+    arma::mat mat_for_sparse = arma::mat( k, ( l + k ), arma::fill::zeros );
+    mat_for_sparse.submat( 0, 0, ( k - 1 ), ( l - 1 ) ) = mat_dense_sp;
+    mat_for_sparse.submat( 0, l, ( k - 1 ), ( k + l - 1 ) ) = mat_diag_big;
+
+    mat_for_sparse.print( "mat_for_sparse" );
+
+    SPML::Sparse::CMatrixCSR mat_csr;
+    SPML::Sparse::MatrixDenseToCSR( mat_for_sparse, mat_csr );
+
+    arma::ivec actualJVCsparse = arma::ivec( ( k + l ), arma::fill::zeros );
+    double lapcostJVCsparse = 0.0;
+    int resSparse = SPML::LAP::JVCsparse( mat_csr.csr_val, mat_csr.csr_kk, mat_csr.csr_first,
+        sp, infValue, resolution, actualJVCsparse, lapcostJVCsparse );
+    if( resSparse == 1 ) {
+        assert( false );
+    }
+
+    arma::ivec actualJVCsparse2 = arma::ivec( ( k + l ), arma::fill::zeros );
+    double lapcostJVCsparse2 = 0.0;
+    int resSparse2 = SPML::LAP::JVCsparse( mat_csr, sp, infValue, resolution, actualJVCsparse2, lapcostJVCsparse2 );
+    if( resSparse2 == 1 ) {
+        assert( false );
+    }
+    SPML::Sparse::CMatrixCOO mat_coo;
+    SPML::Sparse::MatrixDenseToCOO( mat_for_sparse, mat_coo );
+
+    arma::ivec actualSeqExtrCOO = arma::ivec( ( k + l ), arma::fill::zeros );
+    double lapcostSeqExtrCOO = 0.0;
+    SPML::LAP::SequentalExtremum( mat_coo, sp, infValue, resolution, actualSeqExtrCOO, lapcostSeqExtrCOO );
+
+    // Проверим соответствие решений всех методов!
+    std::vector< std::pair<int, int> > solutionJVCdense;
+    std::vector< std::pair<int, int> > solutionJVCsparse;
+    std::vector< std::pair<int, int> > solutionJVCsparse2;
+    std::vector< std::pair<int, int> > solutionMack;
+    std::vector< std::pair<int, int> > solutionHung;
+    std::vector< std::pair<int, int> > solutionSeqExtr;
+    std::vector< std::pair<int, int> > solutionSeqExtrCOO;
+
+    for( int i = 0; i < k; i++ ) {
+        if( actualJVCdense(i) < l ) {
+            solutionJVCdense.push_back( std::make_pair( i, actualJVCdense(i) ) );
+        }
+        if( actualJVCsparse(i) < l ) {
+            solutionJVCsparse.push_back( std::make_pair( i, actualJVCsparse(i) ) );
+        }
+        if( actualJVCsparse2(i) < l ) {
+            solutionJVCsparse2.push_back( std::make_pair( i, actualJVCsparse2(i) ) );
+        }
+        if( actualMackdense(i) < l ) {
+            solutionMack.push_back( std::make_pair( i, actualMackdense(i) ) );
+        }
+        if( actualHungdense(i) < l ) {
+            solutionHung.push_back( std::make_pair( i, actualHungdense(i) ) );
+        }
+        if( actualSeqExtr(i) < l ) {
+            solutionSeqExtr.push_back( std::make_pair( i, actualSeqExtr(i) ) );
+        }
+        if( actualSeqExtrCOO(i) < l ) {
+            solutionSeqExtrCOO.push_back( std::make_pair( i, actualSeqExtrCOO(i) ) );
+        }
+    }
 
     BOOST_REQUIRE_EQUAL( solutionJVCdense.size(), solutionJVCsparse.size() );
     BOOST_REQUIRE_EQUAL( solutionJVCdense.size(), solutionJVCsparse2.size() );
