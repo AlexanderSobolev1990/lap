@@ -12,8 +12,14 @@
 #define MATPLOTLIB
 #define PRINTTOTXT
 
+//#define CYCLE_LONG 1000
+//#define CYCLE_SHORT 100
+
 #define CYCLE_LONG 500
 #define CYCLE_SHORT 10
+
+//#define CYCLE_LONG 5
+//#define CYCLE_SHORT 5
 
 #include <boost/test/unit_test.hpp>
 #include <vector>
@@ -32,13 +38,7 @@
     #include <matplotlibcpp.h>
 #endif
 
-double drand( double dmin, double dmax )
-{
-    double d = static_cast<double>( rand() ) / RAND_MAX;
-    return dmin + d * ( dmax - dmin );
-}
-
-bool show = false;// true;//
+bool show = false;//true;//
 
 //----------------------------------------------------------------------------------------------------------------------
 // Тестовые задачи:
@@ -85,6 +85,21 @@ arma::mat mat_3_dense = {
 };
 arma::ivec expected_3_max = { 1, 3, 2, 0, 4, 5 };
 arma::ivec expected_3_subextr_max = expected_2_max;
+//----------------------------------------------------------------------------------------------------------------------
+// 4
+arma::mat mat_4_dense = {
+    { 93.0, -1e6, 91.0, -1e6, -1e5, -1e6, -1e6, -1e6 },
+    { -1e6, 93.0, 90.0, -1e6, -1e6, -1e5, -1e6, -1e6 },
+    { -1e6, 90.0, -1e6, -1e6, -1e6, -1e6, -1e5, -1e6 },
+    { -1e6, -1e6, 95.0, 96.0, -1e6, -1e6, -1e6, -1e5 },
+    { -1e6, -1e6, -1e6, -1e6, -1e6, -1e6, -1e6, -1e6 },
+    { -1e6, -1e6, -1e6, -1e6, -1e6, -1e6, -1e6, -1e6 },
+    { -1e6, -1e6, -1e6, -1e6, -1e6, -1e6, -1e6, -1e6 },
+    { -1e6, -1e6, -1e6, -1e6, -1e6, -1e6, -1e6, -1e6 }
+};
+
+arma::ivec expected_4_max = { 0, 2, 1, 3 };
+arma::ivec expected_4_subextr_max = { 0, 1, 0, 3, 7, 2, 1, 5 };
 //----------------------------------------------------------------------------------------------------------------------
 
 BOOST_AUTO_TEST_SUITE( test_mat_1_min )
@@ -322,7 +337,7 @@ BOOST_AUTO_TEST_CASE( test_mat_3_jvc_sparse_max )
     unsigned size = mat_3_dense.n_cols;
     arma::ivec actual1 = arma::ivec( size, arma::fill::zeros );
     arma::ivec actual2 = arma::ivec( size, arma::fill::zeros );
-    double infValue =1e7;
+    double infValue = 1e7;
     double resolution = 1e-7;
     double lapcost1, lapcost2;
     SPML::LAP::JVCdense( mat_3_dense, size, SPML::LAP::TSearchParam::SP_Max, infValue, resolution, actual1, lapcost1 );
@@ -331,6 +346,68 @@ BOOST_AUTO_TEST_CASE( test_mat_3_jvc_sparse_max )
     double eps = 1e-7;
     BOOST_CHECK_EQUAL( arma::approx_equal( actual1, expected_3_max, "absdiff", eps ), true );
     BOOST_CHECK_EQUAL( arma::approx_equal( actual2, expected_3_max, "absdiff", eps ), true );
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+//----------------------------------------------------------------------------------------------------------------------
+
+BOOST_AUTO_TEST_SUITE( test_mat_4_max )
+
+BOOST_AUTO_TEST_CASE( test_mat_4_jvc_dense_max )
+{
+    unsigned size = mat_4_dense.n_cols;
+    arma::ivec actual = arma::ivec( size, arma::fill::zeros );
+    double infValue = 1e7;
+    double resolution = 1e-7;
+    double lapcost;
+    SPML::LAP::JVCdense( mat_4_dense, size, SPML::LAP::TSearchParam::SP_Max, infValue, resolution, actual, lapcost );
+
+    double eps = 1e-7;
+    actual.resize( size / 2 );
+    BOOST_CHECK_EQUAL( arma::approx_equal( actual, expected_4_max, "absdiff", eps ), true );
+}
+
+BOOST_AUTO_TEST_CASE( test_mat_4_jvc_dense_min )
+{
+    unsigned size = mat_4_dense.n_cols;
+    arma::ivec actual = arma::ivec( size, arma::fill::zeros );
+    double infValue = 1e7;
+    double resolution = 1e-7;
+    double lapcost;
+    arma::mat min4 = mat_4_dense;
+    SPML::LAP::JVCdense( min4, size, SPML::LAP::TSearchParam::SP_Min, infValue, resolution, actual, lapcost );
+
+    double eps = 1e-7;
+    actual.resize( size / 2 );
+    BOOST_CHECK_EQUAL( arma::approx_equal( actual, expected_4_max, "absdiff", eps ), true );
+}
+
+BOOST_AUTO_TEST_CASE( test_mat_4_jvc_sparse_max )
+{
+    SPML::Sparse::CMatrixCOO coo;
+    for( int i = 0; i < mat_4_dense.n_rows; i++ ) {
+        for( int j = 0; j < mat_4_dense.n_cols; j++ ) {
+            if( mat_4_dense( i, j ) > -1e6 ) {
+                coo.coo_val.push_back( mat_4_dense( i, j ) );
+                coo.coo_row.push_back( i );
+                coo.coo_col.push_back( j );
+            }
+        }
+    }
+    SPML::Sparse::CMatrixCSR csr;
+    SPML::Sparse::MatrixCOOtoCSR( coo, csr );
+
+    unsigned size = mat_4_dense.n_cols;
+    arma::ivec actual = arma::ivec( size, arma::fill::zeros );
+    double infValue = 1e7;
+    double resolution = 1e-7;
+    double lapcost;
+    SPML::LAP::JVCsparse( csr, SPML::LAP::TSearchParam::SP_Max, infValue, resolution, actual, lapcost );
+
+    double eps = 1e-7;
+    actual.resize( size / 2 );
+    BOOST_CHECK_EQUAL( arma::approx_equal( actual, expected_4_max, "absdiff", eps ), true );
 }
 
 BOOST_AUTO_TEST_SUITE_END()
@@ -380,6 +457,10 @@ BOOST_AUTO_TEST_CASE( cycling_jvc )
     arma::ivec result = arma::ivec( N, arma::fill::zeros );
     double lapcost;
     int cycle_count = 10000;
+
+    std::mt19937 gen; ///< Генератор псевдослучайных чисел Mersenne Twister
+    std::uniform_real_distribution<double> random_0_1( resolution, 1.0 - resolution ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
+
     for( int cycle = 0; cycle < cycle_count; cycle++ ) {
         std::cout << "test_LAP_JV_cycling cycle = " << ( cycle + 1 ) << "/" << cycle_count << std::endl;
         assigncost.fill( psi_empty );
@@ -387,8 +468,8 @@ BOOST_AUTO_TEST_CASE( cycling_jvc )
         // Проредим матрицу filledcost: в случайных местах
         double levelCut = 0.5; // Порог прореживания
         for( int i = 0; i < K; i++ ) {
-            for( int j = 0; j < L; j++ ) {
-                double randomVal = drand( 0.0, 1.0 );
+            for( int j = 0; j < L; j++ ) {                
+                double randomVal = random_0_1( gen );// double randomVal = drand( 0.0, 1.0 );
                 if( randomVal > levelCut ) {
                     filledcost(i,j) = psi_empty; // Проредим матрицу
                 }
@@ -401,6 +482,19 @@ BOOST_AUTO_TEST_CASE( cycling_jvc )
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+
+const double width = 50;//100;//
+const double height = 20;//20;//
+const double dpi = 300;// dpi (variable)
+
+std::map<std::string, double> keywords{
+    { "left", 0.13 },
+    { "bottom", 0.2 },
+    { "right", 0.95 },
+    { "top", 0.95 },
+    { "wspace", 0.4 },
+    { "hspace", 0.4 }
+};
 
 BOOST_AUTO_TEST_CASE( denseSmall )
 {
@@ -415,17 +509,14 @@ BOOST_AUTO_TEST_CASE( denseSmall )
 
 #ifdef MATPLOTLIB
     namespace plt = matplotlibcpp;
-    double width = 100;
-    double height = 50;
 
-    const double in2mm = 25.4;// mm (fixed)
-    const double dpi = 300;// dpi (variable)
+    const double in2mm = 25.4;// mm (fixed)    
     const double mm2px = dpi / in2mm;//
     size_t pixels_width = std::round( width * mm2px);//
     size_t pixels_height = std::round( height * mm2px);//
     plt::figure_size( pixels_width, pixels_height );
     plt::xlabel( "Размерность задачи N" );
-    plt::ylabel( "Время, [мс]" );
+    plt::ylabel( "Время, мс" );
 #endif
     std::vector<int> dimensionXlim;
     int startPow = 2;
@@ -580,10 +671,17 @@ BOOST_AUTO_TEST_CASE( denseSmall )
             ( t.second ), // Y
             estimated_keywords.at( t.first )
             );
-    }
+    }    
     plt::grid( true );
+    plt::subplots_adjust( keywords );
     plt::xlim( dimensionXlim.front(), dimensionXlim.back() );
-    plt::xticks( dimensionXlim );
+    std::vector<int> dimensionXlimDiv;
+    for( std::size_t i = 0; i < dimensionXlim.size(); i++ ) {
+        if( ( i % 2 ) == 0 ) {
+            dimensionXlimDiv.push_back( dimensionXlim[i] );
+        }
+    }
+    plt::xticks( dimensionXlimDiv );
     plt::ylim( 0.0, 3.0 );
     plt::legend();
     plt::save( "denseSmall.png", dpi );
@@ -628,17 +726,14 @@ BOOST_AUTO_TEST_CASE( denseSmallSeqExtr )
 
 #ifdef MATPLOTLIB
     namespace plt = matplotlibcpp;
-    double width = 100;
-    double height = 50;
 
     const double in2mm = 25.4;// mm (fixed)
-    const double dpi = 300;// dpi (variable)
     const double mm2px = dpi / in2mm;//
     size_t pixels_width = std::round( width * mm2px);//
     size_t pixels_height = std::round( height * mm2px);//
     plt::figure_size( pixels_width, pixels_height );
     plt::xlabel( "Размерность задачи N" );
-    plt::ylabel( "Время, [мс]" );
+    plt::ylabel( "Время, мс" );
 #endif
     std::vector<int> dimensionXlim;
     int startPow = 2;
@@ -804,8 +899,15 @@ BOOST_AUTO_TEST_CASE( denseSmallSeqExtr )
             );
     }
     plt::grid( true );
+    plt::subplots_adjust( keywords );
     plt::xlim( dimensionXlim.front(), dimensionXlim.back() );
-    plt::xticks( dimensionXlim );
+    std::vector<int> dimensionXlimDiv;
+    for( std::size_t i = 0; i < dimensionXlim.size(); i++ ) {
+        if( ( i % 2 ) == 0 ) {
+            dimensionXlimDiv.push_back( dimensionXlim[i] );
+        }
+    }
+    plt::xticks( dimensionXlimDiv );
     plt::ylim( 0.0, 3.0 );
     plt::legend();
     plt::save( "denseSmallSeqExtr.png", dpi );
@@ -851,17 +953,14 @@ BOOST_AUTO_TEST_CASE( sparseSmall )
 
 #ifdef MATPLOTLIB
     namespace plt = matplotlibcpp;
-    double width = 100;
-    double height = 50;
 
-    const double in2mm = 25.4;// mm (fixed)
-    const double dpi = 300;// dpi (variable)
+    const double in2mm = 25.4;// mm (fixed)    
     const double mm2px = dpi / in2mm;//
     size_t pixels_width = std::round( width * mm2px);//
     size_t pixels_height = std::round( height * mm2px);//
     plt::figure_size( pixels_width, pixels_height );
     plt::xlabel( "Размерность задачи N" );
-    plt::ylabel( "Время, [мс]" );
+    plt::ylabel( "Время, мс" );
 #endif
 
     std::vector<int> dimensionXlim;
@@ -1186,8 +1285,15 @@ BOOST_AUTO_TEST_CASE( sparseSmall )
             );
     }
     plt::grid( true );
+    plt::subplots_adjust( keywords );
     plt::xlim( dimensionXlim.front(), dimensionXlim.back() );
-    plt::xticks( dimensionXlim );
+    std::vector<int> dimensionXlimDiv;
+    for( std::size_t i = 0; i < dimensionXlim.size(); i++ ) {
+        if( ( i % 2 ) == 0 ) {
+            dimensionXlimDiv.push_back( dimensionXlim[i] );
+        }
+    }
+    plt::xticks( dimensionXlimDiv );
     plt::ylim( 0.0, 3.0 );
     plt::legend();
     plt::save( "sparseSmall.png", dpi );
@@ -1237,17 +1343,14 @@ BOOST_AUTO_TEST_CASE( sparseSmallSeqExtr )
 
 #ifdef MATPLOTLIB
     namespace plt = matplotlibcpp;
-    double width = 100;
-    double height = 50;
 
-    const double in2mm = 25.4;// mm (fixed)
-    const double dpi = 300;// dpi (variable)
+    const double in2mm = 25.4;// mm (fixed)    
     const double mm2px = dpi / in2mm;//
     size_t pixels_width = std::round( width * mm2px);//
     size_t pixels_height = std::round( height * mm2px);//
     plt::figure_size( pixels_width, pixels_height );
     plt::xlabel( "Размерность задачи N" );
-    plt::ylabel( "Время, [мс]" );
+    plt::ylabel( "Время, мс" );
 #endif
 
     std::vector<int> dimensionXlim;
@@ -1614,8 +1717,15 @@ BOOST_AUTO_TEST_CASE( sparseSmallSeqExtr )
             );
     }
     plt::grid( true );    
+    plt::subplots_adjust( keywords );
     plt::xlim( dimensionXlim.front(), dimensionXlim.back() );
-    plt::xticks( dimensionXlim );
+    std::vector<int> dimensionXlimDiv;
+    for( std::size_t i = 0; i < dimensionXlim.size(); i++ ) {
+        if( ( i % 2 ) == 0 ) {
+            dimensionXlimDiv.push_back( dimensionXlim[i] );
+        }
+    }
+    plt::xticks( dimensionXlimDiv );
     plt::ylim( 0.0, 3.0 );
     plt::legend();
     plt::save( "sparseSmallSeqExtr.png", dpi );
@@ -1664,17 +1774,14 @@ BOOST_AUTO_TEST_CASE( denseLarge )
 
 #ifdef MATPLOTLIB
     namespace plt = matplotlibcpp;
-    double width = 100;
-    double height = 50;
 
     const double in2mm = 25.4;// mm (fixed)
-    const double dpi = 300;// dpi (variable)
     const double mm2px = dpi / in2mm;//
     size_t pixels_width = std::round( width * mm2px);//
     size_t pixels_height = std::round( height * mm2px);//
     plt::figure_size( pixels_width, pixels_height );
     plt::xlabel( "Размерность задачи N" );
-    plt::ylabel( "Время, [мс]" );
+    plt::ylabel( "Время, мс" );
 #endif
 
     std::vector<double> dimensionLongLong;
@@ -1854,8 +1961,15 @@ BOOST_AUTO_TEST_CASE( denseLarge )
             );
     }
     plt::grid( true );
+    plt::subplots_adjust( keywords );
     plt::xlim( dimensionXlim.front(), dimensionXlim.back() );
-    plt::xticks( dimensionXlim );
+    std::vector<int> dimensionXlimDiv;
+    for( std::size_t i = 0; i < dimensionXlim.size(); i++ ) {
+        if( ( i % 2 ) == 0 ) {
+            dimensionXlimDiv.push_back( dimensionXlim[i] );
+        }
+    }
+    plt::xticks( dimensionXlimDiv );
     plt::ylim( 0.0, 1000.0 );
     plt::legend();
     plt::save( "denseLarge.png", dpi );
@@ -1906,17 +2020,14 @@ BOOST_AUTO_TEST_CASE( sparseLarge )
 
 #ifdef MATPLOTLIB
     namespace plt = matplotlibcpp;
-    double width = 100;
-    double height = 50;
 
-    const double in2mm = 25.4;// mm (fixed)
-    const double dpi = 300;// dpi (variable)
+    const double in2mm = 25.4;// mm (fixed)    
     const double mm2px = dpi / in2mm;//
     size_t pixels_width = std::round( width * mm2px);//
     size_t pixels_height = std::round( height * mm2px);//
     plt::figure_size( pixels_width, pixels_height );
     plt::xlabel( "Размерность задачи N" );
-    plt::ylabel( "Время, [мс]" );
+    plt::ylabel( "Время, мс" );
 #endif
     std::vector<double> dimensionLong;
     std::vector<int> dimensionXlim;
@@ -2200,8 +2311,15 @@ BOOST_AUTO_TEST_CASE( sparseLarge )
     }
 
     plt::grid( true );
-    plt::xticks( dimensionXlim );
+    plt::subplots_adjust( keywords );
     plt::xlim( dimensionXlim.front(), dimensionXlim.back() );
+    std::vector<int> dimensionXlimDiv;
+    for( std::size_t i = 0; i < dimensionXlim.size(); i++ ) {
+        if( ( i % 2 ) == 0 ) {
+            dimensionXlimDiv.push_back( dimensionXlim[i] );
+        }
+    }
+    plt::xticks( dimensionXlimDiv );
     plt::ylim( 0.0, 1000.0 );
     plt::legend();
     plt::save( "sparseLarge.png", dpi );
@@ -2251,17 +2369,14 @@ BOOST_AUTO_TEST_CASE( sparseLargeSeqExtr )
 
 #ifdef MATPLOTLIB
     namespace plt = matplotlibcpp;
-    double width = 100;
-    double height = 50;
 
-    const double in2mm = 25.4;// mm (fixed)
-    const double dpi = 300;// dpi (variable)
+    const double in2mm = 25.4;// mm (fixed)    
     const double mm2px = dpi / in2mm;//
     size_t pixels_width = std::round( width * mm2px);//
     size_t pixels_height = std::round( height * mm2px);//
     plt::figure_size( pixels_width, pixels_height );
     plt::xlabel( "Размерность задачи N" );
-    plt::ylabel( "Время, [мс]" );
+    plt::ylabel( "Время, мс" );
 #endif
 
     std::vector<double> dimensionLong;
@@ -2563,8 +2678,15 @@ BOOST_AUTO_TEST_CASE( sparseLargeSeqExtr )
     }
 
     plt::grid( true );
+    plt::subplots_adjust( keywords );
     plt::xlim( dimensionXlim.front(), dimensionXlim.back() );
-    plt::xticks( dimensionXlim );
+    std::vector<int> dimensionXlimDiv;
+    for( std::size_t i = 0; i < dimensionXlim.size(); i++ ) {
+        if( ( i % 2 ) == 0 ) {
+            dimensionXlimDiv.push_back( dimensionXlim[i] );
+        }
+    }
+    plt::xticks( dimensionXlimDiv );
     plt::ylim( 0.0, 1000.0 );
     plt::legend();
     plt::save( "sparseLargeSeqExtr.png", dpi );
@@ -2613,17 +2735,14 @@ BOOST_AUTO_TEST_CASE( sparseLargeExtra )
 
 #ifdef MATPLOTLIB
     namespace plt = matplotlibcpp;
-    double width = 100;
-    double height = 50;
 
-    const double in2mm = 25.4;// mm (fixed)
-    const double dpi = 300;// dpi (variable)
+    const double in2mm = 25.4;// mm (fixed)    
     const double mm2px = dpi / in2mm;//
     size_t pixels_width = std::round( width * mm2px);//
     size_t pixels_height = std::round( height * mm2px);//
     plt::figure_size( pixels_width, pixels_height );
     plt::xlabel( "Размерность задачи N" );
-    plt::ylabel( "Время, [мс]" );
+    plt::ylabel( "Время, мс" );
 #endif
 
     std::vector<double> dimensionLong;
@@ -2896,7 +3015,7 @@ BOOST_AUTO_TEST_CASE( time_table )
     double resolution = 1e-7;
 
     bool print = true; //false; //
-    int cycle_count = CYCLE_SHORT;
+    int cycle_count = CYCLE_SHORT;//1;//
 
     std::mt19937 gen; ///< Генератор псевдослучайных чисел Mersenne Twister
     std::uniform_real_distribution<double> random_0_1( resolution, 1.0 - resolution ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
@@ -2904,17 +3023,14 @@ BOOST_AUTO_TEST_CASE( time_table )
 
 #ifdef MATPLOTLIB
     namespace plt = matplotlibcpp;
-    double width = 100;
-    double height = 50;
 
-    const double in2mm = 25.4;// mm (fixed)
-    const double dpi = 300;// dpi (variable)
+    const double in2mm = 25.4;// mm (fixed)    
     const double mm2px = dpi / in2mm;//
     size_t pixels_width = std::round( width * mm2px);//
     size_t pixels_height = std::round( height * mm2px);//
     plt::figure_size( pixels_width, pixels_height );
     plt::xlabel( "Размерность задачи N" );
-    plt::ylabel( "Время, [мс]" );
+    plt::ylabel( "Время, мс" );
 #endif
 
     std::vector<double> dimensionLongLong;
@@ -2945,7 +3061,7 @@ BOOST_AUTO_TEST_CASE( time_table )
     for( auto &el : dimensionXlim ) {
         double val = static_cast<double>( el );
         dimensionLong.push_back( val );
-        if( val < 257 ) {
+        if( val < 256 ) {
             dimensionShort.push_back( val );
         }
     }
@@ -3269,9 +3385,21 @@ BOOST_AUTO_TEST_CASE( time_table )
     if( print ) {
         std::cout << "plotting..." << std::endl;
     }
+//    for( auto &t : timeOfMethod ) {
+//        plt::plot(
+//            dimensionDouble.at( t.first ),
+//            ( t.second ), // Y
+//            estimated_keywords.at( t.first )
+//            );
+//    }
     for( auto &t : timeOfMethod ) {
+        std::vector<double> dim = dimensionDouble.at( t.first );
+        for( auto &ii : dim ) {
+            ii *= 2;
+        }
         plt::plot(
-            dimensionDouble.at( t.first ),
+//            dimensionDouble.at( t.first ),
+            dim,
             ( t.second ), // Y
             estimated_keywords.at( t.first )
             );
@@ -3279,7 +3407,7 @@ BOOST_AUTO_TEST_CASE( time_table )
     plt::grid( true );
     plt::xlim( dimensionXlim.front(), dimensionXlim.back() );
     plt::legend();
-    plt::save( "time2.png", dpi );
+    plt::save( "time.png", dpi );
     if( show ) {
         plt::show();
     }
@@ -3290,12 +3418,12 @@ BOOST_AUTO_TEST_CASE( time_table )
     std::ofstream os3;
     os3.open( "time_table.txt", std::ofstream::out );
     os3 << "| N ";
-    for( int i = 0; i < dimensionXlim.size(); i++ ) {
+    for( int i = 1; i < dimensionXlim.size(); i++ ) {
         os3 << "| " << dimensionXlim[i] << " ";
     }
     os3 << "|" << std::endl;
 
-    for( int i = 0; i <= dimensionXlim.size(); i++ ) {
+    for( int i = 1; i <= dimensionXlim.size(); i++ ) {
         os3 << "| :-: ";
     }
     os3 << "|" << std::endl;
@@ -3304,7 +3432,7 @@ BOOST_AUTO_TEST_CASE( time_table )
 
     for( auto &m : methods3 ) {
         os3 << "| " << m << " ";
-        for( int i = 0; i < dimensionXlim.size(); i++ ) {
+        for( int i = 0; i < dimensionXlim.size() - 1; i++ ) {
             for( auto &t : timeOfMethod ) {
                 if( t.first == m ) {
                     if( i < ( ( t.second ).size() ) ) {
@@ -3323,12 +3451,12 @@ BOOST_AUTO_TEST_CASE( time_table )
     std::ofstream os4;
     os4.open( "time_table_relative.txt", std::ofstream::out );
     os4 << "| N ";
-    for( int i = 0; i < dimensionXlim.size(); i++ ) {
+    for( int i = 1; i < dimensionXlim.size(); i++ ) {
         os4 << "| " << dimensionXlim[i] << " ";
     }
     os4 << "|" << std::endl;
 
-    for( int i = 0; i <= dimensionXlim.size(); i++ ) {
+    for( int i = 1; i <= dimensionXlim.size(); i++ ) {
         os4 << "| :-: ";
     }
     os4 << "|" << std::endl;
@@ -3337,7 +3465,7 @@ BOOST_AUTO_TEST_CASE( time_table )
 
     for( auto &m : methods4 ) {
         os4 << "| " << m << " ";
-        for( int i = 0; i < dimensionXlim.size(); i++ ) {
+        for( int i = 0; i < dimensionXlim.size() - 1; i++ ) {
             for( auto &t : timeOfMethod ) {
                 if( t.first == m ) {
                     if( i < ( ( t.second ).size() ) ) {
