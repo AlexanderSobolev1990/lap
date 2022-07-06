@@ -15,7 +15,7 @@ namespace SPML /// Специальная библиотека программ�
 namespace LAP /// Решение задачи о назначениях
 {
 //----------------------------------------------------------------------------------------------------------------------
-void JVCdense( const arma::mat &assigncost, int dim, TSearchParam sp, double maxcost,
+void JVCdense( const arma::mat &assigncost, int dim, TSearchParam sp, double infValue,
     double resolution, arma::ivec &rowsol, double &lapcost )
 {
     // Если ищем максимум - умножим матрицу на -1
@@ -85,7 +85,7 @@ void JVCdense( const arma::mat &assigncost, int dim, TSearchParam sp, double max
                 for( j = 0; j < dim; j++ ) {
                     x(j) = cost(i,j) - v(j);
                 }
-                x(j1) = maxcost;
+                x(j1) = infValue;
                 v(j1) = v(j1) - x.min();
             }
         }
@@ -110,7 +110,7 @@ void JVCdense( const arma::mat &assigncost, int dim, TSearchParam sp, double max
 
             j1 = arma::index_min( x );
             umin = x(j1);
-            x(j1) = maxcost;
+            x(j1) = infValue;
 
             j2 = arma::index_min( x );
             usubmin = x(j2);
@@ -253,7 +253,7 @@ void JVCdense( const arma::mat &assigncost, int dim, TSearchParam sp, double max
         j = rowsol(i);
         u[i] = cost(i,j) - v(j);        
         double element_i_j = assigncost(i,j);
-        if( !SPML::Compare::AreEqualAbs( element_i_j, maxcost, resolution ) ) {
+        if( !SPML::Compare::AreEqualAbs( element_i_j, infValue, resolution ) ) {
             lapcost += element_i_j;
         }
     }

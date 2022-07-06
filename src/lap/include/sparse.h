@@ -2,7 +2,8 @@
 ///
 /// \file       sparse.h
 /// \brief      Работа с разреженными матрицами
-/// \details    Перевод матрицы из плотного представления в COO, CSR, CSC вид
+/// \details    Перевод матрицы из плотного представления в COO (Coordinate list), CSR (Compressed Sparse Row Yale
+/// format), CSC (Compressed Sparse Column Yale format) вид.
 /// \date       27.05.22 - создан
 /// \author     Соболев А.А.
 /// \addtogroup spml

@@ -43,13 +43,13 @@ void updateAssignments( arma::ivec &lab, arma::ivec &y, arma::ivec &x, int j, in
 //----------------------------------------------------------------------------------------------------------------------
 int solveForOneL( std::vector<double> &cc_, const std::vector<int> &kk, const std::vector<int> &first,
     int l, int nc, arma::vec &d, arma::ivec &ok, arma::ivec &free, arma::vec &v, arma::ivec &lab, arma::ivec &todo,
-    arma::ivec &y, arma::ivec &x, int td1, double resolution, double maxcost, bool &fail )
+    arma::ivec &y, arma::ivec &x, int td1, double resolution, double infValue, bool &fail )
 {
     for( int jp = 0; jp < nc; jp++ ) {
-        d(jp) = maxcost;
+        d(jp) = infValue;
         ok(jp) = 0; // false
     }
-    double min_ = maxcost;
+    double min_ = infValue;
     int i0 = free(l);
     int j;
     for( int t = first[i0]; t < first[i0 + 1]; t++ ) {
@@ -116,12 +116,12 @@ int solveForOneL( std::vector<double> &cc_, const std::vector<int> &kk, const st
         if( td1 == -1 ) {
             // The original Pascal code uses finite numbers instead of double.PositiveInfinity
             // so we need to adjust slightly here.
-            min_ = maxcost;
+            min_ = infValue;
             last = td2 + 1;
             for( int jp = 0; jp < nc; jp++ ) {
 //                if( ( ( d[jp] < min_ ) || ( std::abs( d[jp] - min_ ) < resolution ) ) && !ok(jp) ) {
 //                if( ( ( d[jp] < min_ ) || ( std::abs( d[jp] - min_ ) < resolution ) ) && ( ok(jp) == 0 ) ) {
-                if( ( std::abs( d[jp] - maxcost ) > resolution ) && ( ( ( min_ - d[jp] ) > resolution ) || ( std::abs( d[jp] - min_ ) < resolution ) ) && ( ok(jp) == 0 ) ) {
+                if( ( std::abs( d[jp] - infValue ) > resolution ) && ( ( ( min_ - d[jp] ) > resolution ) || ( std::abs( d[jp] - min_ ) < resolution ) ) && ( ok(jp) == 0 ) ) {
                     //if( d[jp] < min_ ) {
                     if( ( min_ - d[jp] ) > resolution ) {
                         td1 = -1;
@@ -145,7 +145,7 @@ int solveForOneL( std::vector<double> &cc_, const std::vector<int> &kk, const st
 
 //----------------------------------------------------------------------------------------------------------------------
 int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const std::vector<int> &first,
-    TSearchParam sp, double maxcost, double resolution, arma::ivec &rowsol, double &lapcost )
+    TSearchParam sp, double infValue, double resolution, arma::ivec &rowsol, double &lapcost )
 {
     // Объявления
     int nr = first.size() - 1; // Кол-во строк
@@ -183,7 +183,7 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
     // The initialization steps of LAPJVsp only make sense for square matrices
     if( nr == nc ) {
         for( int jp = 0; jp < nc; jp++ ) {
-            v(jp) = maxcost;
+            v(jp) = infValue;
         }
         for( int i = 0; i < nr; i++ ) {
             for( int t = first[i]; t < first[i + 1]; t++ ) {
@@ -213,7 +213,7 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
                 continue;
             }
             if( x(i) != -1 ) {
-                double min_ = maxcost;
+                double min_ = infValue;
                 int j1 = x(i);
                 for( int t = first[i]; t < first[i + 1]; t++ ) {
                     int jp = kk[t];
@@ -250,8 +250,8 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
 
                 int j0p = -1; // Index of minimum
                 int j1p = -1; // Index of subminimum
-                double v0 = maxcost; // Value of minimum
-                double vj = maxcost; // Value of subminimum
+                double v0 = infValue; // Value of minimum
+                double vj = infValue; // Value of subminimum
                 for( int t = first[i]; t < first[i + 1]; t++ ) {
                     int jp = kk[t];
                     double dj = cc_[t] - v(jp);
@@ -283,10 +283,10 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
 //                // find minimum and second minimum reduced cost over columns.
 //                int j0p = -1; // Index of minimum
 //                int j1p = -1; // Index of subminimum
-//                double v0 = maxcost; // Value of minimum
-//                double vj = maxcost; // Value of subminimum
+//                double v0 = infValue; // Value of minimum
+//                double vj = infValue; // Value of subminimum
 //                arma::vec i_th_row( nc, arma::fill::zeros );
-//                i_th_row.fill( maxcost );
+//                i_th_row.fill( infValue );
 //                for( int t = first[i]; t < first[i + 1]; t++ ) {
 //                    int jp = kk[t];
 //                    double dj = cc_[t] - v(jp);
@@ -294,7 +294,7 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
 //                }
 //                j0p = arma::index_min( i_th_row );  // Index of minimum
 //                v0 = i_th_row(j0p);                 // Value of minimum
-//                i_th_row(j0p) = maxcost;
+//                i_th_row(j0p) = infValue;
 
 //                j1p = arma::index_min( i_th_row );  // Index of subminimum
 //                vj = i_th_row(j1p);                 // Value of subminimum
@@ -362,7 +362,7 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
     int td1 = -1;
     for( int l = 0; l < l0; l++ ) {
         bool fail = false;
-        td1 = solveForOneL( cc_, kk, first, l, nc, d, ok, free, v, lab, todo, y, x, td1, resolution, maxcost, fail );
+        td1 = solveForOneL( cc_, kk, first, l, nc, d, ok, free, v, lab, todo, y, x, td1, resolution, infValue, fail );
         if( fail ) {
             return 1;
         }
@@ -385,10 +385,10 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-int JVCsparse( const Sparse::CMatrixCSR &csr, TSearchParam sp, double maxcost, double resolution, arma::ivec &rowsol,
+int JVCsparse( const Sparse::CMatrixCSR &csr, TSearchParam sp, double infValue, double resolution, arma::ivec &rowsol,
     double &lapcost )
 {
-    int result = JVCsparse( csr.csr_val, csr.csr_kk, csr.csr_first, sp, maxcost, resolution, rowsol, lapcost );
+    int result = JVCsparse( csr.csr_val, csr.csr_kk, csr.csr_first, sp, infValue, resolution, rowsol, lapcost );
     return result;
 }
 

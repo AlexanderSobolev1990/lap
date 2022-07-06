@@ -15,7 +15,7 @@ namespace SPML /// Специальная библиотека программ�
 namespace LAP /// Решение задачи о назначениях
 {
 //----------------------------------------------------------------------------------------------------------------------
-void Mack( const arma::mat &assigncost, int dim, TSearchParam sp, double maxcost, double resolution, arma::ivec &rowsol,
+void Mack( const arma::mat &assigncost, int dim, TSearchParam sp, double infValue, double resolution, arma::ivec &rowsol,
     double &lapcost )
 {
     double* cost = new double[dim*dim];
@@ -212,7 +212,7 @@ void Mack( const arma::mat &assigncost, int dim, TSearchParam sp, double maxcost
         j = jv[i+1]-1;
         rowsol[i] = j; // в i-ой строке j-ый элемент
         double element_i_j = assigncost(i,j);
-        if( !SPML::Compare::AreEqualAbs( element_i_j, maxcost, resolution ) ) {
+        if( !SPML::Compare::AreEqualAbs( element_i_j, infValue, resolution ) ) {
             lapcost += element_i_j;
         }
     }

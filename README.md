@@ -34,41 +34,42 @@ Repositories / Репозитории:
 ***
 <center>Results for time measuring / Результаты замеров скорости работы:</center>
 
-<center><img src="doc/pictures/dense5to50.png" width="1000px"></center>
-<?\image html  doc/pictures/dense5to50.png width=1000px?>
-<?\image latex doc/pictures/dense5to50.png?> 
+<center><img src="doc/pictures/denseSmall.png" width="1000px"></center>
+<?\image html  doc/pictures/denseSmall.png width=1000px?>
+<?\image latex doc/pictures/denseSmall.png?> 
 <center>Fig.1 - Execution time for dense matrices (small dimensions)<br /> </center>
 <center>Рис.1 - Время выполнения на плотных матрицах (малые размернсти)<br /></center>
 
 ***
 
-<center><img src="doc/pictures/dense100to1000.png" width="1000px" /></center> 
-<?\image html  doc/pictures/dense100to1000.png width=1000?>
-<?\image latex doc/pictures/dense100to1000.png?>
-<center>Fig.2 - Execution time for dense matrices (large dimensions) <br /> </center>
-<center>Рис.2 - Время выполнения на плотных матрицах (большие размерности)</center>
+<center><img src="doc/pictures/sparseSmall.png" width="1000px" /></center>
+<?\image html  doc/pictures/sparseSmall.png width=1000px?>
+<?\image latex doc/pictures/sparseSmall.png?> 
+<center>Fig.2 - Execution time for sparse matrices (small dimensions) <br /> </center>
+<center>Рис.2 - Время выполнения на разреженных матрицах (малые размернсти)</center>
+
 
 ***
 
-<center><img src="doc/pictures/sparse5to50.png" width="1000px" /></center>
-<?\image html  doc/pictures/sparse5to50.png width=1000px?>
-<?\image latex doc/pictures/sparse5to50.png?> 
-<center>Fig.3 - Execution time for sparse matrices (small dimensions) <br /> </center>
-<center>Рис.3 - Время выполнения на разреженных матрицах (малые размернсти)</center>
+<center><img src="doc/pictures/denseLarge.png" width="1000px" /></center> 
+<?\image html  doc/pictures/denseLarge.png width=1000?>
+<?\image latex doc/pictures/denseLarge.png?>
+<center>Fig.3 - Execution time for dense matrices (large dimensions) <br /> </center>
+<center>Рис.3 - Время выполнения на плотных матрицах (большие размерности)</center>
 
 ***
 
-<center><img src="doc/pictures/sparse100to1000.png" width="1000px" /></center> 
-<?\image html  doc/pictures/sparse100to1000.png width=1000?>
-<?\image latex doc/pictures/sparse100to1000.png?>
+<center><img src="doc/pictures/sparseLarge.png" width="1000px" /></center> 
+<?\image html  doc/pictures/sparseLarge.png width=1000?>
+<?\image latex doc/pictures/sparseLarge.png?>
 <center>Fig.4 - Execution time for sparse matrices (large dimensions) <br /> </center>
 <center>Рис.4 - Время выполнения на разреженных матрицах (большие размерности)</center>
 
 ***
 
-<center><img src="doc/pictures/sparse500to5000.png" width="1000px" /></center> 
-<?\image html  doc/pictures/sparse500to5000.png width=1000?>
-<?\image latex doc/pictures/sparse500to5000.png?>
+<center><img src="doc/pictures/sparseLargeExtra.png" width="1000px" /></center> 
+<?\image html  doc/pictures/sparseLargeExtra.png width=1000?>
+<?\image latex doc/pictures/sparseLargeExtra.png?>
 <center>Fig.5 - Execution time for sparse matrices (large dimensions) for JVCsparse<br /> </center>
 <center>Рис.5 - Время выполнения на разреженных матрицах (большие размерности) для JVCsparse</center>
 
@@ -79,17 +80,17 @@ Additional graphs pics for methods of sequental extremum for dense and sparse ma
 
 ***
 
-<center><img src="doc/pictures/dense5to50SeqExtr.png" width="1000px" /></center> 
-<?\image html  doc/pictures/dense5to50SeqExtr.png width=1000?>
-<?\image latex doc/pictures/dense5to50SeqExtr.png?>
+<center><img src="doc/pictures/denseSmallSeqExtr.png" width="1000px" /></center> 
+<?\image html  doc/pictures/denseSmallSeqExtr.png width=1000?>
+<?\image latex doc/pictures/denseSmallSeqExtr.png?>
 <center>Fig.6 - Execution time for dense matrices (small dimensions)<br /> </center>
 <center>Рис.6 - Время выполнения на плотных матрицах (малые размерности)</center>
 
 ***
 
-<center><img src="doc/pictures/sparse5to50SeqExtr.png" width="1000px" /></center> 
-<?\image html  doc/pictures/sparse5to50SeqExtr.png width=1000?>
-<?\image latex doc/pictures/sparse5to50SeqExtr.png?>
+<center><img src="doc/pictures/sparseSmallSeqExtr.png" width="1000px" /></center> 
+<?\image html  doc/pictures/sparseSmallSeqExtr.png width=1000?>
+<?\image latex doc/pictures/sparseSmallSeqExtr.png?>
 <center>Fig.7 - Execution time for sparse matrices (small dimensions)<br /> </center>
 <center>Рис.7 - Время выполнения на разреженных матрицах (малые размерности)</center>
 
@@ -99,14 +100,23 @@ Table 1 - Execution time, milliseconds / Таблица 1 - Время выпо�
 
 <!--Таблица получена из теста time_table-->
 
-| N | 5 | 10 | 25 | 50 | 100 | 150 | 200 | 250 | 500 | 1000 |
+<!--| N | 5 | 10 | 25 | 50 | 100 | 150 | 200 | 250 | 500 | 1000 |
 | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
 | Hungarian | 0.013 | 0.095 | 1.931 | 24.129 | 253.358 | 1772.925 | 6687.237 | - | - | - |
 | Mack | 0.005 | 0.037 | 0.801 | 10.185 | 135.415 | 627.683 | 1815.623 | - | - | - |
 | SeqExtr | 0.006 | 0.035 | 0.577 | 6.556 | 88.152 | 433.079 | 1343.761 | - | - | - |
 | SeqExtrCOO | 0.003 | 0.015 | 0.152 | 1.216 | 15.856 | 83.929 | 323.072 | - | - | - |
 | JVCdense | 0.003 | 0.009 | 0.052 | 0.220 | 1.400 | 4.562 | 10.246 | 20.598 | 232.334 | 3876.377 |
-| JVCsparse | 0.001 | 0.002 | 0.005 | 0.013 | 0.049 | 0.132 | 0.261 | 0.535 | 4.481 | 21.902 |
+| JVCsparse | 0.001 | 0.002 | 0.005 | 0.013 | 0.049 | 0.132 | 0.261 | 0.535 | 4.481 | 21.902 |-->
+
+| N | 4 | 8 | 16 | 32 | 64 | 128 | 256 | 512 | 1024 |
+| :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
+| Hungarian | 0.009 | 0.052 | 0.390 | 4.755 | 71.786 | 1208.893 | 23751.844 | - | - |
+| Mack | 0.003 | 0.016 | 0.170 | 2.095 | 29.535 | 375.302 | 4892.730 | - | - |
+| SeqExtr | 0.004 | 0.019 | 0.138 | 1.340 | 16.415 | 237.025 | 3793.951 | - | - |
+| SeqExtrCOO | 0.002 | 0.009 | 0.045 | 0.307 | 2.919 | 41.872 | 1176.853 | - | - |
+| JVCdense | 0.003 | 0.005 | 0.019 | 0.086 | 0.399 | 3.146 | 27.019 | 487.933 | 6418.646 |
+| JVCsparse | 0.001 | 0.001 | 0.003 | 0.007 | 0.023 | 0.112 | 1.112 | 4.979 | 21.707 |
 
 ***
 
@@ -114,13 +124,21 @@ Table 2 - Increasing execution time relative to JVCsparse (times) / Таблиц
 
 <!--Таблица получена из теста time_table-->
 
-| N | 5 | 10 | 25 | 50 | 100 | 150 | 200 | 250 | 500 | 1000 |
+<!--| N | 5 | 10 | 25 | 50 | 100 | 150 | 200 | 250 | 500 | 1000 |
 | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
 | Hungarian | 10.914 | 46.775 | 407.213 | 1884.278 | 5146.364 | 13436.377 | 25614.081 | - | - | - |
 | Mack | 4.437 | 17.944 | 168.873 | 795.364 | 2750.645 | 4756.991 | 6954.369 | - | - | - |
 | SeqExtr | 4.789 | 17.179 | 121.615 | 511.956 | 1790.602 | 3282.153 | 5147.001 | - | - | - |
 | SeqExtrCOO | 2.848 | 7.351 | 32.091 | 94.928 | 322.073 | 636.071 | 1237.459 | - | - | - |
-| JVCdense | 2.246 | 4.249 | 10.926 | 17.158 | 28.438 | 34.577 | 39.247 | 38.476 | 51.850 | 176.988 |
+| JVCdense | 2.246 | 4.249 | 10.926 | 17.158 | 28.438 | 34.577 | 39.247 | 38.476 | 51.850 | 176.988 |-->
+
+| N | 4 | 8 | 16 | 32 | 64 | 128 | 256 | 512 | 1024 |
+| :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
+| Hungarian | 8.150 | 34.946 | 130.042 | 726.268 | 3106.699 | 10748.823 | 21359.997 | - | - |
+| Mack | 2.486 | 11.090 | 56.770 | 320.036 | 1278.203 | 3336.983 | 4400.025 | - | - |
+| SeqExtr | 3.065 | 12.540 | 46.032 | 204.686 | 710.417 | 2107.495 | 3411.894 | - | - |
+| SeqExtrCOO | 2.111 | 6.328 | 14.927 | 46.835 | 126.345 | 372.301 | 1058.343 | - | - |
+| JVCdense | 2.357 | 3.353 | 6.281 | 13.075 | 17.286 | 27.970 | 24.298 | 97.991 | 295.700 |
 
 ## 6. Conclusion / Вывод
 

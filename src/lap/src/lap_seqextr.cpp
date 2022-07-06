@@ -15,7 +15,7 @@ namespace SPML /// Специальная библиотека программ�
 namespace LAP /// Решение задачи о назначениях
 {
 
-void SequentalExtremum( const arma::mat &assigncost, TSearchParam sp, double maxcost, double resolution,
+void SequentalExtremum( const arma::mat &assigncost, TSearchParam sp, double infValue, double resolution,
     arma::ivec &rowsol, double &lapcost )
 {
     size_t cols = assigncost.n_cols;
@@ -40,7 +40,7 @@ void SequentalExtremum( const arma::mat &assigncost, TSearchParam sp, double max
 
     while( rows_pulled.size() < rows ) {
 
-        double min_val = maxcost;
+        double min_val = infValue;
         int min_row = INT32_MAX;
         int min_col = INT32_MAX;
         bool min_found = false;
@@ -74,14 +74,14 @@ void SequentalExtremum( const arma::mat &assigncost, TSearchParam sp, double max
     for( size_t i = 0; i < rows; i++ ) {
         int j = rowsol(i);
         double element_i_j = assigncost(i,j);
-        if( !SPML::Compare::AreEqualAbs( element_i_j, maxcost, resolution ) ) {
+        if( !SPML::Compare::AreEqualAbs( element_i_j, infValue, resolution ) ) {
             lapcost += element_i_j;
         }
     }
     return;
 }
 
-void SequentalExtremum( const Sparse::CMatrixCOO &assigncost, TSearchParam sp, double maxcost, double resolution,
+void SequentalExtremum( const Sparse::CMatrixCOO &assigncost, TSearchParam sp, double infValue, double resolution,
     arma::ivec &rowsol, double &lapcost )
 {
     rowsol.zeros();
@@ -100,7 +100,7 @@ void SequentalExtremum( const Sparse::CMatrixCOO &assigncost, TSearchParam sp, d
     // Процедура всегда ищет минимум!
     while( pulled.size() < n_elems ) {
 
-        double min_val = maxcost;
+        double min_val = infValue;
         int min_row = INT32_MAX;
         int min_col = INT32_MAX;
         bool min_found = false;
@@ -146,7 +146,7 @@ void SequentalExtremum( const Sparse::CMatrixCOO &assigncost, TSearchParam sp, d
             if( ( assigncost.coo_row[n] == i ) &&
                 ( assigncost.coo_col[n] == j ) )
             {
-                if( !SPML::Compare::AreEqualAbs( assigncost.coo_val[n], maxcost, resolution ) ) {
+                if( !SPML::Compare::AreEqualAbs( assigncost.coo_val[n], infValue, resolution ) ) {
                     lapcost += assigncost.coo_val[n];
 //                    break;
                 }

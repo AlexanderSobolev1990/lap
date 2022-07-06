@@ -381,7 +381,7 @@ void hungarian_step_6( unsigned int &step, arma::mat &cost, const arma::ivec &rc
  * the algorithm. It defines also the important variables
  * to be passed to the different steps.
  */
-void Hungarian( const arma::mat &assigncost, int dim, TSearchParam sp, double maxcost, double resolution,
+void Hungarian( const arma::mat &assigncost, int dim, TSearchParam sp, double infValue, double resolution,
     arma::ivec &rowsol, double &lapcost )
 {
     const unsigned int N = assigncost.n_rows;
@@ -439,7 +439,7 @@ void Hungarian( const arma::mat &assigncost, int dim, TSearchParam sp, double ma
             if( indM(i, j) > 0 ) {
                 rowsol[i] = j;
                 double element_i_j = assigncost(i,j);
-                if( !SPML::Compare::AreEqualAbs( element_i_j, maxcost, resolution ) ) {
+                if( !SPML::Compare::AreEqualAbs( element_i_j, infValue, resolution ) ) {
                     lapcost += element_i_j;
                 }
             }
