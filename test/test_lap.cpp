@@ -2833,7 +2833,7 @@ BOOST_AUTO_TEST_CASE( sparseLargeExtra )
 
     const double in2mm = 25.4;// mm (fixed)    
     const double mm2px = dpi / in2mm;//
-    double width2 = width * 1.5;
+    double width2 = width * 1.25;
     size_t pixels_width = std::round( width2 * mm2px);//
     size_t pixels_height = std::round( height * mm2px);//
     plt::figure_size( pixels_width, pixels_height );
