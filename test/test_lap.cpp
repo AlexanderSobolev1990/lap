@@ -11,15 +11,13 @@
 
 #define MATPLOTLIB
 //#define PRINTTOTXT
+#define USECOLORGRAPHS
 
 //#define CYCLE_LONG 1000
 //#define CYCLE_SHORT 100
 
-//#define CYCLE_LONG 500
-//#define CYCLE_SHORT 25
-
-#define CYCLE_LONG 500
-#define CYCLE_SHORT 15
+#define CYCLE_LONG 400
+#define CYCLE_SHORT 20
 
 //#define CYCLE_LONG 1
 //#define CYCLE_SHORT 1
@@ -112,6 +110,18 @@ arma::mat mat_4_dense_for_min = {
 };
 arma::ivec expected_4_max = { 0, 4, 2 };
 arma::ivec expected_4_min = { 0, 2, 3 };
+//----------------------------------------------------------------------------------------------------------------------
+//// 5
+//arma::mat mat_5_dense_for_max = {
+////    { -1e6, 20.0 },
+////    { 30.0, 10.0 },
+////    { -1e6,  1.0 }
+
+//    { -1e6,  1.0, -1e5 },
+//    { 30.0, 10.0, -1e6 },
+//    { -1e6, 20.0, -1e6 }
+//};
+
 //----------------------------------------------------------------------------------------------------------------------
 
 BOOST_AUTO_TEST_SUITE( test_mat_1_min )
@@ -514,6 +524,39 @@ BOOST_AUTO_TEST_SUITE_END()
 
 //----------------------------------------------------------------------------------------------------------------------
 
+//BOOST_AUTO_TEST_SUITE( test_mat_5_max )
+
+//BOOST_AUTO_TEST_CASE( test_mat_5_jvc_sparse_max )
+//{
+//    SPML::Sparse::CMatrixCOO coo;
+//    for( int i = 0; i < mat_5_dense_for_max.n_rows; i++ ) {
+//        for( int j = 0; j < mat_5_dense_for_max.n_cols; j++ ) {
+//            if( mat_5_dense_for_max( i, j ) > -1e6 ) {
+//                coo.coo_val.push_back( mat_5_dense_for_max( i, j ) );
+//                coo.coo_row.push_back( i );
+//                coo.coo_col.push_back( j );
+//            }
+//        }
+//    }
+//    SPML::Sparse::CMatrixCSR csr;
+//    SPML::Sparse::MatrixCOOtoCSR( coo, csr );
+
+//    unsigned size = mat_5_dense_for_max.n_cols;
+//    arma::ivec actual = arma::ivec( size, arma::fill::zeros );
+//    double infValue = 1e7;
+//    double resolution = 1e-7;
+//    double lapcost;
+//    SPML::LAP::JVCsparse( csr, SPML::LAP::TSearchParam::SP_Max, infValue, resolution, actual, lapcost );
+
+//    double eps = 1e-7;
+//    actual.resize( 3 );
+//    BOOST_CHECK_EQUAL( arma::approx_equal( actual, expected_4_max, "absdiff", eps ), true );
+//}
+
+//BOOST_AUTO_TEST_SUITE_END()
+
+//----------------------------------------------------------------------------------------------------------------------
+
 BOOST_AUTO_TEST_CASE( accordance )
 {
     const int n = 128;
@@ -655,9 +698,15 @@ BOOST_AUTO_TEST_CASE( denseSmall )
         { "Hungarian",{} }
     };
     std::map<std::string, std::map<std::string, std::string>> estimated_keywords = {
+#ifdef USECOLORGRAPHS
         { "JVCdense", { { "color", "red" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "JVCdense" } } },
         { "Mack", { { "color", "green" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "Mack" } } },
         { "Hungarian", { { "color", "blue" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "Hungarian" } } }
+#else
+        { "JVCdense", { { "color", "black" }, {"marker", "x"}, { "linestyle", "-" }, { "linewidth", "1.5" }, { "label", "JVCdense" } } },
+        { "Mack", { { "color", "black" }, {"marker", "^"}, { "linestyle", "-." }, { "linewidth", "1.5" }, { "label", "Mack" } } },
+        { "Hungarian", { { "color", "black" }, {"marker", "s"}, { "linestyle", ":" }, { "linewidth", "1.5" }, { "label", "Hungarian" } } }
+#endif
     };
 
     int counter_assign = 0;
@@ -874,10 +923,17 @@ BOOST_AUTO_TEST_CASE( denseSmallSeqExtr )
         { "Hungarian",{} }
     };
     std::map<std::string, std::map<std::string, std::string>> estimated_keywords = {
+#ifdef USECOLORGRAPHS
         { "SeqExtr", { { "color", "orange" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "SeqExtr" } } },
         { "JVCdense", { { "color", "red" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "JVCdense" } } },
         { "Mack", { { "color", "green" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "Mack" } } },
         { "Hungarian", { { "color", "blue" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "Hungarian" } } }
+#else
+        { "SeqExtr", { { "color", "black" }, {"marker", "v"}, { "linestyle", "-." }, { "linewidth", "1.5" }, { "label", "SeqExtr" } } },
+        { "JVCdense", { { "color", "black" }, {"marker", "x"}, { "linestyle", "-" }, { "linewidth", "1.5" }, { "label", "JVCdense" } } },
+        { "Mack", { { "color", "black" }, {"marker", "^"}, { "linestyle", "-." }, { "linewidth", "1.5" }, { "label", "Mack" } } },
+        { "Hungarian", { { "color", "black" }, {"marker", "s"}, { "linestyle", ":" }, { "linewidth", "1.5" }, { "label", "Hungarian" } } }
+#endif
     };
 
     int counter_assign = 0;
@@ -1104,10 +1160,17 @@ BOOST_AUTO_TEST_CASE( sparseSmall )
         { "Hungarian",{} }
     };
     std::map<std::string, std::map<std::string, std::string>> estimated_keywords = {
+#ifdef USECOLORGRAPHS
         { "JVCdense", { { "color", "red" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "JVCdense" } } },
         { "JVCsparse", { { "color", "magenta" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "JVCsparse" } } },
         { "Mack", { { "color", "green" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "Mack" } } },
         { "Hungarian", { { "color", "blue" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "Hungarian" } } }
+#else
+        { "JVCdense", { { "color", "black" }, {"marker", "x"}, { "linestyle", "-" }, { "linewidth", "1.5" }, { "label", "JVCdense" } } },
+        { "JVCsparse", { { "color", "black" }, {"marker", "o"}, { "linestyle", "--" }, { "linewidth", "1.5" }, { "label", "JVCsparse" } } },
+        { "Mack", { { "color", "black" }, {"marker", "^"}, { "linestyle", "-." }, { "linewidth", "1.5" }, { "label", "Mack" } } },
+        { "Hungarian", { { "color", "black" }, {"marker", "s"}, { "linestyle", ":" }, { "linewidth", "1.5" }, { "label", "Hungarian" } } }
+#endif
     };
 
     int counter_assign = 0;
@@ -1498,12 +1561,21 @@ BOOST_AUTO_TEST_CASE( sparseSmallSeqExtr )
         { "Hungarian",{} }
     };
     std::map<std::string, std::map<std::string, std::string>> estimated_keywords = {
+#ifdef USECOLORGRAPHS
         { "SeqExtr", { { "color", "orange" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "SeqExtr" } } },
         { "SeqExtrCOO", { { "color", "yellow" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "SeqExtrCOO" } } },
         { "JVCdense", { { "color", "red" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "JVCdense" } } },
         { "JVCsparse", { { "color", "magenta" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "JVCsparse" } } },
         { "Mack", { { "color", "green" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "Mack" } } },
         { "Hungarian", { { "color", "blue" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "Hungarian" } } }
+#else
+        { "SeqExtr", { { "color", "black" }, {"marker", "v"}, { "linestyle", "-." }, { "linewidth", "1.5" }, { "label", "SeqExtr" } } },
+        { "SeqExtrCOO", { { "color", "black" }, {"marker", "d"}, { "linestyle", "-." }, { "linewidth", "1" }, { "label", "SeqExtrCOO" } } },
+        { "JVCdense", { { "color", "black" }, {"marker", "x"}, { "linestyle", "-" }, { "linewidth", "1.5" }, { "label", "JVCdense" } } },
+        { "JVCsparse", { { "color", "black" }, {"marker", "o"}, { "linestyle", "--" }, { "linewidth", "1.5" }, { "label", "JVCsparse" } } },
+        { "Mack", { { "color", "black" }, {"marker", "^"}, { "linestyle", "-." }, { "linewidth", "1.5" }, { "label", "Mack" } } },
+        { "Hungarian", { { "color", "black" }, {"marker", "s"}, { "linestyle", ":" }, { "linewidth", "1.5" }, { "label", "Hungarian" } } }
+#endif
     };
 
     int counter_assign = 0;
@@ -1933,9 +2005,15 @@ BOOST_AUTO_TEST_CASE( denseLarge )
         { "Hungarian",{} }
     };
     std::map<std::string, std::map<std::string, std::string>> estimated_keywords = {
+#ifdef USECOLORGRAPHS
         { "JVCdense", { { "color", "red" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "JVCdense" } } },
         { "Mack", { { "color", "green" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "Mack" } } },
         { "Hungarian", { { "color", "blue" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "Hungarian" } } }
+#else
+        { "JVCdense", { { "color", "black" }, {"marker", "x"}, { "linestyle", "-" }, { "linewidth", "1.5" }, { "label", "JVCdense" } } },
+        { "Mack", { { "color", "black" }, {"marker", "^"}, { "linestyle", "-." }, { "linewidth", "1.5" }, { "label", "Mack" } } },
+        { "Hungarian", { { "color", "black" }, {"marker", "s"}, { "linestyle", ":" }, { "linewidth", "1.5" }, { "label", "Hungarian" } } }
+#endif
     };
 
     int counter_assign = 0;
@@ -2527,10 +2605,17 @@ BOOST_AUTO_TEST_CASE( sparseLarge )
         { "Hungarian",{} }
     };
     std::map<std::string, std::map<std::string, std::string>> estimated_keywords = {
+#ifdef USECOLORGRAPHS
         { "JVCdense", { { "color", "red" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "JVCdense" } } },
         { "JVCsparse", { { "color", "magenta" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "JVCsparse" } } },
         { "Mack", { { "color", "green" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "Mack" } } },
         { "Hungarian", { { "color", "blue" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "Hungarian" } } }
+#else
+        { "JVCdense", { { "color", "black" }, {"marker", "x"}, { "linestyle", "-" }, { "linewidth", "1.5" }, { "label", "JVCdense" } } },
+        { "JVCsparse", { { "color", "black" }, {"marker", "o"}, { "linestyle", "--" }, { "linewidth", "1.5" }, { "label", "JVCsparse" } } },
+        { "Mack", { { "color", "black" }, {"marker", "^"}, { "linestyle", "-." }, { "linewidth", "1.5" }, { "label", "Mack" } } },
+        { "Hungarian", { { "color", "black" }, {"marker", "s"}, { "linestyle", ":" }, { "linewidth", "1.5" }, { "label", "Hungarian" } } }
+#endif
     };
 
     int counter_assign = 0;
@@ -2919,9 +3004,15 @@ BOOST_AUTO_TEST_CASE( sparseLargeSeqExtr )
     };
 
     std::map<std::string, std::map<std::string, std::string>> estimated_keywords = {
+#ifdef USECOLORGRAPHS
         { "SeqExtrCOO", { { "color", "yellow" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "SeqExtrCOO" } } },
         { "JVCdense", { { "color", "red" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "JVCdense" } } },
         { "JVCsparse", { { "color", "magenta" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "JVCsparse" } } }
+#else
+        { "SeqExtrCOO", { { "color", "black" }, {"marker", "d"}, { "linestyle", "-." }, { "linewidth", "1" }, { "label", "SeqExtrCOO" } } },
+        { "JVCdense", { { "color", "black" }, {"marker", "x"}, { "linestyle", "-" }, { "linewidth", "1.5" }, { "label", "JVCdense" } } },
+        { "JVCsparse", { { "color", "black" }, {"marker", "o"}, { "linestyle", "--" }, { "linewidth", "1.5" }, { "label", "JVCsparse" } } }
+#endif
     };
 
     int counter_assign = 0;
@@ -3279,7 +3370,11 @@ BOOST_AUTO_TEST_CASE( sparseLargeExtra )
         { "JVCsparse", {} }//,
     };
     std::map<std::string, std::map<std::string, std::string>> estimated_keywords = {
+#ifdef USECOLORGRAPHS
         { "JVCsparse", { { "color", "magenta" }, {"marker", "o"}, { "linestyle", "-" }, { "linewidth", "1" }, { "label", "JVCsparse" } } }//,
+#else
+        { "JVCsparse", { { "color", "black" }, {"marker", "o"}, { "linestyle", "--" }, { "linewidth", "1.5" }, { "label", "JVCsparse" } } }
+#endif
     };
 
     double scaleFactor = 1.0;
