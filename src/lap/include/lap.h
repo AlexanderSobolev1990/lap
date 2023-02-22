@@ -45,7 +45,7 @@ enum TSearchParam
 /// \param[in]  infValue   - большое положительное число
 /// \param[in]  resolution - точность для сравнения двух вещественных чисел
 /// \param[out] rowsol     - результат задачи о назначениях, размерность [dim] (индекс макс/мин элемента в i-ой строке)
-/// rowsol[i] = j --> в i-ой строке выбран j-ый элемент
+/// "rowsol[i] = j" означает, что в i-ой строке выбран j-ый элемент
 /// \param[out] lapcost    - сумма назначенных элементов матрицы ценности assigncost
 ///
 void SequentalExtremum( const arma::mat &assigncost, TSearchParam sp, double infValue, double resolution,
@@ -60,7 +60,7 @@ void SequentalExtremum( const arma::mat &assigncost, TSearchParam sp, double inf
 /// \param[in]  infValue   - большое положительное число
 /// \param[in]  resolution - точность для сравнения двух вещественных чисел
 /// \param[out] rowsol     - результат задачи о назначениях, размерность [dim] (индекс макс/мин элемента в i-ой строке)
-/// rowsol[i] = j --> в i-ой строке выбран j-ый элемент
+/// "rowsol[i] = j" означает, что в i-ой строке выбран j-ый элемент
 /// \param[out] lapcost    - сумма назначенных элементов матрицы ценности assigncost
 ///
 void SequentalExtremum( const Sparse::CMatrixCOO &assigncost, TSearchParam sp, double infValue, double resolution,
@@ -89,7 +89,7 @@ void SequentalExtremum( const Sparse::CMatrixCOO &assigncost, TSearchParam sp, d
 /// \param[in]  infValue   - большое положительное число
 /// \param[in]  resolution - точность для сравнения двух вещественных чисел
 /// \param[out] rowsol     - результат задачи о назначениях, размерность [dim] (индекс макс/мин элемента в i-ой строке)
-/// rowsol[i] = j --> в i-ой строке выбран j-ый элемент
+/// "rowsol[i] = j" означает, что в i-ой строке выбран j-ый элемент
 /// \param[out] lapcost    - сумма назначенных элементов матрицы ценности assigncost
 ///
 void JVCdense( const arma::mat &assigncost, int dim, TSearchParam sp, double infValue, double resolution,
@@ -106,7 +106,7 @@ void JVCdense( const arma::mat &assigncost, int dim, TSearchParam sp, double inf
 /// \param[in]  infValue   - большое положительное число
 /// \param[in]  resolution - точность для сравнения двух вещественных чисел
 /// \param[out] rowsol     - результат задачи о назначениях, размерность [dim] (индекс макс/мин элемента в i-ой строке)
-/// rowsol[i] = j --> в i-ой строке выбран j-ый элемент
+/// "rowsol[i] = j" означает, что в i-ой строке выбран j-ый элемент
 /// \param[out] lapcost    - сумма назначенных элементов матрицы ценности assigncost
 /// \return 0 - OK, 1 - fail
 ///
@@ -121,7 +121,7 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
 /// \param[in]  infValue   - большое положительное число
 /// \param[in]  resolution - точность для сравнения двух вещественных чисел
 /// \param[out] rowsol     - результат задачи о назначениях, размерность [dim] (индекс макс/мин элемента в i-ой строке)
-/// rowsol[i] = j --> в i-ой строке выбран j-ый элемент
+/// "rowsol[i] = j" означает, что в i-ой строке выбран j-ый элемент
 /// \param[out] lapcost    - сумма назначенных элементов матрицы ценности assigncost
 /// \return 0 - OK, 1 - fail
 ///
@@ -138,7 +138,7 @@ int JVCsparse( const Sparse::CMatrixCSR &csr, TSearchParam sp, double infValue, 
 /// \param[in]  infValue   - большое положительное число
 /// \param[in]  resolution - точность для сравнения двух вещественных чисел
 /// \param[out] rowsol     - результат задачи о назначениях, размерность [dim] (индекс макс/мин элемента в i-ой строке)
-/// rowsol[i] = j --> в i-ой строке выбран j-ый элемент
+/// "rowsol[i] = j" означает, что в i-ой строке выбран j-ый элемент
 /// \param[out] lapcost    - сумма назначенных элементов матрицы ценности assigncost
 ///
 void Mack( const arma::mat &assigncost, int dim, TSearchParam sp, double infValue, double resolution, arma::ivec &rowsol,
@@ -154,7 +154,7 @@ void Mack( const arma::mat &assigncost, int dim, TSearchParam sp, double infValu
 /// \param[in]  infValue   - большое положительное число
 /// \param[in]  resolution - точность для сравнения двух вещественных чисел
 /// \param[out] rowsol     - результат задачи о назначениях, размерность [dim] (индекс макс/мин элемента в i-ой строке)
-/// rowsol[i] = j --> в i-ой строке выбран j-ый элемент
+/// "rowsol[i] = j" означает, что в i-ой строке выбран j-ый элемент
 /// \param[out] lapcost    - сумма назначенных элементов матрицы ценности assigncost
 ///
 void Hungarian( const arma::mat &assigncost, int dim, TSearchParam sp, double infValue, double resolution,

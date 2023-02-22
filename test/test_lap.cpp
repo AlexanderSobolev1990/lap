@@ -30,6 +30,8 @@
 #include <random>
 #include <cassert>
 #include <algorithm>
+#include <thread>
+#include <chrono>
 
 #include <timing.h>
 #include <lap.h>
@@ -3507,6 +3509,116 @@ BOOST_AUTO_TEST_CASE( sparseLargeExtra )
     os.close();
 #endif
 }
+
+//BOOST_AUTO_TEST_CASE( measureTime )
+//{
+//    SPML::Timing::CTimeKeeper tk;
+//    tk.StartTimer();
+//    for( int i = 0; i < 100; i++ ) {
+//        std::this_thread::sleep_for( std::chrono::milliseconds( 100 ) );
+//    }
+//    tk.EndTimer();
+//    std::cout << tk.TimePerOp() << std::endl;
+//}
+
+
+BOOST_AUTO_TEST_CASE( sparseLargeExtra2 )
+{
+    SPML::LAP::TSearchParam sp = SPML::LAP::TSearchParam::SP_Max;
+    double resolution = 1e-7;
+    bool print = true; //false; //
+
+    std::mt19937 gen; ///< Генератор псевдослучайных чисел Mersenne Twister
+    std::uniform_real_distribution<double> random_0_1( resolution, 1.0 - resolution ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
+    std::uniform_real_distribution<double> random_double_probability( resolution, 1.0 - resolution ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
+
+    std::vector<int> dimMarks = { 100, 500, 1000, 1500, 2000 };
+    std::vector<int> dimTracks = { 3, 50, 100, 150, 200 };
+
+    int cycle_count_ = 10;//100;//CYCLE_SHORT;//
+    double scaleFactor = 1.0;//00000.0;
+    double infValue = 1e7;
+    double halfBigValue = -1e5;
+    double lapcostJVCsparse = 0.0;
+//    double levelCutting = 0.02;
+
+    std::vector<double> levelCuttingVector = { 0.02, 0.3, 0.6, 0.98 };
+//    std::vector<double> levelCuttingVector = { 0.02 };//, 0.3, 0.6, 0.98 };
+
+    for( auto &levelCutting : levelCuttingVector ) {
+        std::map<std::pair<int, int>, SPML::Timing::CTimeKeeper> timer;
+        for( auto &m : dimMarks ) {
+            for( auto &t : dimTracks ) {
+                timer.insert( std::make_pair( std::make_pair( m, t ), SPML::Timing::CTimeKeeper() ) );
+                for( int cycle = 0; cycle < cycle_count_; cycle++ ) {
+                    if( print ) {
+                        std::cout << "cycle = " << ( cycle + 1 ) << "/" << cycle_count_ << std::endl;
+                    }
+                    gen.seed( cycle );
+                    // Заполним матрицу рандомными числами:
+                    SPML::Sparse::CMatrixCOO mat_JVC_COO;
+                    SPML::Sparse::CMatrixCSR mat_JVC_CSR;
+                    for( int m_ = 0; m_ < m; m_++ ) {
+                        for( int t_ = 0; t_ < ( t + m ); t_++ ) {
+                            if( t_ <= m_ ) {
+                                double randomDouble = random_double_probability( gen ); // Случайное вещественное число от 0 до 1
+                                if( randomDouble < levelCutting ) { // ТУТ ВЕРНО! должно быть <
+                                    mat_JVC_COO.coo_val.push_back( randomDouble * scaleFactor );
+                                    mat_JVC_COO.coo_row.push_back( m_ );
+                                    mat_JVC_COO.coo_col.push_back( t_ );
+                                }
+                            } else if( ( t_ - dimTracks.size() ) == m_ ) {
+                                mat_JVC_COO.coo_val.push_back( halfBigValue );
+                                mat_JVC_COO.coo_row.push_back( m_ );
+                                mat_JVC_COO.coo_col.push_back( t_ );
+                            }
+                        }
+                    }
+                    SPML::Sparse::MatrixCOOtoCSR( mat_JVC_COO, mat_JVC_CSR );
+                    arma::ivec actualJVCsparse = arma::ivec( m, arma::fill::zeros ); // Построчно!
+
+                    timer.at( std::make_pair( m, t ) ).StartTimer();
+                    int resSparse = SPML::LAP::JVCsparse( mat_JVC_CSR.csr_val, mat_JVC_CSR.csr_kk, mat_JVC_CSR.csr_first,
+                        sp, infValue, resolution, actualJVCsparse, lapcostJVCsparse );
+                    timer.at( std::make_pair( m, t ) ).EndTimer();
+                    if( resSparse == 1 ) {
+                        assert( false );
+                    }
+                } // for cycle
+                if( print ) {
+                    std::cout << " m = " << m << " t = " << t << " time = " << timer.at( std::make_pair( m, t ) ).TimePerOp() * 1e3 << "[ms]" << std::endl;
+                }
+            } // for t
+        } // for m
+        // Print matrix
+
+        // Оптимизировано для вывода в таблицу для документации
+        std::ofstream os;
+        std::string fileName = "time_" + std::to_string( levelCutting ) + ".txt";
+        os.open( fileName, std::ofstream::out );
+        os << std::fixed << std::setprecision( 3 );
+
+        bool printT = true;
+        for( auto &m : dimMarks ) {
+            if( printT ) {
+                os << "отм./тр.";
+                for( auto &t : dimTracks ) {
+                    os << "\t" << t;
+                }
+                os << std::endl;
+                printT = false;
+            }
+            os << m;
+            for( auto &t : dimTracks ) {
+                os << "\t" << timer.at( std::make_pair( m, t ) ).TimePerOp() * 1e3; // в мс
+            }
+            os << std::endl;
+        }
+        os.close();
+    }
+
+}
+
 
 BOOST_AUTO_TEST_CASE( time_table )
 {

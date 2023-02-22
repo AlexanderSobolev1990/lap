@@ -19,22 +19,29 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.8")
     set(DOXYGEN_PROJECT_NAME "LAP (Linear Assignment Problem)")
     set(DOXYGEN_PROJECT_BRIEF "Задача о назначениях (назначить K 'работникам' M 'работ' при минимальных суммарных затратах)")
     set(DOXYGEN_EXTRACT_ALL YES) #NO) #
-#    set(DOXYGEN_EXTRACT_PRIVATE YES) # NO) #
+    set(DOXYGEN_EXTRACT_PRIVATE YES) # NO) #
     set(DOXYGEN_USE_MDFILE_AS_MAINPAGE "${ROOT_DIR}/README.md") #
     set(DOXYGEN_GENERATE_HTML YES)    
     set(DOXYGEN_GENERATE_LEGEND YES)
     #set(DOXYGEN_DOT_GRAPH_MAX_NODES 10)
-    set(DOXYGEN_DOT_GRAPH_DEPTH 2)
+#    set(DOXYGEN_DOT_GRAPH_DEPTH 2)
     set(DOXYGEN_FULL_PATH_NAMES NO)
 
-    set(DOXYGEN_SOURCE_BROWSER NO)# YES)   # Включать исходники! *.cpp
-    set(DOXYGEN_SHOW_FILES NO)
+    set(DOXYGEN_HAVE_DOT NO) # Попытка выключить диаграммы классов
+
+    set(DOXYGEN_SOURCE_BROWSER YES)#NO)#    # Включать исходники! *.cpp
+    set(DOXYGEN_SHOW_FILES YES)#NO)#
 
     set(DOXYGEN_GENERATE_LATEX YES)
-    set(DOXYGEN_USE_PDFLATEX YES)
+    set(DOXYGEN_USE_PDFLATEX YES) #NO) #
     set(DOXYGEN_PDF_HYPERLINKS YES) # NO) #
     set(DOXYGEN_LATEX_SOURCE_CODE YES) # NO) #
     set(DOXYGEN_LATEX_HIDE_INDICES)
+#    set(DOXYGEN_COMPACT_LATEX YES)
+    set(DOXYGEN_LATEX_HEADER ${ROOT_DIR}/doc/forlatex/custom_header.tex) # То, что включается перед осн. частью
+#    set(DOXYGEN_LATEX_FOOTER ${ROOT_DIR}/doc/forlatex/custom_footer.tex) # То, что включается после осн. части
+#    set(DOXYGEN_LATEX_EXTRA_STYLESHEET ${ROOT_DIR}/doc/forlatex/espd.sty) # Кастомные настройки
+
 
     set(DOXYGEN_GENERATE_TESTLIST YES)
     set(DOXYGEN_GENERATE_TODOLIST YES)
@@ -47,7 +54,8 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.8")
     # Создадим файл настроек Doxygen
     doxygen_add_docs(
         ${DOXYGEN_TARGET_NAME}
-        ${ROOT_DIR}/README.md
+#        ${ROOT_DIR}/README.md
+        ${ROOT_DIR}/doc/forlatex/custom_header.tex
         ${DOXYGEN_INPUT_DIRECTORY}
         ALL
         WORKING_DIRECTORY ${DOXYGEN_OUTPUT_DIRECTORY}

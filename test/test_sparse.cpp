@@ -287,3 +287,26 @@ BOOST_AUTO_TEST_CASE( MatrixCOOtoCSC_SLOW )
     BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_kk.begin(), CSC.csc_kk.end(), A1_csc_kk_expected.begin(), A1_csc_kk_expected.end() );
     BOOST_CHECK_EQUAL_COLLECTIONS( CSC.csc_first.begin(), CSC.csc_first.end(), A1_csc_first_expected.begin(), A1_csc_first_expected.end() );
 }
+
+arma::mat A2 = {
+    { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 },
+    { 0.0, 3.0, 0.0, 4.0, 0.0, 0.0 },
+    { 0.0, 0.0, 5.0, 6.0, 7.0, 0.0 },
+    { 0.0, 0.0, 0.0, 0.0, 0.0, 8.0 }
+};
+BOOST_AUTO_TEST_CASE( MatrixDenseToCSR_A2_1 )
+{
+    std::vector<double> CSR_value;
+    std::vector<int> CSR_first, CSR_kk;
+
+    SPML::Sparse::MatrixDenseToCSR( A2, CSR_value, CSR_kk, CSR_first );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSR_value.begin(), CSR_value.end(), A1_csr_val_expected.begin(), A1_csr_val_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSR_kk.begin(), CSR_kk.end(), A1_csr_kk_expected.begin(), A1_csr_kk_expected.end() );
+    BOOST_CHECK_EQUAL_COLLECTIONS( CSR_first.begin(), CSR_first.end(), A1_csr_first_expected.begin(), A1_csr_first_expected.end() );
+
+    arma::mat Arestored;
+    SPML::Sparse::MatrixCSRtoDense( CSR_value, CSR_kk, CSR_first, Arestored );
+
+    double eps = 1e-6;
+    BOOST_CHECK_EQUAL( arma::approx_equal( A2, Arestored, "absdiff", eps ), true );
+}
