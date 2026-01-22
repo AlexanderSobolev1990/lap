@@ -1,0 +1,187 @@
+{
+"boost-test-adapter-feher.tests": [
+    {    
+        // Mandatory
+        "testExecutables": [
+            {            
+                "path": "bin/Debug/tests/test_lap",
+            },
+            {
+                "path": "bin/Debug/tests/test_sparse",
+            },
+        ],
+
+        // Optional: The working directory for the test executables.
+        "cwd": "${workspaceFolder}/bin/Debug/tests", 
+        // "cwd": "{workspaceFolder}/bin/Debug/tests",
+        
+        // Mandatory: The name of a launch configuration that should be used
+        // when debugging the tests.
+        // The 'program' and 'args' options of the given launch config will
+        // be overwritten by this extension.
+        // "debugConfig": "Test config",
+        "debugConfig": "(gdb) Test",
+        
+        // Optional: A simple key=value file with environment variables for running and debugging the tests.
+        // "envFile": "${workspaceFolder}/.env",
+
+        // // Optional: Environment variables for running and debugging the tests.
+        // // These env vars are merged with the ones from envFile (if present).
+        // // These env vars take precedence over the ones from envFile.
+        // "env": [
+        //   {
+        //     "name": "MY_VAR",
+        //     "value": "my var value"
+        //   }
+        // ],
+
+        // Optional: Used to convert relative source file paths to absolute paths.
+        // It's needed only if the test-case file paths are broken in the Test Explorer UI.
+        // "sourcePrefix": "bin/Debug/tests/test_spml_statistics",//"${workspaceFolder}"
+        "sourcePrefix": "tests/",//"${workspaceFolder}"
+    },
+    // {
+    //     "testExecutables": [ "build/Debug/other_test_2" ],
+    //     "cwd": "${workspaceFolder}",
+    //     "debugConfig": "Test config"
+    // }
+],
+"editor.rulers": [
+    120
+],
+"todo-tree.tree.showBadges": false,
+"files.associations": {
+    "cctype": "cpp",
+    "clocale": "cpp",
+    "cmath": "cpp",
+    "csignal": "cpp",
+    "cstdarg": "cpp",
+    "cstddef": "cpp",
+    "cstdio": "cpp",
+    "cstdlib": "cpp",
+    "cstring": "cpp",
+    "ctime": "cpp",
+    "cwchar": "cpp",
+    "cwctype": "cpp",
+    "*.ipp": "cpp",
+    "array": "cpp",
+    "atomic": "cpp",
+    "strstream": "cpp",
+    "bit": "cpp",
+    "*.tcc": "cpp",
+    "bitset": "cpp",
+    "chrono": "cpp",
+    "cinttypes": "cpp",
+    "codecvt": "cpp",
+    "complex": "cpp",
+    "condition_variable": "cpp",
+    "cstdint": "cpp",
+    "deque": "cpp",
+    "forward_list": "cpp",
+    "list": "cpp",
+    "map": "cpp",
+    "set": "cpp",
+    "unordered_map": "cpp",
+    "unordered_set": "cpp",
+    "vector": "cpp",
+    "exception": "cpp",
+    "algorithm": "cpp",
+    "functional": "cpp",
+    "iterator": "cpp",
+    "memory": "cpp",
+    "memory_resource": "cpp",
+    "numeric": "cpp",
+    "optional": "cpp",
+    "random": "cpp",
+    "ratio": "cpp",
+    "regex": "cpp",
+    "string": "cpp",
+    "string_view": "cpp",
+    "system_error": "cpp",
+    "tuple": "cpp",
+    "type_traits": "cpp",
+    "utility": "cpp",
+    "fstream": "cpp",
+    "future": "cpp",
+    "initializer_list": "cpp",
+    "iomanip": "cpp",
+    "iosfwd": "cpp",
+    "iostream": "cpp",
+    "istream": "cpp",
+    "limits": "cpp",
+    "mutex": "cpp",
+    "new": "cpp",
+    "ostream": "cpp",
+    "shared_mutex": "cpp",
+    "sstream": "cpp",
+    "stdexcept": "cpp",
+    "streambuf": "cpp",
+    "thread": "cpp",
+    "cfenv": "cpp",
+    "typeindex": "cpp",
+    "typeinfo": "cpp",
+    "valarray": "cpp",
+    "variant": "cpp",
+    "climits": "cpp",
+    "cassert": "cpp",
+    "ccomplex": "cpp",
+    "cerrno": "cpp",
+    "cfloat": "cpp",
+    "ciso646": "cpp",
+    "ios": "cpp",
+    "locale": "cpp",
+    "queue": "cpp",
+    "stack": "cpp",
+    "cstdbool": "cpp",
+    "csetjmp": "cpp",
+    "any": "cpp",
+    "hash_map": "cpp",
+    "hash_set": "cpp",
+    "charconv": "cpp",
+    "source_location": "cpp",
+    "rope": "cpp",
+    "slist": "cpp",
+    "scoped_allocator": "cpp",
+    "armadillo": "cpp"
+},
+"cmake.configureOnOpen": true,
+"files.autoSave": "afterDelay",    
+"editor.minimap.enabled": false,
+"explorer.confirmDelete": false,
+"cmake.buildDirectory": "${workspaceFolder}/build",
+"cmake.buildTask": false,
+"cmake.showOptionsMovedNotification": false,
+"cmake.buildBeforeRun": false,
+"editor.fontVariations": false,
+"window.zoomLevel": 1.0,
+"editor.fontSize": 13,
+"telemetry.telemetryLevel": "off",
+"doxdocgen.c.commentPrefix": "/// ",
+"doxdocgen.c.firstLine": "///",
+"doxdocgen.c.lastLine": "///",
+"doxdocgen.c.triggerSequence": "///",
+"doxdocgen.cpp.tparamTemplate": "\\tparam {param} ",
+"doxdocgen.file.fileTemplate": "\\file {name}",
+"doxdocgen.file.versionTag": "\\version 0.1",
+"doxdocgen.generic.authorTag": "\\author {author} ({email})",
+"doxdocgen.generic.briefTemplate": "\\brief {text}",
+"doxdocgen.generic.commandSuggestionAddPrefix": true,
+"doxdocgen.generic.dateTemplate": "\\date {date}",
+"doxdocgen.generic.paramTemplate": "\\param {param}",
+"doxdocgen.generic.returnTemplate": "\\return {type}",
+"diffEditor.ignoreTrimWhitespace": false,
+"cmake.pinnedCommands": [
+    "workbench.action.tasks.configureTaskRunner",
+    "workbench.action.tasks.runTask"
+],
+"[cpp]": {
+    "editor.defaultFormatter": null
+},
+"cmake.buildArgs": [
+    "-j4"
+],
+"editor.detectIndentation": false,
+"workbench.editor.historyBasedLanguageDetection": false,
+"terminal.integrated.fontSize": 13,
+"diffEditor.maxComputationTime": 0,
+}

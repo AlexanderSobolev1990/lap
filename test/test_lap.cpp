@@ -13,14 +13,17 @@
 //#define PRINTTOTXT
 #define USECOLORGRAPHS
 
-//#define CYCLE_LONG 1000
-//#define CYCLE_SHORT 100
+// #define CYCLE_LONG 1000
+// #define CYCLE_SHORT 100
 
-#define CYCLE_LONG 400
+// #define CYCLE_LONG 400
+// #define CYCLE_SHORT 20
+
+#define CYCLE_LONG 100
 #define CYCLE_SHORT 20
 
-//#define CYCLE_LONG 1
-//#define CYCLE_SHORT 1
+// #define CYCLE_LONG 1
+// #define CYCLE_SHORT 1
 
 #include <boost/test/unit_test.hpp>
 #include <vector>
@@ -34,8 +37,9 @@
 #include <chrono>
 
 #include <timing.h>
-#include <lap.h>
-#include <sparse.h>
+#include <lap.hpp>
+#include <sparse.hpp>
+#include <murty.hpp>
 
 #ifdef MATPLOTLIB
     #include <matplotlibcpp.h>
@@ -45,6 +49,14 @@ bool show = false;//true;//
 
 //----------------------------------------------------------------------------------------------------------------------
 // Тестовые задачи:
+//----------------------------------------------------------------------------------------------------------------------
+// 0
+arma::mat mat_0_dense = {
+   { 0.6, 0.3, 0.0, 0.1, 0.0, 0.0 },
+   { 0.0, 0.2, 0.7, 0.0, 0.1, 0.0 },
+   { 0.3, 0.5, 0.1, 0.0, 0.0, 0.1 }   
+};
+
 //----------------------------------------------------------------------------------------------------------------------
 // 1
 arma::mat mat_1_dense = {
@@ -113,16 +125,43 @@ arma::mat mat_4_dense_for_min = {
 arma::ivec expected_4_max = { 0, 4, 2 };
 arma::ivec expected_4_min = { 0, 2, 3 };
 //----------------------------------------------------------------------------------------------------------------------
-//// 5
-//arma::mat mat_5_dense_for_max = {
-////    { -1e6, 20.0 },
-////    { 30.0, 10.0 },
-////    { -1e6,  1.0 }
 
-//    { -1e6,  1.0, -1e5 },
-//    { 30.0, 10.0, -1e6 },
-//    { -1e6, 20.0, -1e6 }
-//};
+BOOST_AUTO_TEST_SUITE( test_mat_0 )
+
+BOOST_AUTO_TEST_CASE( test_mat_0_murty_max )
+{
+    SPML::Sparse::CMatrixCSR csr;
+    SPML::Sparse::MatrixDenseToCSR( mat_0_dense, csr );
+
+    arma::ivec rowsol = arma::ivec( csr.n_cols(), arma::fill::zeros );    
+    double resolution = 1e-7;    
+    const auto sp = SPML::LAP::TSearchParam::SP_Max;
+    double infValue = 1e7;
+
+    SPML::LAP::Murty murty( csr, sp, infValue, resolution );
+    SPML::LAP::MurtySolution out;
+
+    std::vector<double> time;
+    
+    for( int i = 0; i < 100; i++ ) {
+        SPML::Timing::CTimeKeeper tk;
+        tk.StartTimer();        
+        bool ok = murty.findNext( out );
+        tk.EndTimer();
+        if( ok ) {
+            time.push_back( tk.TimeSumm() );
+            std::cout << "i = " << i << "; cost = " << out.cost << "; sol = " << out.x.t();
+        } else {        
+            std::cout << "break!" << std::endl;
+            break;
+        }
+    }
+    for( const auto & t : time ) {
+        std::cout << "time [mcs] = " << ( t * 1000000 ) << std::endl;
+    }
+}
+
+BOOST_AUTO_TEST_SUITE_END()
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -623,6 +662,49 @@ BOOST_AUTO_TEST_CASE( cycling_jvc )
         assigncost.submat( 0, 0, ( K - 1 ), ( L - 1 ) ) = filledcost;
         SPML::LAP::JVCdense( assigncost, N, SPML::LAP::TSearchParam::SP_Max, std::abs( psi_empty ), resolution,
             result, lapcost );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( cycling_murty )
+{
+    // Тест проверки на зацикливание метода Murty
+    const int K = 96;
+    const int L = 32;
+    const int N = ( K + L );
+    double psi_empty = -1e6;
+    double resolution = 1e-7;
+    arma::mat assigncost( N, N, arma::fill::zeros ); // Полная матрица ценности (включая пустые назначения до размера k+l)
+    arma::mat filledcost( K, L, arma::fill::zeros ); // Матрица ценности (без пустых назначений до размера k+l )
+    arma::ivec result = arma::ivec( N, arma::fill::zeros );    
+    int cycle_count = 10000;
+
+    std::mt19937 gen; ///< Генератор псевдослучайных чисел Mersenne Twister
+    std::uniform_real_distribution<double> random_0_1( resolution, 1.0 - resolution ); // Вещественное случайное число от 0 до 1 с равномерной плотностью вероятности
+
+    int Kbest = 5; // Число лучших решений
+
+    for( int cycle = 0; cycle < cycle_count; cycle++ ) {
+        std::cout << "test_Murty_cycling cycle = " << ( cycle + 1 ) << "/" << cycle_count << std::endl;
+        assigncost.fill( psi_empty );
+        filledcost.randu();
+        // Проредим матрицу filledcost: в случайных местах
+        double levelCut = 0.5; // Порог прореживания
+        for( int i = 0; i < K; i++ ) {
+            for( int j = 0; j < L; j++ ) {                
+                double randomVal = random_0_1( gen );// double randomVal = drand( 0.0, 1.0 );
+                if( randomVal < levelCut ) {
+                    filledcost(i,j) = psi_empty; // Проредим матрицу
+                }
+            }
+        }
+        assigncost.submat( 0, 0, ( K - 1 ), ( L - 1 ) ) = filledcost;
+        SPML::Sparse::CMatrixCSR csr;
+        SPML::Sparse::MatrixDenseToCSR( assigncost, csr );
+        SPML::LAP::Murty murty( csr, SPML::LAP::TSearchParam::SP_Max, std::abs( psi_empty ), resolution );
+        SPML::LAP::MurtySolution out;
+        for( int i = 0; i < Kbest; i++ ) {
+            murty.findNext( out );
+        }
     }
 }
 

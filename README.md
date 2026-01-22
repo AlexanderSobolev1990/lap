@@ -5,6 +5,7 @@
 * Jonker-Volgenant-Castanon method (JVC) for dense and sparse (CSR - compressed sparse row) matrices / Метод Джонкера-Волгенанта-Кастаньона для плотных и разреженных матриц в CSR формате
 * Mack method / Метод Мака
 * Hungarian (Munkres) method / Венгерский алгоритм
+* Murty K-best method (uses JVCsparse inside) / Метод Мурти k-лучших решений (используется алгоритм JVCsparse внутри)
 
 ## 2. References / Ссылки ##
 Papers / Статьи:
@@ -123,7 +124,36 @@ Table 2 - Increasing execution time relative to JVCsparse (times) / Таблиц
 | SeqExtrCOO | 2.141 | 6.424 | 15.241 | 44.439 | 117.197 | 314.015 | - | - |
 | JVCdense | 1.601 | 3.438 | 6.687 | 12.485 | 18.380 | 25.343 | 22.596 | 106.506 |
 
-## 6. Conclusion / Вывод
+## 6. Murty K-best method / Метод Мурти k-лучших решений
+
+Assignment problem is solved in Murty's method calling JVCsparse algorithm inside. Method gives K-best assignment solutions using "warm" start with u- and v-variables in JVCsparse (warm start accelerates solution).
+/
+Внутри метода задача о назначениях решается путем вызова алгоритма JVCsparse. Метод дает K-лучших решений задачи о назначениях используя "теплый" старт при помощи u- и v-переменных в JVCsparse (теплый старт ускоряет метод).
+
+Table 3 - Data for Murty's method / Таблица 3 - Исходная матрица для метода Murty
+
+|  -  | j=0 | j=1 | j=2 | j=3 | j=4 | j=5 |
+| :-: | :-: | :-: | :-: | :-: | :-: | :-: |
+| i=0 | 0.6 | 0.3 | 0.0 | 0.1 | 0.0 | 0.0 |
+| i=1 | 0.0 | 0.2 | 0.7 | 0.0 | 0.1 | 0.0 |
+| i=2 | 0.3 | 0.5 | 0.1 | 0.0 | 0.0 | 0.1 |
+
+***
+
+Table 4 - Solution for table 3 / Таблица 4 - Решение для таблицы 3
+
+| K-best | Cost | Rowsol | Time, mcs |
+| :-: | :-: | :-: | :-: |
+| 1 | 1.8 | 0 2 1 | 56.646 |
+| 2 | 1.4 | 0 2 5 | 6.133 |
+| 3 | 1.3 | 1 2 0 | 22.13 |
+| 4 | 1.2 | 0 4 1 | 13.752 |
+| 5 | 1.1 | 1 2 5 | 5.063 |
+| 6 | 0.8 | 0 4 2 | 3.911 |
+| 7 | 0.7 | 1 4 0 | 11.031 |
+| 8 | 0.5 | 1 4 2 | 1.7 |
+
+## 7. Conclusion / Вывод
 
 JVCsparse is the fastest method from considered (for sparse matrices), cause it works with compact CSR storage and uses fast JVC algorithm. JVCdense is the fastest for dense.
 Method of sequental extremum is non-optimal and it's usage is not recommended.

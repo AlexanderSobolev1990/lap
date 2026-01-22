@@ -38,7 +38,7 @@ if(${CMAKE_VERSION} VERSION_GREATER "3.8")
     set(DOXYGEN_LATEX_SOURCE_CODE YES) # NO) #
     set(DOXYGEN_LATEX_HIDE_INDICES)
 #    set(DOXYGEN_COMPACT_LATEX YES)
-    set(DOXYGEN_LATEX_HEADER ${ROOT_DIR}/doc/forlatex/custom_header.tex) # То, что включается перед осн. частью
+    # set(DOXYGEN_LATEX_HEADER ${ROOT_DIR}/doc/forlatex/custom_header.tex) # То, что включается перед осн. частью
 #    set(DOXYGEN_LATEX_FOOTER ${ROOT_DIR}/doc/forlatex/custom_footer.tex) # То, что включается после осн. части
 #    set(DOXYGEN_LATEX_EXTRA_STYLESHEET ${ROOT_DIR}/doc/forlatex/espd.sty) # Кастомные настройки
 

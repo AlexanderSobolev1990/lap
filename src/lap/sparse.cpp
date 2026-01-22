@@ -9,7 +9,7 @@
 /// \{
 ///
 
-#include <sparse.h>
+#include <sparse.hpp>
 
 namespace SPML /// Специальная библиотека программных модулей (СБ ПМ)
 {

@@ -1,0 +1,1080 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% \file       espd.cls
+% \brief      Класс ЕСПД (Единая Система Программной Документации)
+% \details    Использованы наработки https://github.com/damoldavskiy/espd
+% \date       18.05.22 - создан
+% \author     Соболев А.А.
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\NeedsTeXFormat{LaTeX2e}
+%\ProvidesClass{espd}[2019/08/24 GOST 19]
+\ProvidesPackage{espd}
+%\RequirePackage{graphicx}
+%\usepackage{polyglossia}
+%\usepackage{caption}
+%\usepackage{fontspec}
+\usepackage{ctable}
+\usepackage{longtable} % Для таблиц, длиннее 1 страницы
+
+\usepackage{ccaption}
+%\usepackage{floatrow}
+\usepackage{graphicx}
+
+\usepackage{array}
+\usepackage{ifthen}
+\usepackage{multirow}
+\usepackage{multicol}
+%\setmainfont{Times New Roman}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Задание перечислений буквами
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\usepackage{enumitem}
+%
+%\makeatletter
+%\newcommand{\realasbuk}[1]{\expandafter\russian@realalph\csname c@#1\endcsname}
+%
+%\def\russian@realAlph#1{\ifcase#1\or
+%	А\or Б\or В\or Г\or Д\or Е\or Ж\or
+%	З\or И\or К\or Л\or М\or Н\or О\or
+%	П\or Р\or С\or Т\or У\or Ф\or Х\or
+%	Ц\or Ч\or Ш\or Щ\or Э\or Ю\or Я\else\xpg@ill@value{#1}{russian@Alph}\fi}
+%\def\russian@realalph#1{\ifcase#1\or
+%	а\or б\or в\or г\or д\or е\or ж\or
+%	з\or и\or к\or л\or м\or н\or о\or
+%	п\or р\or с\or т\or у\or ф\or х\or
+%	ц\or ч\or ш\or щ\or э\or ю\or я\else\xpg@ill@value{#1}{russian@alph}\fi}
+%
+%\AddEnumerateCounter{\realasbuk}{\russian@realalph}{щ}
+%\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\linespread{1.25}	% Это эквивалент 1,5 интервала в ворде
+
+\clubpenalty=10000  % Это костыль против
+\widowpenalty=10000 % "висячих" строк
+\righthyphenmin=200 % Избавляемся
+\sloppy	            % от переносов слов
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Создает переменную, задается \cmd{val}, возвращается \@cmd
+% \var{cmd}
+\def\var#1{
+	\expandafter
+	\def\csname #1\endcsname##1{
+		\ifx&##1&
+		\ClassError
+		{espd}
+		{The \@backslashchar#1 cannot be empty}
+		{You should specify non-empty #1 by typing \@backslashchar#1{#1 name}}
+		\fi
+		\expandafter\def\csname @#1\endcsname{##1}}
+	\expandafter
+	\def\csname @#1\endcsname{
+		\ClassError
+		{espd}
+		{No \@backslashchar#1 given}
+		{You should specify #1 by typing \@backslashchar#1{#1 name} in the preamble}}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Создает переменную, задается \cmd{val}, возвращается \@cmd (по умолчанию - пустая строка)
+% \var{cmd}
+\def\varempty#1{
+	\expandafter
+	\def\csname #1\endcsname##1{\expandafter\def\csname @#1\endcsname{##1}}
+	\expandafter
+	\def\csname @#1\endcsname{}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Пишет в AUX файл данную пару ключ-значение
+% \set{key}{val}
+\def\set#1#2{\write\@auxout{\string\newlabel{#1}{#2}}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Получает из AUX файла значение по ключу
+% \get{key}
+\def\get#1{\csname r@#1\endcsname}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Получает из AUX файла значение по ключу (по умолчанию 0)
+% \get{key}
+\def\getnum#1{\ifcsname r@#1\endcsname \csname r@#1\endcsname \else 0 \fi}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ПЕРЕМЕННЫЕ И КОНСТАНТЫ
+
+% Размеры шрифта
+%\renewcommand{\normalsize}{\fontsize{12pt}{18pt}\selectfont}
+%\newcommand{\titlesize}{\fontsize{14pt}{21pt}\selectfont}
+%\newcommand{\approvalsize}{\fontsize{17pt}{24pt}\selectfont}
+%\newcommand{\sectionsize}{\fontsize{17pt}{18pt}\selectfont}
+%\newcommand{\subsectionsize}{\fontsize{14pt}{16pt}\selectfont}
+%\newcommand{\attachmentsize}{\fontsize{17pt}{24pt}\selectfont}
+%\newcommand{\tabletextsize}{\fontsize{10pt}{15pt}\selectfont}
+%\newcommand{\footnotesize}{\fontsize{8pt}{12pt}\selectfont}
+%\newcommand{\footnotetextsize}{\fontsize{10pt}{15pt}\selectfont}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FIXED MY VERSION
+\renewcommand{\normalsize}{\fontsize{14pt}{18pt}\selectfont}
+\newcommand{\titlesize}{\fontsize{14pt}{21pt}\selectfont}
+\newcommand{\approvalsize}{\fontsize{17pt}{24pt}\selectfont}
+\newcommand{\sectionsize}{\fontsize{14pt}{18pt}\selectfont}
+\newcommand{\subsectionsize}{\fontsize{14pt}{16pt}\selectfont}
+\newcommand{\attachmentsize}{\fontsize{14pt}{18pt}\selectfont}
+%\newcommand{\tabletextsize}{\fontsize{10pt}{15pt}\selectfont}
+\newcommand{\tabletextsize}{\fontsize{12pt}{15pt}\selectfont}
+%\newcommand{\picturetextsize}{\fontsize{12pt}{15pt}\selectfont} % smaller font
+\newcommand{\picturetextsize}{\fontsize{14pt}{18pt}\selectfont} % normal
+\newcommand{\listingtextsize}{\fontsize{10pt}{10pt}\selectfont}
+\renewcommand{\footnotesize}{\fontsize{8pt}{12pt}\selectfont}
+\newcommand{\footnotetextsize}{\fontsize{10pt}{15pt}\selectfont}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Бумага
+\setlength{\paperwidth}{210mm}
+\setlength{\paperheight}{297mm}
+\setlength{\pdfpagewidth}{\paperwidth}
+\setlength{\pdfpageheight}{\paperheight}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Отступы и размеры
+\setlength{\hoffset}{-25.4mm}
+\setlength{\voffset}{-25.4mm}
+%\setlength{\oddsidemargin}{20mm}
+%\setlength{\textwidth}{180mm}
+\setlength{\oddsidemargin}{25mm} % Лучше поле задать 25 мм, т.к. подшивают обычно 20 мм
+\setlength{\textwidth}{175mm}
+\setlength{\topmargin}{7.5mm}
+\setlength{\textheight}{257mm} % 297-25-257=15 - нижнее поле
+\setlength{\parindent}{10mm} % Абзацный отступ
+\setlength{\parskip}{2mm}
+%\setlength{\parskip}{0mm}
+\setlength{\headheight}{10mm}
+\setlength{\headsep}{7.5mm}
+\setlength{\arrayrulewidth}{0.1pt}
+\newlength{\tabmarg}
+\setlength{\tabmarg}{2mm}
+\setlength{\tabcolsep}{\tabmarg}
+\raggedbottom
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Константы
+\def\wordagree{Согласовано}
+\def\wordapprove{Утверждаю}
+\def\wordopenquote{<<}
+\def\wordclosequote{>>}
+\def\wordyear{г.}
+\def\wordapproval{Лист утверждения}
+\def\wordapprovalpostfix{-ЛУ}
+\def\wordperformer{Исполнитель}
+\def\wordperformers{Исполнители}
+\def\wordapproved{Утвержден}
+\def\wordsheets{Листов}
+\def\wordannotation{Аннотация}
+\def\wordterms{Перечень терминов}
+\def\wordabbreviations{Перечень сокращений}
+\def\wordcontents{Содержание}
+\def\wordattachment{Приложение}
+\def\wordoriginvnumber{Инв. \textnumero~подл.}
+\def\wordsignanddate{\wordsign и дата}
+\def\wordreferencenumber{Справ.~\textnumero}
+\def\wordfirstapplication{Перв.~примен.}
+\def\wordinstinvnumber{Взам. инв. \textnumero}
+\def\wordduplinvnumber{Инв. \textnumero~дубл.}
+\def\wordregistration{Лист регистрации изменений}
+\def\wordsheetnumber{Номера листов (страниц)}
+\def\wordsheetsindoc{Всего листов (страниц) в докум.}
+\def\worddocnumber{\textnumero\\документа}
+\def\wordincldocanddate{Входящий \textnumero~сопрово-дительного докум. и дата}
+\def\wordsign{Подп.}
+\def\worddate{Дата}
+\def\wordchanges{Изм.}
+\def\wordchanged{изменен-\\ных}
+\def\wordreplaced{заменен-\\ных}
+%\def\wordchanged{измененных}
+%\def\wordreplaced{замененных}
+\def\wordnew{новых}
+\def\wordannulled{аннули-рованных}
+\def\wordimage{Рис.}
+\def\wordrefimage{рис.~}
+\def\wordbibliography{Перечень использованных источников}
+\def\wordempty{}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Переменные
+\var{customername} % Заказчик
+\var{customerrank}
+
+\var{fromcustomername} % От заказчика
+\var{fromcustomerrank}
+
+\varempty{chiefconstructorname} % Главный конструктор
+\varempty{chiefconstructorrank}
+
+\varempty{headofdepartmentrank} % Начальник подразделения (Научно-тематического центра)
+\varempty{headofdepartmentname}
+
+\varempty{deputyofchiefconstructorrank} % Заместитель главного конструктора
+\varempty{deputyofchiefconstructorname} 
+
+\varempty{headoflaboratoryrank} % Начальник лаборатории
+\varempty{headoflaboratoryname}
+
+\varempty{developerrank} % Разработчик 
+\varempty{developername}
+
+\varempty{normocontrollerrank} % Нормоконтроллер
+\varempty{normocontrollername}
+
+\var{year}
+\var{title}
+\var{type}
+\var{typecode}
+\var{organizationcode}
+\var{redaction}
+\var{documentnumber}
+\var{partnumber}
+\var{registrationcode}
+
+\varempty{authorname} % Исполнитель, если он один
+\varempty{authorrank}
+
+\varempty{authori} % Исполнители, если их много
+\varempty{authorii}
+\varempty{authoriii}
+\varempty{authoriv}
+\varempty{authorv}
+\varempty{authorranki}
+\varempty{authorrankii}
+\varempty{authorrankiii}
+\varempty{authorrankiv}
+\varempty{authorrankv}
+
+\varempty{firstapplication}
+\varempty{referencenumber}
+\varempty{emptyvar}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\DeclareOption{exampletask}{
+	\type{Пример оформления документации}
+	\typecode{ПРИМЕР}
+}
+\DeclareOption{technicaltask}{
+	\type{Техническое задание}
+	\typecode{ТЗ}
+}
+\DeclareOption{codelisting}{
+	\type{Текст программы}
+	\typecode{12}
+}
+\DeclareOption{programdescription}{
+	\type{Описание программы}
+	\typecode{13}
+}
+\DeclareOption{listoperationaldocuments}{
+	\type{Ведомость эксплуатационных документов}
+	\typecode{20}
+}
+\DeclareOption{formular}{
+	\type{Формуляр}
+	\typecode{30}
+}
+\DeclareOption{applicationdescription}{
+	\type{Описание применения}
+	\typecode{31}
+}
+\DeclareOption{systemprogrammermanual}{
+	\type{Руководство системного программиста}
+	\typecode{32}
+}
+\DeclareOption{programmermanual}{
+	\type{Руководство программиста}
+	\typecode{33}
+}
+\DeclareOption{operatormanual}{
+	\type{Руководство оператора}
+	\typecode{34}
+}
+\DeclareOption{languagedescription}{
+	\type{Описание языка}
+	\typecode{35}
+}
+\DeclareOption{guideoftechnicalservice}{
+	\type{Руководство по техническому обслуживанию}
+	\typecode{46}
+}
+\DeclareOption{testingmethods}{
+	\type{Программа и методика испытаний}
+	\typecode{51}
+}
+\DeclareOption{explanationnote}{
+	\type{Пояснительная записка}
+	\typecode{81}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Код документа
+%\def\fullcode{\@organizationcode.\@registrationcode-\@redaction~\@typecode~\@documentnumber-\@partnumber}
+\def\fullcode{\@organizationcode.\@registrationcode-\@redaction~\@typecode~\@documentnumber}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Код документа с постфиксом листа утверждения
+\def\fullcodeapp{\fullcode\wordapprovalpostfix}
+
+% Инициализация параметров
+\ProcessOptions*
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% МАКРОСЫ ДЛЯ ВНУТРЕННЕГО ИСПОЛЬЗОВАНИЯ
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Вставляет место для подписи для исполнителя без проверки на пустоту строк
+\def\onlyauthorraw#1{
+	\vskip 1mm\rule{3cm}{0.1pt}~#1\\\vskip 1mm\wordopenquote\rule{8mm}{0.1pt}\wordclosequote~\rule{3cm}{0.1pt} \@year~\wordyear\\\vskip 5mm
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% То же, но делает проверку на пустоту строк
+% \onlyauthor{author}
+\def\onlyauthor#1{
+	\if&#1&\else%
+	\onlyauthorraw{#1}
+	\fi
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Вставляет должность и место для подписи для исполнителя без проверки на пустоту строк
+% \titleauthorraw{author}{authorrank}
+\def\titleauthorraw#1#2{
+	\vskip 1mm #2\\\vskip 1mm\rule{3cm}{0.1pt}~#1\\\vskip 1mm \wordopenquote\rule{8mm}{0.1pt}\wordclosequote~\rule{3cm}{0.1pt} \@year~\wordyear\\\vskip 5mm
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% То же, но делает проверку на пустоту строк
+% \titleauthor{author}{authorrank}
+\def\titleauthor#1#2{
+	\if&#1#2&\else%
+	\titleauthorraw{#1}{#2}
+	\fi
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Модификация перевода строки для использования \centering и \MakeUppercase
+% \protectlinebreak
+\def\protectlinebreak{
+	\let\defaultlinebreak\\
+	\renewcommand{\\}{\protect\defaultlinebreak}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Вставляет приложение без нумерации
+% \writeattachmentnotnum{description}{title}{label}
+\def\writeattachmentnonum#1#2#3{
+	\refstepcounter{attachment}
+	\hfill{\MakeUppercase{\wordattachment}}\vspace{-3mm} \\
+	\null\hfill{#1}\vspace{2mm} \\
+	{
+		\attachmentsize\centering\MakeUppercase{#2}\par
+	}
+	\addcontentsline{toc}{attachment}{\wordattachment.~#2}
+	\ifx&#3&\else
+	\label{#3}
+	\fi
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Вставляет приложение с нумерацией
+% \writeattachmentnum{description}{title}{label}
+\def\writeattachmentnum#1#2#3{
+	\refstepcounter{attachment}
+	\hfill{\MakeUppercase{\wordattachment~\theattachment}}\vspace{-3mm} \\
+	\null\hfill{#1}\vspace{2mm} \\
+	%  \null\hfill #1 \\
+	{
+		\attachmentsize\centering\MakeUppercase{#2}\par
+	}
+	\addcontentsline{toc}{attachment}{\wordattachment~\theattachment.~#2}
+	\ifx&#3&\else
+	\label{#3}
+	\fi
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Вставляет приложение
+% \attachment{description}{title}[label]
+\def\attachment#1#2{
+	\@ifnextchar[
+	{\attachment@i{#1}{#2}}
+	{\attachment@i{#1}{#2}[]}
+}
+
+\def\attachment@i#1#2[#3]{
+	\newpage
+	\ifnum\getnum{lastattachment}=1
+	\writeattachmentnonum{#1}{#2}{#3}
+	\else
+	\writeattachmentnum{#1}{#2}{#3}
+	\fi
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Создает ячейку заданных размеров с центрованным текстом внутри
+% \def{width}{height}{text}
+\def\cell#1#2#3{
+	\parbox[c][#2][c]{#1}{\centering #3}%
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Создает ячейку с центрованным текстом внутри с настраиваемой реальной высотой
+% \def{width}{height}{realheight}{text}
+%\def\vcell#1#2#3#4{\parbox[c][#3][b]{#1}{\footnotesize}{\fontsize{8pt}{12pt}\selectfont}
+%	\newcommand{\foovbox to #2{\cell{#1}{#2}{#4}\vss}}}
+
+\def\vcell#1#2#3#4{\parbox[c][#3][b]{#1}{\vbox to #2{\cell{#1}{#2}{#4}\vss}}}
+
+\def\writesection#1{
+	%  \newpage
+	\begin{center}
+		\centering\sectionsize\MakeUppercase{#1}
+	\end{center}
+	\par
+}
+
+\def\writesubsection#1{
+	\begingroup
+	\par
+	\parindent -1cm
+	\leftskip 2cm
+	\interlinepenalty\@M
+	\vspace{4mm}
+	{\subsectionsize#1}%
+	\vspace{2mm}
+	\par
+	\endgroup
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% СЕКЦИОНИРОВАНИЕ
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Счетчики
+%\setcounter{secnumdepth}{4}
+%\newcounter{section}
+%\newcounter{subsection}[section]
+%\newcounter{paragraph}[subsection]
+%\newcounter{subparagraph}[paragraph]
+\newcounter{attachment}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Разделы, подразделы, пункты и подпункты
+\renewcommand{\thesection}{\arabic{section}}
+\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}}
+\renewcommand{\theparagraph}{\arabic{section}.\arabic{subsection}.\arabic{paragraph}}
+\renewcommand{\thesubparagraph}{\arabic{section}.\arabic{subsection}.\arabic{paragraph}.\arabic{subparagraph}}
+\renewcommand{\theattachment}{\arabic{attachment}}
+\newcommand{\numsection}{\thesection.}
+\newcommand{\numsubsection}{\thesubsection.}
+\newcommand{\numparagraph}{\theparagraph.}
+\newcommand{\numsubparagraph}{\thesubparagraph.}
+\renewcommand{\section}[1]{
+	\ifx&#1&
+	\ClassError
+	{espd}
+	{Empty section title}
+	{According to GOST 19.106-78, section title can not be empty}
+	\fi
+	\refstepcounter{section}
+	\writesection{\numsection~#1}  
+	\addcontentsline{toc}{section}{\numsection~#1}
+}
+\renewcommand{\subsection}[1]{
+	\ifx&#1&
+	\ClassError
+	{espd}
+	{Empty subsection title}
+	{According to GOST 19.106-78, subsection title can not be empty}
+	\fi
+	\refstepcounter{subsection}
+	\writesubsection{\numsubsection~#1}
+	\addcontentsline{toc}{subsection}{\numsubsection~#1}
+}
+\renewcommand{\paragraph}[1]{  
+	\parskip1mm
+	\refstepcounter{paragraph}
+	\writesubsection{\numparagraph~#1}
+	\ifx&#1&\else
+	\addcontentsline{toc}{paragraph}{\numparagraph~#1}
+	\fi  	
+}
+\renewcommand{\subparagraph}[1]{
+	\refstepcounter{subparagraph}
+	\writesubsection{\numsubparagraph~#1}
+	\ifx&#1&\else
+	\addcontentsline{toc}{subparagraph}{\numsubparagraph~#1}
+	\fi
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Аннотация
+\newcommand{\annotation}{\writesection{\wordannotation}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Перечень терминов
+\newenvironment{terms}
+{
+	\writesection{\wordterms}
+	\addcontentsline{toc}{attachment}{\wordterms}
+}
+{
+}
+\newcommand{\term}[2]{\textbf{#1} -- #2. \par}
+\newcommand{\abbr}[2]{{#1} -- #2. \par}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Перечень сокращений
+\newenvironment{abbreviations}
+{
+	\writesection{\wordabbreviations}
+	\addcontentsline{toc}{attachment}{\wordabbreviations}
+}
+{
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Штампы в разных вариациях по ГОСТ19
+\newcommand{\stampleftfull}{
+	\setlength{\arrayrulewidth}{0.5mm}
+	\tabletextsize
+	\setlength{\tabcolsep}{0mm}
+%	\itshape\fontspec{GOST type A Italic} % Italic приходится задавать так
+	\begin{tabular}{|p{24.5mm}|p{34.5mm}|p{24.5mm}|p{24.5mm}|p{34.5mm}|p{21.0mm}|p{59.5mm}|p{59.5mm}|}
+		\cline{1-5}\cline{7-8}
+		\cell{24.5mm}{5mm}{\wordoriginvnumber} & 
+		\cell{34.5mm}{5mm}{\wordsignanddate} & 
+		\cell{24.5mm}{5mm}{\wordinstinvnumber} & 
+		\cell{24.5mm}{5mm}{\wordduplinvnumber} & 
+		\cell{34.5mm}{5mm}{\wordsignanddate} &
+		\cell{21.0mm}{5mm}{} & 
+		\cell{59.5mm}{5mm}{\wordreferencenumber} &
+		\cell{59.5mm}{5mm}{\wordfirstapplication} \\
+		\cline{1-5}\cline{7-8}
+		\cell{24.5mm}{7mm}{} & & & & & & \cell{59.5mm}{7mm}{\normalsize\@referencenumber} & \cell{59.5mm}{7mm}{\normalsize\@firstapplication} \\
+		\cline{1-5}\cline{7-8}
+	\end{tabular}
+	\setlength{\tabcolsep}{\tabmarg}
+}
+\newcommand{\stampleftshort}{
+	\setlength{\arrayrulewidth}{0.5mm}
+	\tabletextsize
+	\setlength{\tabcolsep}{0mm}
+%	\itshape\fontspec{GOST type A Italic} % Italic приходится задавать так
+	\begin{tabular}{|p{24.5mm}|p{34.5mm}|p{24.5mm}|p{24.5mm}|p{34.5mm}|p{21.5mm} p{60mm} p{60mm}}
+		\cline{1-5}
+		\cell{24.5mm}{5mm}{\wordoriginvnumber} & 
+		\cell{34.5mm}{5mm}{\wordsignanddate} & 
+		\cell{24.5mm}{5mm}{\wordinstinvnumber} & 
+		\cell{24.5mm}{5mm}{\wordduplinvnumber} & 
+		\cell{34.5mm}{5mm}{\wordsignanddate} &
+		\cell{21.5mm}{5mm}{} & 
+		\cell{60mm}{5mm}{} &
+		\cell{60mm}{5mm}{} \\
+		\cline{1-5}
+		\cell{24.5mm}{7mm}{} & & & & & & & \\
+		\cline{1-5}
+	\end{tabular}
+	\setlength{\tabcolsep}{\tabmarg}
+}
+\newcommand{\stampleftonlyfirstapp}{
+	\setlength{\arrayrulewidth}{0.5mm}
+	\tabletextsize
+	\setlength{\tabcolsep}{0mm}
+%	\itshape\fontspec{GOST type A Italic} % Italic приходится задавать так
+	\begin{tabular}{|p{24.5mm}|p{34.5mm}|p{24.5mm}|p{24.5mm}|p{34.5mm}|p{21.5mm} p{59.5mm}|p{59.5mm}|}
+		\cline{1-5}\cline{8-8}
+		\cell{24.5mm}{5mm}{\wordoriginvnumber} & 
+		\cell{34.5mm}{5mm}{\wordsignanddate} & 
+		\cell{24.5mm}{5mm}{\wordinstinvnumber} & 
+		\cell{24.5mm}{5mm}{\wordduplinvnumber} & 
+		\cell{34.5mm}{5mm}{\wordsignanddate} &
+		\cell{21.0mm}{5mm}{} & 
+		\cell{59.5mm}{5mm}{} &
+		\cell{59.5mm}{5mm}{\wordfirstapplication} \\
+		\cline{1-5}\cline{8-8}
+		\cell{24.5mm}{7mm}{} & & & & & & & \cell{59.5mm}{7mm}{\normalsize\@firstapplication} \\
+		\cline{1-5}\cline{8-8}
+	\end{tabular}
+	\setlength{\tabcolsep}{\tabmarg}
+}
+\newcommand{\stampleftonlyrefnum}{
+	\setlength{\arrayrulewidth}{0.5mm}
+	\tabletextsize
+	\setlength{\tabcolsep}{0mm}
+%	\itshape\fontspec{GOST type A Italic} % Italic приходится задавать так
+	\begin{tabular}{|p{24.5mm}|p{34.5mm}|p{24.5mm}|p{24.5mm}|p{34.5mm}|p{21.0mm}|p{59.5mm}|p{60.0mm}}
+		\cline{1-5}\cline{7-7}
+		\cell{24.5mm}{5mm}{\wordoriginvnumber} & 
+		\cell{34.5mm}{5mm}{\wordsignanddate} & 
+		\cell{24.5mm}{5mm}{\wordinstinvnumber} & 
+		\cell{24.5mm}{5mm}{\wordduplinvnumber} & 
+		\cell{34.5mm}{5mm}{\wordsignanddate} &
+		\cell{21.0mm}{5mm}{} & 
+		\cell{59.5mm}{5mm}{\wordreferencenumber} &
+		\cell{60.0mm}{5mm}{} \\
+		\cline{1-5}\cline{7-7}
+		\cell{24.5mm}{7mm}{} & & & & & & \cell{59.5mm}{7mm}{\normalsize\@referencenumber} & \\
+		\cline{1-5}\cline{7-7}
+	\end{tabular}
+	\setlength{\tabcolsep}{\tabmarg}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Лист регистрации изменений
+\newcommand{\registration}{
+	\newpage
+	
+	% Левый штамп вертикальный
+	\reversemarginpar
+	\setlength{\marginparsep}{17.25mm}
+	\tabletextsize
+	\renewcommand{\baselinestretch}{0.6}\selectfont  
+	\setlength{\tabcolsep}{0mm}	
+	\marginpar{\vskip -2.5cm \hbox{\rotatebox{90}{\stampleftshort}}}
+	
+	% Основная таблица листа регистрации изменений
+	\reversemarginpar
+	\setlength{\marginparsep}{5.2mm}
+	\marginpar{
+		\vskip -1.5mm
+		\tabletextsize
+%		\fontspec{GOST type A Bold Italic}
+		\renewcommand{\baselinestretch}{0.6}\selectfont  
+		\setlength{\tabcolsep}{0mm}				
+		\reglist
+		%\setlength{\tabcolsep}{\tabmarg}
+	} 
+	
+	
+	% Миништамп внизу
+	\marginpar{
+		\vskip -0.4mm
+		\tabletextsize
+%		\fontspec{GOST type A Bold Italic}
+		\renewcommand{\baselinestretch}{0.6}\selectfont  
+		\setlength{\tabcolsep}{0mm}				
+		\regliststamp
+	}     
+	\setlength{\tabcolsep}{\tabmarg}
+}
+
+\newcommand{\reglist}{ 
+	\setlength{\arrayrulewidth}{0.5mm} 
+	\hbox{%  	
+		\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|}
+			\hline
+			\multicolumn{10}{|c|}{\cell{184.5mm}{9.5mm}{\approvalsize \wordregistration}} \\
+			\hline
+			\multicolumn{5}{|c|}{\cell{87.5mm}{5.5mm}{\wordsheetnumber}} & & & & & \\
+			\cline{1-5}
+			\cell{7.5mm}{18.5mm}{\wordchanges} & \cell{19.5mm}{18.5mm}{\wordchanged} & \cell{19.5mm}{18.5mm}{\wordreplaced} & \cell{19.5mm}{18.5mm}{\wordnew} & \cell{19.5mm}{18.5mm}{\wordannulled} & \vcell{19.5mm}{24.5mm}{18.5mm}{\wordsheetsindoc} & \vcell{24.5mm}{24.5mm}{18.5mm}{\worddocnumber} & \vcell{24.5mm}{24.5mm}{18.5mm}{\wordincldocanddate} & \vcell{14.5mm}{24.5mm}{18.5mm}{\wordsign} & \vcell{11.5mm}{24.5mm}{18.5mm}{\worddate} \\
+			\hline
+			\multicolumn{10}{c}{}\\[-3.7mm]
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+			\cell{7.5mm}{7.5mm}{} & & & & & & & & & \\
+			\hline
+		\end{tabular}
+	}
+}
+
+\newcommand{\regliststamp}{  
+	\setlength{\arrayrulewidth}{0.5mm} 
+	\hbox{%  	
+		\begin{tabular}{|c|c|c|c|c|c|c|}
+			\hline
+			\cell{6.5mm}{4.5mm}{} & \cell{9.5mm}{4.5mm}{} & \cell{22.5mm}{4.5mm}{} & \cell{14.5mm}{4.5mm}{} & \cell{9.5mm}{4.5mm}{} & & \cell{9.5mm}{4.5mm}{Лист} \\
+			\cline{1-5}\cline{7-7}
+			
+			\cell{6.5mm}{4.5mm}{} & \cell{9.5mm}{4.5mm}{} & \cell{22.5mm}{4.5mm}{} & \cell{14.5mm}{4.5mm}{} & \cell{9.5mm}{4.5mm}{} & \cell{109.5mm}{4.5mm}{\approvalsize{\fullcode}} & \\
+			\cline{1-5}
+			
+			\cell{6.5mm}{4.5mm}{Изм.} & \cell{9.5mm}{4.5mm}{Лист} & \cell{22.5mm}{4.5mm}{\textnumero~докум.} & \cell{14.5mm}{4.5mm}{Подп.} & \cell{9.5mm}{4.5mm}{Дата} & & \vcell{9.5mm}{8.5mm}{4.5mm}{\getnum{lastpage}}\\		
+			\hline
+		\end{tabular}
+	}	
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Штамп для учета - оригинал
+%\newcommand{\stampleftfull}{
+%  \tabletextsize
+%  \setlength{\tabcolsep}{0mm}
+%  \itshape\fontspec{GOST type A Italic} % italic приходится задавать так
+%  \begin{tabular}{|p{25mm}|p{35mm}|p{25mm}|p{25mm}|p{35mm}|}
+%    \hline    
+%    \cell{25mm}{5mm}{\wordoriginvnumber} & 
+%    \cell{35mm}{5mm}{\wordsignanddate} & 
+%    \cell{25mm}{5mm}{\wordinstinvnumber} & 
+%    \cell{25mm}{5mm}{\wordduplinvnumber} & 
+%    \cell{35mm}{5mm}{\wordsignanddate} \\
+%    \hline
+%    \cell{25mm}{7mm}{} & & & & \\
+%    \hline
+%  \end{tabular}
+%  \setlength{\tabcolsep}{\tabmarg}
+%}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Окружение для страниц информационной части
+\renewenvironment{titlepage}
+{
+	\thispagestyle{empty}
+	\setcounter{page}{0}
+	\setlength{\tabcolsep}{0mm}
+	\renewcommand{\baselinestretch}{0.8}\selectfont
+}
+{
+	\newpage
+	\setlength{\tabcolsep}{\tabmarg}
+	\renewcommand{\baselinestretch}{1}\selectfont
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Лист утверждения
+\newcommand{\makeapproval}{
+	\begin{titlepage}
+		\reversemarginpar
+		%  \setlength{\marginparsep}{11.5mm}
+		\setlength{\marginparsep}{17mm}
+		%\marginpar{\vskip -2.5cm \hbox{\rotatebox{90}{\stampleftfull}}}
+		\marginpar{\vskip -2.5cm \hbox{\rotatebox{90}{\stampleftshort}}}
+		%\marginpar{\vskip -2.5cm \hbox{\rotatebox{90}{\stampleftonlyfirstapp}}}
+		%\marginpar{\vskip -2.5cm \hbox{\rotatebox{90}{\stampleftonlyrefnum}}}
+		\vskip -\baselineskip
+		\centering
+		\protectlinebreak  
+		\begin{tabular}{c c}
+			\parbox[t][2cm]{0.5\textwidth}{
+				\centering\MakeUppercase{\wordagree}\vskip 2mm\@customerrank\vskip 1mm\onlyauthor{\@customername}
+			} &
+			
+			\parbox[t][2cm]{0.5\textwidth}{
+				\centering\MakeUppercase{\wordapprove}\vskip 2mm\@chiefconstructorrank\vskip 1mm\onlyauthor{\@chiefconstructorname}
+			}
+		\end{tabular}
+		
+		\vskip 3cm
+		\titlesize{\MakeUppercase{\@title}}
+		\vskip 4mm
+		\normalsize\textbf{\@type}
+		\vskip 4mm
+		\normalsize{\MakeUppercase{\wordapproval}}
+		\vskip 4mm
+		\normalsize{\fullcodeapp}
+		\vskip \fill
+		\begin{tabular}{c c}
+			\parbox[t]{0.45\textwidth}{\raggedright
+				% левая колонка:
+				\if& \@headofdepartmentname &	    
+				&
+				\else
+				\titleauthor{\@fromcustomername}{\@fromcustomerrank}} &                       	
+			\fi
+			
+			\parbox[t]{0.4\textwidth}{\raggedright    
+				% правая колонка:
+				
+				\if& \@headofdepartmentname &	    
+				\else
+				\titleauthor{\@headofdepartmentname}{\@headofdepartmentrank}    	
+				\fi
+				
+				\if& \@deputyofchiefconstructorname &	    
+				\else
+				\titleauthor{\@deputyofchiefconstructorname}{\@deputyofchiefconstructorrank} 
+				\fi
+				
+				\if& \@headoflaboratoryname &	
+				\else
+				\titleauthor{\@headoflaboratoryname}{\@headoflaboratoryrank} 
+				\fi
+				
+				\if& \@developername &	
+				\else
+				\titleauthor{\@developername}{\@developerrank} 	
+				\fi
+				
+				\if&\@authorname&
+				\else
+				\if&\@authori\@authorii\@authoriii\@authoriv\@authorv\@authorranki\@authorrankii\@authorrankiii\@authorrankiv\@authorrankv&
+				\wordperformer\\\onlyauthor{\@authorname}
+				\else
+				\wordperformers\\\onlyauthor{\@authori}\onlyauthor{\@authorii}\onlyauthor{\@authoriii}\onlyauthor{\@authoriv}\onlyauthor{\@authorv}
+				\fi
+				\fi
+				
+				\if& \@normocontrollername &	
+				\else
+				\titleauthor{\@normocontrollername}{\@normocontrollerrank}
+				\fi
+				
+			}
+		\end{tabular}
+		\vskip \fill
+		\@year
+		\vskip 5mm
+	\end{titlepage}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Титульный лист
+\renewcommand{\maketitle}{
+	\begin{titlepage}
+		\reversemarginpar
+		\setlength{\marginparsep}{17mm}
+		%\marginpar{\vskip -2.5cm \hbox{\rotatebox{90}{\stampleftfull}}}
+		%\marginpar{\vskip -2.5cm \hbox{\rotatebox{90}{\stampleftshort}}}
+		\marginpar{\vskip -2.5cm \hbox{\rotatebox{90}{\stampleftonlyfirstapp}}}
+		%\marginpar{\vskip -2.5cm \hbox{\rotatebox{90}{\stampleftonlyrefnum}}}
+		\vskip -\baselineskip
+		\parbox[t]{0.4\textwidth}{\centering\MakeUppercase{\wordapproved}\\\fullcodeapp}
+		\vskip 8cm
+		\centering
+		\protectlinebreak
+		\titlesize{\MakeUppercase{\@title}}
+		\vskip 4mm
+		\normalsize\textbf{\@type}  
+		\vskip 4mm
+		{\fullcode}
+		\vskip 4mm
+		{\wordsheets~\getnum{lastpage}}
+		\vskip \fill
+		\@year
+		\vskip 5mm
+	\end{titlepage}
+	\stepcounter{page}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Содержание
+\renewcommand\@pnumwidth{1em}
+\renewcommand\@tocrmarg{4em}
+\renewcommand\@dotsep{4}
+\setcounter{tocdepth}{4}
+\renewcommand\tableofcontents{
+	\newpage
+	\writesection{\wordcontents}
+	\@starttoc{toc}
+}
+%\newcommand\l@section[1]{\@dottedtocline{1}{0cm}{0.5cm}{\textbf{#1}}}
+%\newcommand\l@subsection{\@dottedtocline{2}{0.5cm}{1cm}}
+%\newcommand\l@paragraph{\@dottedtocline{3}{1cm}{1.5cm}}
+%\newcommand\l@subparagraph{\@dottedtocline{4}{1.5cm}{2cm}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\renewcommand\l@section[1]{\@dottedtocline{1}{0cm}{1cm}{#1}}
+\renewcommand\l@subsection{\@dottedtocline{2}{1cm}{2cm}}
+\renewcommand\l@paragraph{\@dottedtocline{3}{2cm}{3cm}}
+\renewcommand\l@subparagraph{\@dottedtocline{4}{3cm}{4cm}}
+\newcommand\l@attachment{\@dottedtocline{1}{0cm}{3cm}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% ВСТАВЛЯЕМЫЙ КОНТЕНТ
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Иллюстрация
+% \illustration[title][description][scale]{file}[label]
+\def\illustration[#1][#2][#3]#4[#5]{
+	\refstepcounter{illustration}
+	\vspace{2mm}
+	\begin{center}
+		\ifx&#1&\else
+		#1 \nopagebreak \\
+		\vspace{2mm}
+		\fi    
+		\includegraphics[width=#3\textwidth]{#4} \nopagebreak
+		\\\vspace{2mm}
+		\ifnum\getnum{lastillustration}=1
+		\picturetextsize\centering{#2}
+		\else
+		\picturetextsize\centering{\wordimage~\arabic{illustration}.~{#2}}
+		\fi
+		\ifx&#5&\else
+		\label{img:#5}
+		\fi
+	\end{center}
+	\vspace{2mm}
+	\par % конец параграфа
+}
+\newcounter{illustration}
+\renewcommand{\theillustration}{\wordrefimage\arabic{illustration}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Картинка
+% \image[scale]{file}
+\newcommand{\image}[2][1]{
+	\vspace{5mm}
+	\begin{center}
+		\includegraphics[width=#1\textwidth]{#2}	    
+	\end{center}
+	\vspace{5mm}
+	\par
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% РАЗНОЕ
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Сноски
+\renewcommand{\footnoterule}{\rule{3cm}{0.1pt}\vskip 2mm}
+\def\@makefnmark{\@textsuperscript{\footnotesize\@thefnmark)}}
+\def\@makefntext#1{\hskip 1cm\@makefnmark\footnotetextsize#1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Перечисления
+\def\theenumi{\arabic{enumi}}
+\def\p@enumi{\theenumi \leftmargini}
+\def\labelenumi{\theenumi)}
+%
+\def\theenumii{--}
+\def\p@enumii{\theenumii \leftmarginii}
+\def\labelenumii{\theenumii}
+%
+\setlength{\labelsep}{5mm}
+\setlength{\labelwidth}{-\parindent}
+\addtolength{\labelwidth}{-\labelsep}
+\addtolength{\labelwidth}{-4mm}
+%
+\def\@listi {\leftmargin 0mm}
+\def\@listii {\leftmargin 10mm}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Библиография
+\def\url{\texttt}
+
+\renewcommand\newblock{\hskip .11em\@plus.33em\@minus.07em}
+
+\def\@biblabel#1{#1.}
+\renewenvironment{thebibliography}[1]
+{
+	\writesection{\wordbibliography}
+	\list{\@biblabel{\@arabic\c@enumiv}}
+	{\settowidth\labelwidth{\@biblabel{#1}}
+		\leftmargin\labelwidth
+		\advance\leftmargin\labelsep
+		\usecounter{enumiv}
+		\let\p@enumiv\@empty
+		\renewcommand\theenumiv{\@arabic\c@enumiv}}
+}
+{
+	\endlist
+	\addcontentsline{toc}{attachment}{\wordbibliography}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Вставка листа утверждения и титульного листа
+\AtBeginDocument{\makeapproval\maketitle}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Вставка листа о регистрации изменений и указателей на последние элементы
+\AtEndDocument{
+	\registration
+	\set{lastpage}{\thepage}
+	\set{lastattachment}{\arabic{attachment}}
+	\set{lastillustration}{\arabic{illustration}}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Колонтитулы и нумерация
+\def\ps@default{
+	\def\@oddhead{%
+		\hfil
+		\vbox{
+			\hbox to \textwidth{\hfil\thepage\hfil}
+			\vspace{2mm}
+			\hbox to \textwidth{\hfil\fullcode\hfil}}%
+		\hfil
+	}
+	\let\@oddfoot\@empty
+	\let\@evenhead\@oddhead
+	\let\@evenfoot\@oddfoot
+}
+\pagestyle{default}
+\pagenumbering{arabic}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Команды отмены отступов (используется при вставке формул)
+\newcommand{\zerodisplayskips}{%
+	\setlength{\abovedisplayskip}{0pt}%
+	\setlength{\belowdisplayskip}{0pt}%
+	\setlength{\abovedisplayshortskip}{0pt}%
+	\setlength{\belowdisplayshortskip}{0pt}%
+}%
+%
+%\setlength\LTleft{0pt plus \textwidth}
+%\setlength\LTright{0pt plus \textwidth}
+
+% Разделитель записи «Таблица #» и названия таблицы
+%\newcommand{\tablabelsep}{~\cyrdash\ }
+%\LTleft=\z@
+%\LTright=\fill
+%%% Таблицы %%%
+%\DeclareCaptionLabelSeparator{tabsep}{\tablabelsep} % нумерация таблиц
+%%\DeclareCaptionFormat{split}{\splitformatlabel#1\par\splitformattext#3}
+%
+
+%\newcommand{\tablabelsep}{~\cyrdash\ }
+\captiondelim{~--~} % Смена разделителя между "таблица+номер" и собственно названием
+\renewcommand{\tablename}{\normalsize Таблица}
+
+\newcommand{\productcipher}{АБВГД.12345} % Шифр изделия
+
+\firstapplication{\productcipher} % Первое применение
+\referencenumber{\productcipher} % Справ №
+
+\organizationcode{01234} % Код организации
+\registrationcode{56789} % Регистрационный код
+\redaction{01} % Номер редакции
+\documentnumber{03} % Номер документа данного вида
+%\partnumber{1} % Номер части документа - чтобы задать - надо фиксить класс espd
+
+% СОГЛАСОВАНО
+\customerrank{Начальник\\межгалактической комиссии}
+\customername{А.Б.~Заказчиков}
+
+% УТВЕРЖДАЮ
+\chiefconstructorrank{Главный конструктор\\изделия \productcipher}
+\chiefconstructorname{А.Б.~Главный}
+
+\fromcustomerrank{От межгалактической комиссии}
+\fromcustomername{А.Б.~Галактионов}
+
+\headofdepartmentrank{Начальник Центра}
+\headofdepartmentname{А.Б.~Чатланин}
+
+\deputyofchiefconstructorrank{Зам.~гл.~конструктора}
+\deputyofchiefconstructorname{А.Б.~Заместителев}
+%
+\developerrank{Разработчик}
+\developername{А.Б.~Разработчиков}
+
+%\headoflaboratoryrank{Начальник лаборатории 777}
+%\headoflaboratoryname{А.Б.~Лабораториев}
+
+% Исполнитель(и)
+\authorname{А.Б.~Пацак}
+%%
+%\authori{А.Б.~Пацак1}
+%\authorii{А.Б.~Пацак2}
+
+\normocontrollerrank{Нормоконтроллер}
+\normocontrollername{~}
+
+\title{Изделие \productcipher\\Программный комплекс\\Галактический транклюкатор} 
+\year{2022}
+\type{Текст программы}
+\typecode{12}

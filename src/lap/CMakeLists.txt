@@ -6,27 +6,33 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(HEADERS
-    include/compare.h
-    include/sparse.h
-    include/lap.h
-)
-
-set(SOURCES
-    src/sparse.cpp
-    src/lap_jvc_dense.cpp
-    src/lap_jvc_sparse.cpp    
-    src/lap_mack.cpp
-    src/lap_hungarian.cpp
-    src/lap_seqextr.cpp
-)
-
-add_library(${PROJECT_NAME} STATIC ${HEADERS} ${SOURCES}) # Динамическая библиотека
+add_library(${PROJECT_NAME} STATIC # Библиотека
+    compare.hpp
+    #
+    lap.hpp
+    searchparam.hpp
+    sparse.hpp
+    sparse.cpp
+    jvc_dense.hpp
+    jvc_dense.cpp
+    jvc_sparse.hpp
+    jvc_sparse.cpp
+    mack.hpp
+    mack.cpp
+    hungarian.hpp
+    hungarian.cpp
+    seqextr.hpp
+    seqextr.cpp
+    murty.hpp
+    murty.cpp
+    murty_jvc_sparse.hpp
+    murty_jvc_sparse.cpp    
+    lap_constraints.hpp
+) 
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 find_package(BLAS REQUIRED)

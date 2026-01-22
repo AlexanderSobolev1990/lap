@@ -14,7 +14,7 @@
 #include <vector>
 #include <map>
 
-#include <sparse.h>
+#include <sparse.hpp>
 #include <timing.h>
 
 // https://en.wikipedia.org/wiki/Sparse_matrix

@@ -1,0 +1,3 @@
+фалы получены командой: doxygen -w latex new_header.tex new_footer.tex doxygen.sty
+выполнять из директории latex
+

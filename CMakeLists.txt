@@ -16,10 +16,17 @@ if(CMAKE_BUILD_TYPE MATCHES "^[Rr]elease") # Актуально для Linux
 endif()
 
 add_compile_options(
-    -Wall    
+    -Wall
     "$<$<CONFIG:RELEASE>:-O3>"
     "$<$<CONFIG:DEBUG>:-O0>"
+#    -fprofile-arcs
+#    -ftest-coverage
+#    -coverage
 )
+#add_link_options(
+#    -lgcov
+#    -coverage
+#)
 
 add_subdirectory(src/lap)
 

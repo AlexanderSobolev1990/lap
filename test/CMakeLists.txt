@@ -33,6 +33,7 @@ target_link_libraries(test_lap
 target_include_directories(test_lap
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/../src/3d_party
+        ${CMAKE_CURRENT_SOURCE_DIR}/../src/lap
     )
 #-----------------------------------------------------------------------------------------------------------------------
 add_executable(test_sparse
@@ -51,4 +52,5 @@ target_link_libraries(test_sparse
 target_include_directories(test_sparse
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/../src/3d_party
+        ${CMAKE_CURRENT_SOURCE_DIR}/../src/lap
     )

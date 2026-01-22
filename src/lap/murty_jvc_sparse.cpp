@@ -1,21 +1,26 @@
 //----------------------------------------------------------------------------------------------------------------------
 ///
-/// \file       lap_jvc_sparse.cpp
-/// \brief      Решение задачи о назначениях методом JVC для разреженных матриц (cтандартная линейная дискретная оптимизационная задача)
-/// \date       18.05.22 - создан
+/// \file       murty_jvc_sparse.hpp
+/// \brief      Решение задачи о назначениях методом JVC для разреженных матриц
+/// \details    Адаптирован под метод Murty наличием "тёплого" старта u и v
+/// \date       21.01.26 - создан
 /// \author     Соболев А.А.
 /// \addtogroup spml
 /// \{
 ///
 
-#include <lap.h>
+#include <murty_jvc_sparse.hpp>
+#include <lap_constraints.hpp>
 
 namespace SPML /// Специальная библиотека программных модулей (СБ ПМ)
 {
 namespace LAP /// Решение задачи о назначениях
 {
+
+thread_local const LapConstraints* g_lap_constraints = nullptr;
+
 //----------------------------------------------------------------------------------------------------------------------
-void updateDual( int nc, arma::vec &d, arma::vec &v, arma::ivec &todo, int last, double min_ )
+void Murty_updateDual( int nc, arma::vec &d, arma::vec &v, arma::ivec &todo, int last, double min_ )
 {
     for( int k = last; k < nc; k++ ) {
         int j0 = todo(k);
@@ -24,7 +29,7 @@ void updateDual( int nc, arma::vec &d, arma::vec &v, arma::ivec &todo, int last,
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-void updateAssignments( arma::ivec &lab, arma::ivec &y, arma::ivec &x, int j, int i0 )
+void Murty_updateAssignments( arma::ivec &lab, arma::ivec &y, arma::ivec &x, int j, int i0 )
 {
     int tmp;
     while( true ) {
@@ -41,7 +46,7 @@ void updateAssignments( arma::ivec &lab, arma::ivec &y, arma::ivec &x, int j, in
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-int solveForOneL( std::vector<double> &cc_, const std::vector<int> &kk, const std::vector<int> &first,
+int Murty_solveForOneL( std::vector<double> &cc_, const std::vector<int> &kk, const std::vector<int> &first,
     int l, int nc, arma::vec &d, arma::ivec &ok, arma::ivec &free, arma::vec &v, arma::ivec &lab, arma::ivec &todo,
     arma::ivec &y, arma::ivec &x, int td1, double resolution, double infValue, bool &fail )
 {
@@ -54,6 +59,9 @@ int solveForOneL( std::vector<double> &cc_, const std::vector<int> &kk, const st
     int j;
     for( int t = first[i0]; t < first[i0 + 1]; t++ ) {
         j = kk[t];
+        if( !lap_is_allowed( i0, j ) ) { // Fix Murty
+            continue;
+        }
         double dj = cc_[t] - v(j);
         d(j) = dj;
         lab(j) = i0;
@@ -71,7 +79,7 @@ int solveForOneL( std::vector<double> &cc_, const std::vector<int> &kk, const st
     for( int hp = 0; hp <= td1; hp++ ) {
         j = todo(hp);
         if( y(j) == -1 ) {
-            updateAssignments( lab, y, x, j, i0 );
+            Murty_updateAssignments( lab, y, x, j, i0 );
             return td1;
         }
         ok(j) = 1;// true
@@ -93,6 +101,9 @@ int solveForOneL( std::vector<double> &cc_, const std::vector<int> &kk, const st
         double h = cc_[tp] - v(j0) - min_;
         for( int t = first[i]; t < first[i + 1]; t++ ) {
             j = kk[t];
+            if( !lap_is_allowed( i, j ) ) { // Fix Murty
+                continue;
+            }
 //            if( !ok(j) ) {
             if( ok(j) == 0 ) { // if( false )
                 double vj = cc_[t] - v(j) - h;
@@ -103,8 +114,8 @@ int solveForOneL( std::vector<double> &cc_, const std::vector<int> &kk, const st
 //                    if( vj == min_ ) { // POSSIBLE FLOWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
                     if( std::abs( vj - min_ ) < resolution ) {
                         if( y[j] == -1 ) {
-                            updateDual( nc, d, v, todo, last, min_ );
-                            updateAssignments( lab, y, x, j, i0 );
+                            Murty_updateDual( nc, d, v, todo, last, min_ );
+                            Murty_updateAssignments( lab, y, x, j, i0 );
                             return td1;
                         }
                         todo(++td1) = j;
@@ -133,8 +144,8 @@ int solveForOneL( std::vector<double> &cc_, const std::vector<int> &kk, const st
             for( int hp = 0; hp <= td1; hp++ ) {
                 j = todo(hp);
                 if( y(j) == -1 ) {
-                    updateDual( nc, d, v, todo, last, min_ );
-                    updateAssignments( lab, y, x, j, i0 );
+                    Murty_updateDual( nc, d, v, todo, last, min_ );
+                    Murty_updateAssignments( lab, y, x, j, i0 );
                     return td1;
                 }
                 ok(j) = 1;//true;
@@ -144,8 +155,9 @@ int solveForOneL( std::vector<double> &cc_, const std::vector<int> &kk, const st
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const std::vector<int> &first,
-    TSearchParam sp, double infValue, double resolution, arma::ivec &rowsol, double &lapcost )
+int Murty_JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const std::vector<int> &first,
+    TSearchParam sp, double infValue, double resolution, arma::ivec &rowsol, double &lapcost,
+    arma::vec *u_init, arma::vec *v_init, arma::vec *u_out, arma::vec *v_out )
 {
     // Объявления
     int nr = first.size() - 1; // Кол-во строк
@@ -157,9 +169,7 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
     }
     int nc = max_kk + 1;// Кол-во столбцов
     arma::ivec x = arma::ivec( nr, arma::fill::zeros );
-    arma::ivec y = arma::ivec( nc, arma::fill::zeros );
-    arma::vec u = arma::vec( nr, arma::fill::zeros );
-    arma::vec v = arma::vec( nc, arma::fill::zeros );
+    arma::ivec y = arma::ivec( nc, arma::fill::zeros );    
     arma::vec d = arma::vec( nc, arma::fill::zeros );
     arma::ivec ok = arma::ivec( nc, arma::fill::zeros ); // bool: 0 - false, 1 - true (classical c-style)
     arma::ivec xinv = arma::ivec( nr, arma::fill::zeros ); // bool: 0 - false, 1 - true (classical c-style)
@@ -167,6 +177,20 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
     arma::ivec todo = arma::ivec( nc, arma::fill::zeros );
     arma::ivec lab = arma::ivec( nc, arma::fill::zeros );
     int l0 = 0;
+
+    // Original u, v
+    arma::vec u = arma::vec( nr, arma::fill::zeros );
+    arma::vec v = arma::vec( nc, arma::fill::zeros );
+    // Murty fix
+    if( u_init 
+        && v_init
+        && ( ( u_init->n_elem ) == (size_t)nr )
+        && ( ( v_init->n_elem ) == (size_t)nc )
+        ) 
+    {
+        u = *u_init;
+        v = *v_init;
+    }
 
     x -= 1;
     y -= 1;
@@ -188,6 +212,9 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
         for( int i = 0; i < nr; i++ ) {
             for( int t = first[i]; t < first[i + 1]; t++ ) {
                 int jp = kk[t];
+                if( !lap_is_allowed( i, jp ) ) { // Fix Murty
+                    continue;
+                }
 //                if( cc_[t] < v(jp) ) {
                 if( ( v(jp) - cc_[t] ) > resolution ) {
                     v(jp) = cc_[t];
@@ -197,6 +224,9 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
         }
         for( int jp = ( nc - 1 ); jp >= 0; jp-- ) {
             int i = y(jp);
+            if( i < 0 ) {
+                continue; // fix Murty
+            }
             if( x(i) == -1 ) {
                 x(i) = jp;
             } else {
@@ -217,6 +247,9 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
                 int j1 = x(i);
                 for( int t = first[i]; t < first[i + 1]; t++ ) {
                     int jp = kk[t];
+                    if( !lap_is_allowed( i, jp ) ) { // Fix Murty
+                        continue;
+                    }
                     if( jp != j1 ) {
 //                        if( ( cc_[t] - v(jp) ) < min_ ) {
                         if( ( min_ - ( cc_[t] - v(jp) ) ) > resolution ) {
@@ -254,6 +287,9 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
                 double vj = infValue; // Value of subminimum
                 for( int t = first[i]; t < first[i + 1]; t++ ) {
                     int jp = kk[t];
+                    if( !lap_is_allowed( i, jp ) ) { // Fix Murty
+                        continue;
+                    }
                     double dj = cc_[t] - v(jp);
 //                    if( dj < vj ) {
                     if( ( vj - dj ) > resolution ) {
@@ -362,7 +398,7 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
     int td1 = -1;
     for( int l = 0; l < l0; l++ ) {
         bool fail = false;
-        td1 = solveForOneL( cc_, kk, first, l, nc, d, ok, free, v, lab, todo, y, x, td1, resolution, infValue, fail );
+        td1 = Murty_solveForOneL( cc_, kk, first, l, nc, d, ok, free, v, lab, todo, y, x, td1, resolution, infValue, fail );
         if( fail ) {
             return 1;
         }
@@ -381,17 +417,24 @@ int JVCsparse( const std::vector<double> &cc, const std::vector<int> &kk, const 
             }
         }
     }
+    if( u_out ) {
+        *u_out = u;
+    }
+    if( v_out ) {
+        *v_out = v;
+    }
     return 0;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-int JVCsparse( const Sparse::CMatrixCSR &csr, TSearchParam sp, double infValue, double resolution, arma::ivec &rowsol,
-    double &lapcost )
+int Murty_JVCsparse( const Sparse::CMatrixCSR &csr, TSearchParam sp, double infValue, double resolution, arma::ivec &rowsol,
+    double &lapcost, arma::vec *u_init, arma::vec *v_init, arma::vec *u_out, arma::vec *v_out )
 {
-    int result = JVCsparse( csr.csr_val, csr.csr_kk, csr.csr_first, sp, infValue, resolution, rowsol, lapcost );
+    int result = Murty_JVCsparse( csr.csr_val, csr.csr_kk, csr.csr_first, sp, infValue, resolution, rowsol, lapcost,
+        u_init, v_init, u_out, v_out );
     return result;
 }
 
-}
-}
+} // end namespace LAP
+} // end namespace SPML
 /// \}
