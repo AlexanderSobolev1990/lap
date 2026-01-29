@@ -125,6 +125,69 @@ arma::mat mat_4_dense_for_min = {
 arma::ivec expected_4_max = { 0, 4, 2 };
 arma::ivec expected_4_min = { 0, 2, 3 };
 //----------------------------------------------------------------------------------------------------------------------
+// 5 - test matrix from murty1968.pdf
+arma::mat mat_5_dense = {
+    { 7,  51, 52, 87, 38, 60, 74, 66, 0,  20 },
+    { 50, 12, 0,  64, 8,  53, 0,  46, 76, 42 },
+    { 27, 77, 0,  18, 22, 48, 44, 13, 0,  57 },
+    { 62, 0,  3,  8,  5,  6,  14, 0,  26, 39 },
+    { 0,  97, 0,  5,  13,  0, 41, 31, 62, 48 },
+    { 79, 68, 0,  0,  15, 12, 17, 47, 35, 43 },
+    { 76, 99, 48, 27, 34, 0,  0,  0,  28, 0 },
+    { 0,  20, 9,  27, 46, 15, 84, 19, 3,  24 },
+    { 56, 10, 45, 39, 0,  93, 67, 79, 19, 38 },
+    { 27, 0,  39, 53, 46, 24, 69, 46, 23, 1 }
+};
+arma::ivec expected_5_min_1_best = { 8, 6, 2, 7, 5, 3, 9, 0, 4, 1 };
+arma::ivec expected_5_min_2_best = { 8, 6, 2, 1, 5, 3, 7, 0, 4, 9 };
+
+//----------------------------------------------------------------------------------------------------------------------
+
+BOOST_AUTO_TEST_SUITE( test_mat_5 )
+
+BOOST_AUTO_TEST_CASE( test_mat_5_murty_min )
+{
+    SPML::Sparse::CMatrixCSR csr;
+    double empty = 1.0e12;    
+    SPML::Sparse::MatrixDenseToCSR( mat_5_dense, csr, empty );
+
+    arma::ivec rowsol = arma::ivec( csr.n_cols(), arma::fill::zeros );    
+    double resolution = 1e-7;    
+    const auto sp = SPML::LAP::TSearchParam::SP_Min;
+    double infValue = 1e7;
+
+    SPML::LAP::Murty murty( csr, sp, infValue, resolution );
+    SPML::LAP::MurtySolution out;
+
+    std::vector<double> time;
+
+    for( int i = 0; i < 2; i++ ) {
+        SPML::Timing::CTimeKeeper tk;
+        tk.StartTimer();        
+        bool ok = murty.findNext( out );
+        tk.EndTimer();
+        if( ok ) {
+            double eps = 1e-7;
+            if( i == 0 ) {                
+                BOOST_CHECK_EQUAL( arma::approx_equal( out.x, expected_5_min_1_best, "absdiff", eps ), true );
+            } else if( i == 1 ) {
+                BOOST_CHECK_EQUAL( arma::approx_equal( out.x, expected_5_min_2_best, "absdiff", eps ), true );
+            }
+            time.push_back( tk.TimeSumm() );
+            std::cout << "i = " << i << "; cost = " << out.cost << "; sol = " << out.x.t();
+        } else {        
+            std::cout << "break!" << std::endl;
+            break;
+        }
+    }
+    for( const auto & t : time ) {
+        std::cout << "time [mcs] = " << ( t * 1000000 ) << std::endl;
+    }    
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+//----------------------------------------------------------------------------------------------------------------------
 
 BOOST_AUTO_TEST_SUITE( test_mat_0 )
 
@@ -1330,7 +1393,7 @@ BOOST_AUTO_TEST_CASE( sparseSmall )
                         double randomDouble = random_double_probability( gen ); // Случайное вещественное число от 0 до 1
                         if( randomDouble > levelCut ) {
                             mat_JVCdense(i, j) = bigValue;
-                            mat_JVCdenseForSparse(i,j) = 0;
+                            mat_JVCdenseForSparse(i, j) = 0;
                             zeros_in_row++;
                         }
                     }
@@ -2268,6 +2331,7 @@ BOOST_AUTO_TEST_CASE( denseLarge )
     os.close();
 #endif
 }
+
 /*
 BOOST_AUTO_TEST_CASE( sparseLarge )
 {
@@ -3603,7 +3667,6 @@ BOOST_AUTO_TEST_CASE( sparseLargeExtra )
 //    std::cout << tk.TimePerOp() << std::endl;
 //}
 
-
 BOOST_AUTO_TEST_CASE( sparseLargeExtra2 )
 {
     SPML::LAP::TSearchParam sp = SPML::LAP::TSearchParam::SP_Max;
@@ -3700,7 +3763,6 @@ BOOST_AUTO_TEST_CASE( sparseLargeExtra2 )
     }
 
 }
-
 
 BOOST_AUTO_TEST_CASE( time_table )
 {

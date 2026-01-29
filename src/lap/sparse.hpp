@@ -10,8 +10,8 @@
 /// \{
 ///
 
-#ifndef SPML_SPARSE_H
-#define SPML_SPARSE_H
+#ifndef SPML_SPARSE_HPP_
+#define SPML_SPARSE_HPP_
 
 // System includes:
 #include <limits>
@@ -126,16 +126,20 @@ struct CMatrixCSC
 /// \param[out] coo_val - вектор ненулевых элементов матрицы A, размер nnz
 /// \param[out] coo_row - индексы строк ненулевых элементов, размер nnz
 /// \param[out] coo_col - индексы столбцов ненулевых элементов, размер nnz
+/// \param[in] empty - значение "нулевых" элементов
+/// \param[in] abs_eps - абсолютная точность при сравнении действительных чисел
 ///
 void MatrixDenseToCOO( const arma::mat &A, std::vector<double> &coo_val, std::vector<int> &coo_row,
-    std::vector<int> &coo_col );
+    std::vector<int> &coo_col, double empty = 0.0, double abs_eps = 1.0e-6 );
 
 ///
 /// \brief Преобразование плотной матрицы в COO формат (Coordinated list)
 /// \param[in] A - исходная матрица, размер [n,m] (n - число строк, m - число столбцов)
 /// \param[out] COO - cтруктура хранения матрицы в COO формате (Coordinate list)
+/// \param[in] empty - значение "нулевых" элементов
+/// \param[in] abs_eps - абсолютная точность при сравнении действительных чисел
 ///
-void MatrixDenseToCOO( const arma::mat &A, CMatrixCOO &COO );
+void MatrixDenseToCOO( const arma::mat &A, CMatrixCOO &COO, double empty = 0.0, double abs_eps = 1.0e-6 );
 
 ///
 /// \brief Преобразование матрицы из COO формата (Coordinated list) в плотную матрицу
@@ -143,16 +147,18 @@ void MatrixDenseToCOO( const arma::mat &A, CMatrixCOO &COO );
 /// \param[in] coo_row - индексы строк ненулевых элементов, размер nnz
 /// \param[in] coo_col - индексы столбцов ненулевых элементов, размер nnz
 /// \param[out] A - плотная матрица, размер [n,m] (n - число строк, m - число столбцов)
+/// \param[in] empty - значение "нулевых" элементов
 ///
 void MatrixCOOtoDense( const std::vector<double> &coo_val, const std::vector<int> &coo_row,
-    const std::vector<int> &coo_col, arma::mat &A );
+    const std::vector<int> &coo_col, arma::mat &A, double empty = 0.0 );
 
 ///
 /// \brief Преобразование матрицы из COO формата (Coordinated list) в плотную матрицу
 /// \param[in] COO - cтруктура хранения матрицы в COO формате (Coordinate list)
 /// \param[out] A - плотная матрица, размер [n,m] (n - число строк, m - число столбцов)
+/// \param[in] empty - значение "нулевых" элементов
 ///
-void MatrixCOOtoDense( const CMatrixCOO &COO, arma::mat &A );
+void MatrixCOOtoDense( const CMatrixCOO &COO, arma::mat &A, double empty = 0.0 );
 
 //----------------------------------------------------------------------------------------------------------------------
 ///
@@ -162,16 +168,20 @@ void MatrixCOOtoDense( const CMatrixCOO &COO, arma::mat &A );
 /// \param[out] csr_val - вектор ненулевых элементов матрицы A, размер равен количеству ненулевых элементов nnz
 /// \param[out] csr_kk - вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов nnz
 /// \param[out] csr_first - вектор начальных смещений в векторе CSR, размер n+1
+/// \param[in] empty - значение "нулевых" элементов
+/// \param[in] abs_eps - абсолютная точность при сравнении действительных чисел
 ///
 void MatrixDenseToCSR( const arma::mat &A, std::vector<double> &csr_val, std::vector<int> &csr_kk,
-    std::vector<int> &csr_first );
+    std::vector<int> &csr_first, double empty = 0.0, double abs_eps = 1.0e-6 );
 
 ///
 /// \brief Преобразование плотной матрицы в CSR формат (Compressed Sparse Row Yale format)
 /// \param[in] A - исходная матрица, размер [n,m] (n - число строк, m - число столбцов)
 /// \param[out] CSR - cтруктура хранения матрицы в CSR формате (Compressed Sparse Row Yale format)
+/// \param[in] empty - значение "нулевых" элементов
+/// \param[in] abs_eps - абсолютная точность при сравнении действительных чисел
 ///
-void MatrixDenseToCSR( const arma::mat &A, CMatrixCSR &CSR );
+void MatrixDenseToCSR( const arma::mat &A, CMatrixCSR &CSR, double empty = 0.0, double abs_eps = 1.0e-6 );
 
 ///
 /// \brief Преобразование матрицы из CSR формата (Compressed Sparse Row Yale format) в плотную матрицу
@@ -179,16 +189,18 @@ void MatrixDenseToCSR( const arma::mat &A, CMatrixCSR &CSR );
 /// \param[in] csr_kk - вектор индексов колонок ненулевых элементов, размер равен количеству ненулевых элементов nnz
 /// \param[in] csr_first - вектор начальных смещений в векторе CSR, размер n+1
 /// \param[out] A - плотная матрица, размер [n,m] (n - число строк, m - число столбцов)
+/// \param[in] empty - значение "нулевых" элементов
 ///
 void MatrixCSRtoDense( const std::vector<double> &csr_val, const std::vector<int> &csr_kk,
-    const std::vector<int> &csr_first, arma::mat &A );
+    const std::vector<int> &csr_first, arma::mat &A, double empty = 0.0 );
 
 ///
 /// \brief Преобразование матрицы из CSR формата (Compressed Sparse Row Yale format) в плотную матрицу
 /// \param[in] CSR - cтруктура хранения матрицы в CSR формате (Compressed Sparse Row Yale format)
 /// \param[out] A - плотная матрица, размер [n,m] (n - число строк, m - число столбцов)
+/// \param[in] empty - значение "нулевых" элементов
 ///
-void MatrixCSRtoDense( const CMatrixCSR &CSR, arma::mat &A );
+void MatrixCSRtoDense( const CMatrixCSR &CSR, arma::mat &A, double empty = 0.0 );
 
 //----------------------------------------------------------------------------------------------------------------------
 ///
@@ -198,16 +210,20 @@ void MatrixCSRtoDense( const CMatrixCSR &CSR, arma::mat &A );
 /// \param[out] csc_val - вектор ненулевых элементов матрицы A, размер равен количеству ненулевых элементов nnz
 /// \param[out] csc_kk - вектор индексов строк ненулевых элементов, размер равен количеству ненулевых элементов nnz
 /// \param[out] csc_first - вектор начальных смещений в векторе CSR, размер m+1
+/// \param[in] empty - значение "нулевых" элементов
+/// \param[in] abs_eps - абсолютная точность при сравнении действительных чисел
 ///
 void MatrixDenseToCSC( const arma::mat &A, std::vector<double> &csc_val, std::vector<int> &csc_kk,
-    std::vector<int> &csc_first );
+    std::vector<int> &csc_first, double empty = 0.0, double abs_eps = 1.0e-6 );
 
 ///
 /// \brief Преобразование плотной матрицы в CSC формат (Compressed Sparse Column Yale format)
 /// \param[in] A - исходная матрица, размер [n,m] (n - число строк, m - число столбцов)
 /// \param[out] CSC - cтруктура хранения матрицы в CSC формате (Compressed Sparse Column Yale format)
+/// \param[in] empty - значение "нулевых" элементов
+/// \param[in] abs_eps - абсолютная точность при сравнении действительных чисел
 ///
-void MatrixDenseToCSC( const arma::mat &A, CMatrixCSC &CSC );
+void MatrixDenseToCSC( const arma::mat &A, CMatrixCSC &CSC, double empty = 0.0, double abs_eps = 1.0e-6 );
 
 ///
 /// \brief Преобразование матрицы из CSC формата (Compressed Sparse Column Yale format) в плотную матрицу
@@ -215,16 +231,18 @@ void MatrixDenseToCSC( const arma::mat &A, CMatrixCSC &CSC );
 /// \param[in] csc_kk - вектор индексов строк ненулевых элементов, размер равен количеству ненулевых элементов nnz
 /// \param[in] csc_first - вектор начальных смещений в векторе CSR, размер m+1
 /// \param[out] A - плотная матрица, размер [n,m] (n - число строк, m - число столбцов)
+/// \param[in] empty - значение "нулевых" элементов
 ///
 void MatrixCSCtoDense( const std::vector<double> &csc_val, const std::vector<int> &csc_kk,
-    const std::vector<int> &csc_first, arma::mat &A );
+    const std::vector<int> &csc_first, arma::mat &A, double empty = 0.0 );
 
 ///
 /// \brief Преобразование матрицы из CSC формата (Compressed Sparse Column Yale format) в плотную матрицу
 /// \param[in] CSC - cтруктура хранения матрицы в CSC формате (Compressed Sparse Column Yale format)
 /// \param[out] A - плотная матрица, размер [n,m] (n - число строк, m - число столбцов)
+/// \param[in] empty - значение "нулевых" элементов
 ///
-void MatrixCSCtoDense( const CMatrixCSC &CSC, arma::mat &A );
+void MatrixCSCtoDense( const CMatrixCSC &CSC, arma::mat &A, double empty = 0.0 );
 
 //----------------------------------------------------------------------------------------------------------------------
 ///
@@ -316,5 +334,5 @@ private:
 
 } // end namespace Sparse
 } // end namespace SPML
-#endif // SPML_SPARSE_H
+#endif
 /// \}

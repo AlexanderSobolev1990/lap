@@ -78,8 +78,7 @@ MurtyNode Murty::solveNode( const MurtyNode* parent, int split_row )
 
     // Вызов модифицированного метода JVC c "теплым" стартом
     int rc = Murty_JVCsparse( csr_, sp_, inf_, res_, x, cost, u_init, v_init, &u_out, &v_out );
-
-    g_lap_constraints = nullptr;
+    g_lap_constraints = nullptr; // Было только для текущей задачи - обнулить!
 
     if( rc != 0 || cost >= inf_ ) {
         n.sol.cost = inf_;

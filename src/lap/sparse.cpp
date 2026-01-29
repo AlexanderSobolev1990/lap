@@ -18,20 +18,20 @@ namespace Sparse /// Решение задачи о назначениях
 //----------------------------------------------------------------------------------------------------------------------
 
 void MatrixDenseToCOO( const arma::mat &A, std::vector<double> &coo_val, std::vector<int> &coo_row,
-    std::vector<int> &coo_col )
+    std::vector<int> &coo_col, double empty, double abs_eps )
 {
     coo_val.clear();
     coo_row.clear();
     coo_col.clear();
 
-    int nnz = arma::accu( A != 0 ); // Число ненулевых элементов
+    int nnz = arma::accu( arma::abs( A - empty ) > abs_eps ); // Число ненулевых элементов
     coo_val.reserve( nnz );
     coo_row.reserve( nnz );
     coo_col.reserve( nnz );
 
     for( unsigned long long i = 0; i < A.n_rows; i++ ) { // Cтроки
-        for( unsigned long long j = 0; j < A.n_cols; j++ ) { // Cтолбцы
-            if( !Compare::IsZeroAbs( A(i,j) ) ) {
+        for( unsigned long long j = 0; j < A.n_cols; j++ ) { // Cтолбцы            
+            if( !Compare::AreEqualAbs( A(i,j), empty, abs_eps ) ) {
                 coo_val.push_back( A(i, j) );
                 coo_row.push_back( i );
                 coo_col.push_back( j );
@@ -40,38 +40,39 @@ void MatrixDenseToCOO( const arma::mat &A, std::vector<double> &coo_val, std::ve
     }
 }
 
-void MatrixDenseToCOO( const arma::mat &A, CMatrixCOO &COO )
+void MatrixDenseToCOO( const arma::mat &A, CMatrixCOO &COO, double empty, double abs_eps )
 {
-    MatrixDenseToCOO( A, COO.coo_val, COO.coo_row, COO.coo_col );
+    MatrixDenseToCOO( A, COO.coo_val, COO.coo_row, COO.coo_col, empty, abs_eps );
 }
 
 void MatrixCOOtoDense( const std::vector<double> &coo_val, const std::vector<int> &coo_row,
-    const std::vector<int> &coo_col, arma::mat &A )
+    const std::vector<int> &coo_col, arma::mat &A, double empty )
 {
     int n = *( std::max_element( coo_row.begin(), coo_row.end() ) ) + 1;
-    int m = *( std::max_element( coo_col.begin(), coo_col.end() ) ) + 1;
-    A = arma::mat( n, m, arma::fill::zeros );
+    int m = *( std::max_element( coo_col.begin(), coo_col.end() ) ) + 1;    
+    A = arma::mat( n, m );
+    A.fill( empty );
 
     for( unsigned k = 0; k < coo_val.size(); k++ ) {
         A( coo_row[k], coo_col[k] ) = coo_val[k];
     }
 }
 
-void MatrixCOOtoDense( const CMatrixCOO &COO, arma::mat &A )
+void MatrixCOOtoDense( const CMatrixCOO &COO, arma::mat &A, double empty )
 {
-    MatrixCOOtoDense( COO.coo_val, COO.coo_row, COO.coo_col, A );
+    MatrixCOOtoDense( COO.coo_val, COO.coo_row, COO.coo_col, A, empty );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void MatrixDenseToCSR( const arma::mat &A, std::vector<double> &csr_val, std::vector<int> &csr_kk,
-    std::vector<int> &csr_first )
+    std::vector<int> &csr_first, double empty, double abs_eps )
 {
     csr_val.clear();
     csr_kk.clear();
     csr_first.clear();
 
-    int nnz = arma::accu( A != 0 ); // Число ненулевых элементов
+    int nnz = arma::accu( arma::abs( A - empty ) > abs_eps ); // Число ненулевых элементов
     csr_val.reserve( nnz );
     csr_kk.reserve( nnz );
     csr_first.reserve( A.n_rows + 1 );
@@ -81,8 +82,8 @@ void MatrixDenseToCSR( const arma::mat &A, std::vector<double> &csr_val, std::ve
 
     for( unsigned long long i = 0; i < A.n_rows; i++ ) { // Cтроки
         nnz_in_row = 0;
-        for( unsigned long long j = 0; j < A.n_cols; j++ ) { // Cтолбцы
-            if( !Compare::IsZeroAbs( A(i,j) ) ) { // if( A[i,j] != 0 )
+        for( unsigned long long j = 0; j < A.n_cols; j++ ) { // Cтолбцы            
+            if( !Compare::AreEqualAbs( A(i,j), empty, abs_eps ) ) {
                 csr_val.push_back( A(i,j) );//CSR[nnz] = A(i,j);
                 csr_kk.push_back( j );
                 nnz_in_row++;
@@ -92,17 +93,18 @@ void MatrixDenseToCSR( const arma::mat &A, std::vector<double> &csr_val, std::ve
     }    
 }
 
-void MatrixDenseToCSR( const arma::mat &A, CMatrixCSR &CSR )
+void MatrixDenseToCSR( const arma::mat &A, CMatrixCSR &CSR, double empty, double abs_eps )
 {
-    MatrixDenseToCSR( A, CSR.csr_val, CSR.csr_kk, CSR.csr_first );
+    MatrixDenseToCSR( A, CSR.csr_val, CSR.csr_kk, CSR.csr_first, empty, abs_eps );
 }
 
 void MatrixCSRtoDense( const std::vector<double> &csr_val, const std::vector<int> &csr_kk,
-    const std::vector<int> &csr_first, arma::mat &A )
+    const std::vector<int> &csr_first, arma::mat &A, double empty )
 {
     int n = csr_first.size() - 1;
     int m = *( std::max_element( csr_kk.begin(), csr_kk.end() ) ) + 1;
-    A = arma::mat( n, m, arma::fill::zeros );
+    A = arma::mat( n, m );
+    A.fill( empty );
 
     for( int i = 0; i < n; i++ ) {
         int nnz_row = csr_first[i];
@@ -113,21 +115,21 @@ void MatrixCSRtoDense( const std::vector<double> &csr_val, const std::vector<int
     }
 }
 
-void MatrixCSRtoDense( const CMatrixCSR &CSR, arma::mat &A )
+void MatrixCSRtoDense( const CMatrixCSR &CSR, arma::mat &A, double empty )
 {
-    MatrixCSRtoDense( CSR.csr_val, CSR.csr_kk, CSR.csr_first, A );
+    MatrixCSRtoDense( CSR.csr_val, CSR.csr_kk, CSR.csr_first, A, empty );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 
 void MatrixDenseToCSC( const arma::mat &A, std::vector<double> &csc_val, std::vector<int> &csc_kk,
-    std::vector<int> &csc_first )
+    std::vector<int> &csc_first, double empty, double abs_eps )
 {
     csc_val.clear();
     csc_kk.clear();
     csc_first.clear();
 
-    int nnz = arma::accu( A != 0 ); // Число ненулевых элементов
+    int nnz = arma::accu( arma::abs( A - empty ) > abs_eps ); // Число ненулевых элементов
     csc_val.reserve( nnz );
     csc_kk.reserve( nnz );
     csc_first.reserve( A.n_cols + 1 );
@@ -138,7 +140,7 @@ void MatrixDenseToCSC( const arma::mat &A, std::vector<double> &csc_val, std::ve
     for( unsigned long long j = 0; j < A.n_cols; j++ ) { // Cтолбцы
         nnz_in_col = 0;
         for( unsigned long long i = 0; i < A.n_rows; i++ ) { // Cтроки
-            if( !Compare::IsZeroAbs( A(i,j) ) ) { // if( A[i,j] != 0 )
+            if( !Compare::AreEqualAbs( A(i,j), empty, abs_eps ) ) {
                 csc_val.push_back( A(i,j) );//CSC[nnz] = A(i,j);
                 csc_kk.push_back( i );
                 nnz_in_col++;
@@ -148,17 +150,18 @@ void MatrixDenseToCSC( const arma::mat &A, std::vector<double> &csc_val, std::ve
     }
 }
 
-void MatrixDenseToCSC( const arma::mat &A, CMatrixCSC &CSC )
+void MatrixDenseToCSC( const arma::mat &A, CMatrixCSC &CSC, double empty, double abs_eps )
 {
-    MatrixDenseToCSC( A, CSC.csc_val, CSC.csc_kk, CSC.csc_first );
+    MatrixDenseToCSC( A, CSC.csc_val, CSC.csc_kk, CSC.csc_first, empty, abs_eps );
 }
 
 void MatrixCSCtoDense( const std::vector<double> &csc_val, const std::vector<int> &csc_kk,
-    const std::vector<int> &csc_first, arma::mat &A )
+    const std::vector<int> &csc_first, arma::mat &A, double empty )
 {
     int n = *( std::max_element( csc_kk.begin(), csc_kk.end() ) ) + 1;
     int m = csc_first.size() - 1;
-    A = arma::mat( n, m, arma::fill::zeros );
+    A = arma::mat( n, m );
+    A.fill( empty );
 
     for( int j = 0; j < m; j++ ) {
         int nnz_col = csc_first[j];
@@ -169,9 +172,9 @@ void MatrixCSCtoDense( const std::vector<double> &csc_val, const std::vector<int
     }
 }
 
-void MatrixCSCtoDense( const CMatrixCSC &CSC, arma::mat &A )
+void MatrixCSCtoDense( const CMatrixCSC &CSC, arma::mat &A, double empty )
 {
-    MatrixCSCtoDense( CSC.csc_val, CSC.csc_kk, CSC.csc_first, A );
+    MatrixCSCtoDense( CSC.csc_val, CSC.csc_kk, CSC.csc_first, A, empty );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
