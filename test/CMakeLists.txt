@@ -54,3 +54,19 @@ target_include_directories(test_sparse
         ${CMAKE_CURRENT_SOURCE_DIR}/../src/3d_party
         ${CMAKE_CURRENT_SOURCE_DIR}/../src/lap
     )
+
+#-----------------------------------------------------------------------------------------------------------------------
+add_executable(test_murty
+    test_murty.cpp
+    )
+add_test(NAME test_murty COMMAND test_murty)
+
+target_link_libraries(test_murty
+    lap
+    ${Boost_LIBRARIES}
+    )
+
+target_include_directories(test_murty
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/../src/lap
+    )

@@ -11,10 +11,79 @@
 
 #include <murty.hpp>
 
+#include <algorithm>
+#include <set>
+
 namespace SPML 
 {
 namespace LAP 
 {
+namespace {
+
+bool isBanned( const std::vector<std::pair<int,int>>& banned, int row, int col )
+{
+    for( const auto& edge : banned ) {
+        if( edge.first == row && edge.second == col ) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool buildConstrainedCsr(
+    const Sparse::CMatrixCSR& src,
+    const std::vector<int>& fixedCol,
+    const std::vector<std::pair<int,int>>& banned,
+    Sparse::CMatrixCSR& dst )
+{
+    const int nr = src.n_rows();
+    std::set<int> fixedColumns;
+    for( int row = 0; row < nr; ++row ) {
+        const int col = fixedCol[row];
+        if( col < 0 ) {
+            continue;
+        }
+        if( isBanned( banned, row, col ) || fixedColumns.count( col ) != 0 ) {
+            return false;
+        }
+        fixedColumns.insert( col );
+    }
+
+    dst.csr_val.clear();
+    dst.csr_kk.clear();
+    dst.csr_first.clear();
+    dst.csr_first.reserve( src.csr_first.size() );
+    dst.csr_val.reserve( src.csr_val.size() );
+    dst.csr_kk.reserve( src.csr_kk.size() );
+    dst.csr_first.push_back( 0 );
+
+    for( int row = 0; row < nr; ++row ) {
+        const int fixed = fixedCol[row];
+        int added = 0;
+        for( int t = src.csr_first[row]; t < src.csr_first[row + 1]; ++t ) {
+            const int col = src.csr_kk[t];
+            if( fixed >= 0 && col != fixed ) {
+                continue;
+            }
+            if( fixed < 0 && fixedColumns.count( col ) != 0 ) {
+                continue;
+            }
+            if( isBanned( banned, row, col ) ) {
+                continue;
+            }
+            dst.csr_val.push_back( src.csr_val[t] );
+            dst.csr_kk.push_back( col );
+            ++added;
+        }
+        if( added == 0 ) {
+            return false;
+        }
+        dst.csr_first.push_back( static_cast<int>( dst.csr_val.size() ) );
+    }
+    return true;
+}
+
+} // namespace
 
 static bool MurtyCmpMax( const MurtyNode &a, const MurtyNode &b ) {
     return a.lb < b.lb; // для поиска Max
@@ -36,7 +105,7 @@ Murty::Murty( const Sparse::CMatrixCSR& csr, TSearchParam sp, double inf, double
 MurtyNode Murty::solveNode( const MurtyNode* parent, int split_row )
 {
     MurtyNode n;
-    n.split_from = split_row + 1;
+    n.split_from = std::max( split_row, 0 );
     const int nr = csr_.n_rows();
 
     n.fixed_col.assign( nr, -1 );
@@ -59,26 +128,17 @@ MurtyNode Murty::solveNode( const MurtyNode* parent, int split_row )
         n.banned.emplace_back( split_row, c );
     }
 
-    LapConstraints lc;
-    lc.fixed_col = n.fixed_col.data();
-    lc.banned = &n.banned;
-    g_lap_constraints = &lc;
-
-    arma::ivec x( nr );
-    arma::vec u_out( nr ), v_out( csr_.n_cols() );
-    double cost = 0.0;
-
-    arma::vec* u_init = nullptr;
-    arma::vec* v_init = nullptr;
-
-    if( parent ) {
-        u_init = const_cast<arma::vec*>( &parent->sol.u );
-        v_init = const_cast<arma::vec*>( &parent->sol.v );
+    Sparse::CMatrixCSR constrained;
+    if( !buildConstrainedCsr( csr_, n.fixed_col, n.banned, constrained ) ) {
+        n.sol.cost = inf_;
+        return n;
     }
 
-    // Вызов модифицированного метода JVC c "теплым" стартом
-    int rc = Murty_JVCsparse( csr_, sp_, inf_, res_, x, cost, u_init, v_init, &u_out, &v_out );
-    g_lap_constraints = nullptr; // Было только для текущей задачи - обнулить!
+    arma::ivec x( nr );
+    arma::vec u_out( nr ), v_out( constrained.n_cols() );
+    double cost = 0.0;
+
+    int rc = Murty_JVCsparse( constrained, sp_, inf_, res_, x, cost, nullptr, nullptr, &u_out, &v_out );
 
     if( rc != 0 || cost >= inf_ ) {
         n.sol.cost = inf_;
