@@ -25,45 +25,6 @@ Repositories / Репозитории:
 ## 3. Dependencies / Зависимости ##
 <br /> Armadillo for matrices, Boost for testing / Armadillo для работы с матрицами, Boost для тестирования.
 
-### Build / Сборка
-
-Исходники оформлены как модули SPM: `src/spm/lap`, `src/spm/common` и `src/spm/timing`.
-Основная CMake-цель — `spm_lap`, агрегирующая — `spm`. Требуются CMake 3.14+ и C++14.
-Заголовки подключаются от `src`, например `#include "spm/lap/lap.hpp"`; пространства имён — `SPM::LAP`, `SPM::Sparse`.
-Сохранены все методы LAP и преобразования COO/CSR/CSC.
-
-```sh
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
-cmake --build build --parallel 4
-(cd build && ctest --output-on-failure)
-```
-
-Для обычных тестов достаточно заголовков Boost Test; Python и matplotlib не требуются.
-Опция `BUILD_DOCUMENTATION=ON` включает генерацию документации Doxygen.
-
-### Benchmarks and README plots / Замеры и графики для README
-
-Все прежние замеры и построение графиков сохранены в `benchmark/lap` и собираются отдельно:
-
-```sh
-cmake -S . -B build-plots -DCMAKE_BUILD_TYPE=Release \
-    -DBUILD_TESTING=OFF -DBUILD_BENCHMARKS=ON -DSPM_ENABLE_PLOTS=ON
-cmake --build build-plots --parallel 4
-cmake --build build-plots --target lap_plots
-```
-
-Для графиков нужны Python 3 с заголовками разработки, NumPy и matplotlib. CMake сам находит установленный Python;
-жёсткой привязки к Python 3.8 нет. Цель `lap_plots` сохраняет PNG в `doc/pictures`, откуда они отображаются ниже на GitHub.
-Для отдельного графика можно запустить нужный замер из каталога изображений:
-
-```sh
-cd doc/pictures
-MPLBACKEND=Agg ../../bin/Release/benchmark_lap --run_test=denseSmall
-```
-
-`benchmark_lap --list_content` показывает остальные замеры. `benchmark_sparse` содержит замеры конвертации.
-При `SPM_ENABLE_PLOTS=OFF` замеры собираются без Python. Длительные замеры не входят в обычный CTest.
-
 ## 4. Tests / Тесты ##
 * Сomparison of calculation speed on dense and sparse matrices / Сравнение скорости работы на плотных и разреженных матрицах
 * Simple assignment problem matrices are provided / Дополнительные тесты на простых матрицах
@@ -138,7 +99,7 @@ Additional graphs pics for methods of sequental extremum for dense and sparse ma
 
 Table 1 - Execution time, milliseconds / Таблица 1 - Время выполнения, миллисекунды
 
-<!--Таблица получена из теста time_table-->
+<!--Таблица получена из теста time_table--> 
 
 | N | 8 | 16 | 32 | 64 | 128 | 256 | 512 | 1024 |
 | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
@@ -218,6 +179,10 @@ and zero cost. No padding is performed.
 
 Table 3 - Data for Murty's method / Таблица 3 - Исходная матрица для метода Murty
 
+Maximization; zeros denote absent edges in CSR. Each row must receive a distinct column.
+/
+Максимизация; нули обозначают отсутствующие рёбра в CSR. Каждая строка получает отдельный столбец.
+
 |  -  | j=0 | j=1 | j=2 | j=3 | j=4 | j=5 |
 | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
 | i=0 | 0.6 | 0.3 | 0.0 | 0.1 | 0.0 | 0.0 |
@@ -228,16 +193,40 @@ Table 3 - Data for Murty's method / Таблица 3 - Исходная матр
 
 Table 4 - Solution for table 3 / Таблица 4 - Решение для таблицы 3
 
-| K-best | Cost | Rowsol | Time, mcs |
+All 22 assignments are listed; column indices start at zero. Equal-cost assignments may appear in any order.
+Times are medians of individual `findNext` calls over 1001 complete enumerations, after 100 warmup enumerations.
+Each enumeration uses a new Murty instance; CSR conversion and construction are outside the timed calls.
+Measured in Release (`-O3 -DNDEBUG`), GCC 12.2.0, Time unit: microseconds.
+/
+Перечислены все 22 назначения; индексы столбцов начинаются с нуля. Порядок решений с равной стоимостью произволен.
+Время — медиана отдельных вызовов `findNext` по 1001 полному перечислению после 100 прогревочных перечислений.
+Каждое перечисление использует новый экземпляр Murty; преобразование в CSR и конструктор находятся вне замеров.
+Единица времени — микросекунды.
+
+| K-best | Cost | Rowsol | Time, us (median) |
 | :-: | :-: | :-: | :-: |
-| 1 | 1.8 | 0 2 1 | 56.646 |
-| 2 | 1.4 | 0 2 5 | 6.133 |
-| 3 | 1.3 | 1 2 0 | 22.13 |
-| 4 | 1.2 | 0 4 1 | 13.752 |
-| 5 | 1.1 | 1 2 5 | 5.063 |
-| 6 | 0.8 | 0 4 2 | 3.911 |
-| 7 | 0.7 | 1 4 0 | 11.031 |
-| 8 | 0.5 | 1 4 2 | 1.7 |
+| 1 | 1.8 | 0 2 1 | 3.189 |
+| 2 | 1.4 | 0 2 5 | 0.609 |
+| 3 | 1.3 | 1 2 0 | 2.433 |
+| 4 | 1.3 | 3 2 1 | 2.377 |
+| 5 | 1.2 | 0 4 1 | 1.915 |
+| 6 | 1.1 | 1 2 5 | 0.659 |
+| 7 | 1.1 | 3 2 0 | 1.116 |
+| 8 | 0.9 | 0 1 2 | 1.410 |
+| 9 | 0.9 | 0 1 5 | 0.644 |
+| 10 | 0.9 | 3 2 5 | 0.583 |
+| 11 | 0.8 | 0 4 2 | 1.080 |
+| 12 | 0.8 | 0 4 5 | 0.596 |
+| 13 | 0.7 | 1 4 0 | 1.196 |
+| 14 | 0.7 | 3 4 1 | 1.747 |
+| 15 | 0.6 | 3 1 0 | 1.220 |
+| 16 | 0.5 | 1 4 2 | 1.021 |
+| 17 | 0.5 | 3 4 0 | 1.076 |
+| 18 | 0.5 | 1 4 5 | 0.585 |
+| 19 | 0.4 | 3 1 2 | 1.026 |
+| 20 | 0.4 | 3 1 5 | 0.580 |
+| 21 | 0.3 | 3 4 2 | 0.813 |
+| 22 | 0.3 | 3 4 5 | 0.408 |
 
 ## 7. Conclusion / Вывод
 

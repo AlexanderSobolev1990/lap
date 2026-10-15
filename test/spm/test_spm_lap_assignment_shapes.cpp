@@ -526,6 +526,33 @@ BOOST_AUTO_TEST_CASE( jvc_murty_infeasible_square_sizes_1_to_10 )
     }
 }
 
+BOOST_AUTO_TEST_CASE( murty_readme_table3_all_22_assignments )
+{
+    arma::mat cost = {
+        { 0.6, 0.3, 0.0, 0.1, 0.0, 0.0 },
+        { 0.0, 0.2, 0.7, 0.0, 0.1, 0.0 },
+        { 0.3, 0.5, 0.1, 0.0, 0.0, 0.1 }
+    };
+    // Таблица 3 представляет разреженную задачу: нули не входят в CSR.
+    for( double &value : cost ) {
+        if( value == 0.0 ) {
+            value = emptyEdge;
+        }
+    }
+    ExpectedAssignments expected;
+    expected.costs = { 1.8, 1.4, 1.3, 1.3, 1.2, 1.1, 1.1, 0.9, 0.9, 0.9, 0.8,
+        0.8, 0.7, 0.7, 0.6, 0.5, 0.5, 0.5, 0.4, 0.4, 0.3, 0.3 };
+    expected.count = expected.costs.size();
+    const auto sp = SPM::LAP::SP_Max;
+    const auto oracle = expectedAssignments( cost, sp );
+    BOOST_REQUIRE_EQUAL( oracle.count, 22u );
+    BOOST_REQUIRE_EQUAL( oracle.costs.size(), expected.costs.size() );
+    for( std::size_t rank = 0; rank < expected.costs.size(); ++rank ) {
+        BOOST_CHECK_SMALL( oracle.costs[rank] - expected.costs[rank], checkPrecision );
+    }
+    checkMurty( cost, sp, expected );
+}
+
 BOOST_AUTO_TEST_CASE( jvc_dense_square_and_horizontal_shapes_1_to_10 )
 {
     for( unsigned rows = 1; rows <= 10; ++rows ) {

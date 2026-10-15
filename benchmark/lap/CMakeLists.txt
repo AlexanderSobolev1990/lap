@@ -6,6 +6,9 @@ foreach(target IN ITEMS benchmark_lap benchmark_sparse)
     target_link_libraries(${target} PRIVATE spm_lap spm_timing)
 endforeach()
 
+add_executable(benchmark_murty_table benchmark_murty_table.cpp)
+target_link_libraries(benchmark_murty_table PRIVATE spm_lap)
+
 if(SPM_ENABLE_PLOTS)
     find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
     target_compile_definitions(benchmark_lap PRIVATE MATPLOTLIB)
