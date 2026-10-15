@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <limits>
 #include <set>
 #include <stdexcept>
 #include <vector>
@@ -14,6 +15,7 @@
 #include <armadillo>
 #include <boost/test/unit_test.hpp>
 
+#include "spm/lap/jvcdense.hpp"
 #include "spm/lap/jvcsparse.hpp"
 #include "spm/lap/murty.hpp"
 #include "spm/lap/sparse.hpp"
@@ -183,6 +185,27 @@ SPM::LAP::MurtySolution checkJvc( const arma::mat &cost, SPM::LAP::TSearchParam 
     BOOST_CHECK_SMALL( actual.cost - expected.costs.front(), checkPrecision );
     checkDual( csr, sp, actual );
     return actual;
+}
+
+void checkDense( const arma::mat &cost, SPM::LAP::TSearchParam sp, const ExpectedAssignments &expected,
+    double resolution = precision, double infValue = 1.0, arma::uword initialSize = 0 )
+{
+    BOOST_REQUIRE_GT( expected.count, 0u );
+    BOOST_REQUIRE( !expected.costs.empty() );
+    SPM::LAP::MurtySolution actual;
+    actual.x.set_size( initialSize );
+    actual.x.fill( -77 );
+    actual.cost = 1234.0;
+    SPM::LAP::JVCdense( cost, static_cast<int>( cost.n_rows ), sp, infValue, resolution,
+        actual.x, actual.cost );
+    checkPrimal( cost, actual );
+    double magnitude = 0.0;
+    for( double value : cost ) {
+        magnitude = std::max( magnitude, std::abs( value ) );
+    }
+    const double tolerance = std::max( 1e-25, std::max( cost.n_rows * resolution,
+        64.0 * std::numeric_limits<double>::epsilon() * cost.n_rows * magnitude ) );
+    BOOST_CHECK_SMALL( actual.cost - expected.costs.front(), tolerance );
 }
 
 void checkMurty( const arma::mat &cost, SPM::LAP::TSearchParam sp, const ExpectedAssignments &expected )
@@ -500,5 +523,177 @@ BOOST_AUTO_TEST_CASE( jvc_murty_infeasible_square_sizes_1_to_10 )
                 checkJvc( cost, sp, expected, &parent );
             }
         }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( jvc_dense_square_and_horizontal_shapes_1_to_10 )
+{
+    for( unsigned rows = 1; rows <= 10; ++rows ) {
+        for( unsigned cols = rows; cols <= 10; ++cols ) {
+            for( double scale : { 1.0, 1e-6, 1e6 } ) {
+                const auto cost = makeMatrix( rows, cols, false, scale );
+                for( auto sp : { SPM::LAP::SP_Min, SPM::LAP::SP_Max } ) {
+                    const auto expected = expectedAssignments( cost, sp, 1 );
+                    for( double resolution : { 0.0, precision } ) {
+                        BOOST_TEST_CONTEXT( rows << 'x' << cols << ", scale=" << scale
+                            << ", sp=" << sp << ", resolution=" << resolution ) {
+                            checkDense( cost, sp, expected, resolution );
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( jvc_dense_equal_prices_all_supported_shapes_1_to_10 )
+{
+    for( unsigned rows = 1; rows <= 10; ++rows ) {
+        for( unsigned cols = rows; cols <= 10; ++cols ) {
+            for( double value : { -7.0, 0.0, 7.0 } ) {
+                arma::mat cost( rows, cols );
+                cost.fill( value );
+                for( auto sp : { SPM::LAP::SP_Min, SPM::LAP::SP_Max } ) {
+                    checkDense( cost, sp, expectedAssignments( cost, sp, 1 ), 0.0 );
+                }
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( jvc_dense_horizontal_uses_all_columns )
+{
+    // До исправления dim=2 ограничивал поиск левым квадратом и давал минимум 20 вместо 10.
+    const arma::mat cost = { { 10, 20, 0 }, { 20, 10, 1 } };
+    for( auto sp : { SPM::LAP::SP_Min, SPM::LAP::SP_Max } ) {
+        const auto expected = expectedAssignments( cost, sp, 1 );
+        BOOST_CHECK_EQUAL( expected.costs.front(), sp == SPM::LAP::SP_Min ? 10.0 : 40.0 );
+        checkDense( cost, sp, expected );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( jvc_dense_preserves_finite_penalties_in_cost )
+{
+    // Элемент 100 разрешён: оптимум минимума — диагональ стоимостью 100, а не 0 или 120.
+    const std::vector<arma::mat> matrices = {
+        arma::mat( 1, 1, arma::fill::value( 100.0 ) ),
+        arma::mat( 1, 1, arma::fill::value( 100.0 - 5e-10 ) ),
+        { { 0, 60 }, { 60, 100 } },
+        { { 1, -1e6, -1e5 }, { -1e6, 2, -1e5 }, { -1e5, -1e5, -1e6 } }
+    };
+    for( const auto &cost : matrices ) {
+        for( auto sp : { SPM::LAP::SP_Min, SPM::LAP::SP_Max } ) {
+            checkDense( cost, sp, expectedAssignments( cost, sp, 1 ), precision, 100.0 );
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( jvc_dense_auction_large_penalties_terminates )
+{
+    for( double penalty : { 100.0, 1000.0, 1e12 } ) {
+        const arma::mat minimumCost = {
+            { 0, 1, penalty, penalty },
+            { 0, 2, penalty, penalty },
+            { 0, 3, penalty, penalty },
+            { penalty, penalty, 0, 1 }
+        };
+        for( auto sp : { SPM::LAP::SP_Min, SPM::LAP::SP_Max } ) {
+            const arma::mat cost = sp == SPM::LAP::SP_Min ? minimumCost : -minimumCost;
+            const auto expected = expectedAssignments( cost, sp, 1 );
+            BOOST_REQUIRE_EQUAL( expected.costs.front(),
+                sp == SPM::LAP::SP_Min ? penalty + 1 : -penalty - 1 );
+            for( double resolution : { 0.0, precision } ) {
+                checkDense( cost, sp, expected, resolution );
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( jvc_dense_zero_resolution_float_regression )
+{
+    // Умножение целых на 1e-10 воспроизводит исходные двоичные значения сбойной матрицы.
+    arma::mat cost = {
+        { 24, -61, 17, -74, -92 },
+        { -42, -11, -68, -78, 29 },
+        { 12, -64, 22, 55, 13 },
+        { -4, -48, 81, -66, 80 },
+        { 44, -67, -17, -18, 22 }
+    };
+    cost *= 1e-10;
+    for( auto sp : { SPM::LAP::SP_Min, SPM::LAP::SP_Max } ) {
+        checkDense( cost, sp, expectedAssignments( cost, sp, 1 ), 0.0 );
+    }
+}
+
+BOOST_AUTO_TEST_CASE( jvc_dense_sizes_outputs_and_empty_problems )
+{
+    const std::vector<arma::mat> matrices = {
+        { { 1, 2 }, { 3, 1 } },
+        { { 10, 20, 0 }, { 20, 10, 1 } },
+        arma::mat( 0, 0 ),
+        arma::mat( 0, 3 )
+    };
+    for( const auto &cost : matrices ) {
+        for( auto sp : { SPM::LAP::SP_Min, SPM::LAP::SP_Max } ) {
+            const auto expected = expectedAssignments( cost, sp, 1 );
+            for( arma::uword initialSize : { 0u, 1u, 2u, 7u } ) {
+                checkDense( cost, sp, expected, precision, 1.0, initialSize );
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( jvc_dense_rejects_invalid_input_without_changing_outputs )
+{
+    const arma::mat valid = { { 1, 2 }, { 3, 4 } };
+    const auto reject = []( const arma::mat &cost, int dim, SPM::LAP::TSearchParam sp,
+        double infValue, double resolution ) {
+        arma::ivec x = { 77, 88 };
+        const arma::ivec before = x;
+        double value = 1234.0;
+        BOOST_CHECK_THROW( SPM::LAP::JVCdense( cost, dim, sp, infValue, resolution, x, value ),
+            std::invalid_argument );
+        BOOST_CHECK_EQUAL_COLLECTIONS( x.begin(), x.end(), before.begin(), before.end() );
+        BOOST_CHECK_EQUAL( value, 1234.0 );
+    };
+    reject( valid, -1, SPM::LAP::SP_Min, 1.0, precision );
+    reject( valid, 0, SPM::LAP::SP_Min, 1.0, precision );
+    reject( valid, 1, SPM::LAP::SP_Min, 1.0, precision );
+    reject( valid, 3, SPM::LAP::SP_Min, 1.0, precision );
+    reject( valid, 2, static_cast<SPM::LAP::TSearchParam>( 2 ), 1.0, precision );
+    for( double invalid : { -1.0, 0.0, std::numeric_limits<double>::infinity(),
+        std::numeric_limits<double>::quiet_NaN() } ) {
+        reject( valid, 2, SPM::LAP::SP_Min, invalid, precision );
+        if( invalid != 0.0 ) {
+            reject( valid, 2, SPM::LAP::SP_Min, 1.0, invalid );
+        }
+    }
+    for( double invalid : { std::numeric_limits<double>::infinity(),
+        -std::numeric_limits<double>::infinity(), std::numeric_limits<double>::quiet_NaN() } ) {
+        arma::mat cost = valid;
+        cost(0, 0) = invalid;
+        reject( cost, 2, SPM::LAP::SP_Min, 1.0, precision );
+    }
+    for( unsigned rows = 1; rows <= 10; ++rows ) {
+        for( unsigned cols = 0; cols < rows; ++cols ) {
+            reject( arma::mat( rows, cols, arma::fill::zeros ), rows, SPM::LAP::SP_Min, 1.0, precision );
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE( jvc_dense_single_row_and_nearly_equal_prices )
+{
+    for( unsigned cols = 1; cols <= 10; ++cols ) {
+        arma::mat cost( 1, cols );
+        for( unsigned col = 0; col < cols; ++col ) {
+            cost(0, col) = static_cast<int>( col ) - 5;
+        }
+        for( auto sp : { SPM::LAP::SP_Min, SPM::LAP::SP_Max } ) {
+            checkDense( cost, sp, expectedAssignments( cost, sp, 1 ), 0.0 );
+        }
+    }
+    const arma::mat close = { { 1.5e-9, 0.75e-9, 0.0 } };
+    for( auto sp : { SPM::LAP::SP_Min, SPM::LAP::SP_Max } ) {
+        checkDense( close, sp, expectedAssignments( close, sp, 1 ), 0.0 );
     }
 }

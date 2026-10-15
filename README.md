@@ -204,6 +204,18 @@ with explicit costs. The solvers do not implicitly transpose or pad the matrix.
 `JVCsparse` возвращает `1`, а `Murty::findNext` — `false`. Для разрешения пустых назначений вызывающая сторона
 добавляет фиктивные столбцы с явно заданными стоимостями. Автоматического транспонирования или дополнения нет.
 
+`JVCdense(cost, dim, ...)` also supports square and horizontal matrices: `dim` must equal the number of rows,
+and the number of columns must be at least `dim`. It assigns every row, leaves extra columns free, and sizes the
+output vector automatically. All finite entries, including those equal to `infValue`, participate in the objective.
+Vertical matrices and invalid inputs throw an exception without changing outputs; zero rows give an empty assignment
+and zero cost. No padding is performed.
+/
+`JVCdense(cost, dim, ...)` также поддерживает квадратные и горизонтальные матрицы: `dim` равен числу строк,
+а столбцов должно быть не меньше `dim`. Каждая строка получает назначение, лишние столбцы остаются свободными;
+выходной вектор получает нужный размер автоматически. Все конечные элементы, включая равные `infValue`, входят
+в целевую функцию. Вертикальная матрица и ошибки входа вызывают исключение без изменения выходов; ноль строк
+означает пустое назначение и нулевую стоимость. Дополнение до квадрата не выполняется.
+
 Table 3 - Data for Murty's method / Таблица 3 - Исходная матрица для метода Murty
 
 |  -  | j=0 | j=1 | j=2 | j=3 | j=4 | j=5 |
