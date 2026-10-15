@@ -3,10 +3,11 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/src",
+                "${workspaceFolder}/src/3d_party"
             ],
             "defines": [],
-            "compilerPath": "/usr/bin/clang-10",
+            "compilerPath": "/usr/bin/c++",
             "cStandard": "c17",
             "cppStandard": "c++14",
             "intelliSenseMode": "${default}",

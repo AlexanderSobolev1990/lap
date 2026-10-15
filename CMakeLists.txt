@@ -1,45 +1,29 @@
-cmake_minimum_required(VERSION 3.7)
-project(linear_assignment_problem)
-message(STATUS "CMake version: ${CMAKE_VERSION}, Project: ${PROJECT_NAME}")
+cmake_minimum_required(VERSION 3.14)
+project(linear_assignment_problem LANGUAGES CXX)
 
-if(NOT CMAKE_BUILD_TYPE) # Если не указан тип сборки, собрать в режиме Release
-  set(CMAKE_BUILD_TYPE Release)
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
-message(WARNING "Build mode: ${CMAKE_BUILD_TYPE}")
-
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 
-if(CMAKE_BUILD_TYPE MATCHES "^[Rr]elease") # Актуально для Linux
-    option(BUILD_DOCUMENTATION "Build project documentation (Requires Doxygen)" ON) # Опционально построение документации: ON|OFF
+include(CTest)
+option(BUILD_DOCUMENTATION "Build Doxygen documentation" OFF)
+option(BUILD_BENCHMARKS "Build timing experiments" OFF)
+option(SPM_ENABLE_PLOTS "Enable Python/matplotlib plots in benchmarks" OFF)
+
+add_subdirectory(src/spm)
+if(BUILD_TESTING)
+    add_subdirectory(test)
 endif()
-
-add_compile_options(
-    -Wall
-    "$<$<CONFIG:RELEASE>:-O3>"
-    "$<$<CONFIG:DEBUG>:-O0>"
-#    -fprofile-arcs
-#    -ftest-coverage
-#    -coverage
-)
-#add_link_options(
-#    -lgcov
-#    -coverage
-#)
-
-add_subdirectory(src/lap)
-
-enable_testing()
-add_subdirectory(test)
-
-# Генерация документации
+if(BUILD_BENCHMARKS)
+    add_subdirectory(benchmark/lap)
+endif()
 if(BUILD_DOCUMENTATION)
-    find_package(Doxygen
-        REQUIRED dot) # dot - требуется Graphviz dot утилита для построения графиков в документации
-    if(DOXYGEN_FOUND)
-        add_subdirectory(doc) # В поддиректории проекта /doc должен быть CMakeLists.txt с настройками Doxygen
-    else()
-        message(WARNING "Doxygen need to be installed to generate the doxygen documentation")
-    endif()
+    find_package(Doxygen REQUIRED)
+    add_subdirectory(doc)
 endif()

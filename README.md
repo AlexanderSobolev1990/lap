@@ -25,6 +25,45 @@ Repositories / Репозитории:
 ## 3. Dependencies / Зависимости ##
 <br /> Armadillo for matrices, Boost for testing / Armadillo для работы с матрицами, Boost для тестирования.
 
+### Build / Сборка
+
+Исходники оформлены как модули SPM: `src/spm/lap`, `src/spm/common` и `src/spm/timing`.
+Основная CMake-цель — `spm_lap`, агрегирующая — `spm`. Требуются CMake 3.14+ и C++14.
+Заголовки подключаются от `src`, например `#include "spm/lap/lap.hpp"`; пространства имён — `SPM::LAP`, `SPM::Sparse`.
+Сохранены все методы LAP и преобразования COO/CSR/CSC.
+
+```sh
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=ON
+cmake --build build --parallel 4
+(cd build && ctest --output-on-failure)
+```
+
+Для обычных тестов достаточно заголовков Boost Test; Python и matplotlib не требуются.
+Опция `BUILD_DOCUMENTATION=ON` включает генерацию документации Doxygen.
+
+### Benchmarks and README plots / Замеры и графики для README
+
+Все прежние замеры и построение графиков сохранены в `benchmark/lap` и собираются отдельно:
+
+```sh
+cmake -S . -B build-plots -DCMAKE_BUILD_TYPE=Release \
+    -DBUILD_TESTING=OFF -DBUILD_BENCHMARKS=ON -DSPM_ENABLE_PLOTS=ON
+cmake --build build-plots --parallel 4
+cmake --build build-plots --target lap_plots
+```
+
+Для графиков нужны Python 3 с заголовками разработки, NumPy и matplotlib. CMake сам находит установленный Python;
+жёсткой привязки к Python 3.8 нет. Цель `lap_plots` сохраняет PNG в `doc/pictures`, откуда они отображаются ниже на GitHub.
+Для отдельного графика можно запустить нужный замер из каталога изображений:
+
+```sh
+cd doc/pictures
+MPLBACKEND=Agg ../../bin/Release/benchmark_lap --run_test=denseSmall
+```
+
+`benchmark_lap --list_content` показывает остальные замеры. `benchmark_sparse` содержит замеры конвертации.
+При `SPM_ENABLE_PLOTS=OFF` замеры собираются без Python. Длительные замеры не входят в обычный CTest.
+
 ## 4. Tests / Тесты ##
 * Сomparison of calculation speed on dense and sparse matrices / Сравнение скорости работы на плотных и разреженных матрицах
 * Simple assignment problem matrices are provided / Дополнительные тесты на простых матрицах
@@ -126,9 +165,44 @@ Table 2 - Increasing execution time relative to JVCsparse (times) / Таблиц
 
 ## 6. Murty K-best method / Метод Мурти k-лучших решений
 
-Assignment problem is solved in Murty's method calling JVCsparse algorithm inside. Method gives K-best assignment solutions using "warm" start with u- and v-variables in JVCsparse (warm start accelerates solution).
+Murty calls the same `SPM::LAP::JVCsparse` as ordinary sparse assignment tasks; there is no separate Murty LAP solver. A child reuses the parent's dual potentials and the assignments that remain allowed and tight. For rectangular problems, free column potentials are restored to zero before augmentation. Infeasible subproblems terminate when no augmenting path exists.
 /
-Внутри метода задача о назначениях решается путем вызова алгоритма JVCsparse. Метод дает K-лучших решений задачи о назначениях используя "теплый" старт при помощи u- и v-переменных в JVCsparse (теплый старт ускоряет метод).
+Murty вызывает общий `SPM::LAP::JVCsparse`, используемый и для обычной задачи о назначениях. Дочерняя задача использует потенциалы родителя и назначения, оставшиеся разрешёнными и двойственно жёсткими. В прямоугольной задаче перед поиском дополняющих путей потенциалы свободных столбцов приводятся к нулю. Недопустимая подзадача завершается, когда дополняющего пути нет.
+
+`inf` is retained for API compatibility and does not cap individual or total costs; absent edges must be omitted from CSR. Potentials always refer to minimization: for `SP_Max` they correspond to negated costs. Feasibility is tracked separately from the objective value.
+/
+Параметр `inf` сохранён для совместимости API и не ограничивает отдельные или суммарные стоимости; отсутствующие рёбра не должны входить в CSR. Потенциалы всегда относятся к минимизации: для `SP_Max` используются стоимости с обратным знаком. Допустимость хранится отдельно от значения целевой функции.
+
+`JVCsparse` supports optional input/output potentials and a read-only previous assignment:
+/
+`JVCsparse` принимает необязательные входные/выходные потенциалы и предыдущее назначение:
+
+```cpp
+arma::ivec x;
+double cost = 0.0;
+arma::vec u, v;
+SPM::LAP::JVCsparse( csr, sp, inf, res, x, cost );          // обычный запуск
+SPM::LAP::JVCsparse( csr, sp, inf, res, x, cost, &u, &v ); // получить потенциалы
+
+arma::ivec parentX = x;
+SPM::LAP::JVCsparse( childCsr, sp, inf, res, x, cost, &u, &v, &parentX );
+```
+
+`u` and `v` are separate vectors; no state wrapper is required. Empty or incompatible potentials select a cold start.
+`rowsol_init` is optional: potentials can also be reused without a previous assignment. Return value is `0` on success,
+`1` if no assignment exists. Invalid parameters or CSR throw an exception; infeasibility leaves outputs unchanged.
+/
+`u` и `v` передаются отдельными векторами. Пустые или несовместимые потенциалы означают холодный старт.
+Начальное назначение необязательно: возможен повторный вызов только с потенциалами. Возврат `0` означает успех,
+`1` — отсутствие назначения. Ошибки параметров/CSR вызывают исключения; при недопустимой задаче выходы не меняются.
+
+The assignment covers every row and uses each column at most once. With more rows than columns, `JVCsparse`
+returns `1` and `Murty::findNext` returns `false`. To allow unassigned rows, the caller must add dummy columns
+with explicit costs. The solvers do not implicitly transpose or pad the matrix.
+/
+Назначение покрывает каждую строку и использует каждый столбец не более одного раза. Если строк больше столбцов,
+`JVCsparse` возвращает `1`, а `Murty::findNext` — `false`. Для разрешения пустых назначений вызывающая сторона
+добавляет фиктивные столбцы с явно заданными стоимостями. Автоматического транспонирования или дополнения нет.
 
 Table 3 - Data for Murty's method / Таблица 3 - Исходная матрица для метода Murty
 

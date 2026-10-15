@@ -3,7 +3,7 @@ set(DOXYGEN_TARGET_NAME project_documentation) # Вторая часть име�
 get_filename_component(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../ ABSOLUTE) # Путь к корневой директории решения (solution)
 
 set(DOXYGEN_INPUT_DIRECTORY # Откуда брать исходники для документации
-    ${ROOT_DIR}/src/lap
+    ${ROOT_DIR}/src/spm
 )
 set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}) # Куда положить сгенерированную документацию
 

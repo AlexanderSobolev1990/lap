@@ -4,10 +4,13 @@
         // Mandatory
         "testExecutables": [
             {            
-                "path": "bin/Debug/tests/test_lap",
+                "path": "bin/Debug/tests/test_spm_lap",
             },
             {
-                "path": "bin/Debug/tests/test_sparse",
+                "path": "bin/Debug/tests/test_spm_lap_sparse",
+            },
+            {
+                "path": "bin/Debug/tests/test_spm_lap_murty",
             },
         ],
 
